@@ -1,0 +1,3 @@
+/Users/ruby/Models/PyBHJet/build/CMakeFiles/pybhjet.dir
+/Users/ruby/Models/PyBHJet/build/CMakeFiles/edit_cache.dir
+/Users/ruby/Models/PyBHJet/build/CMakeFiles/rebuild_cache.dir
