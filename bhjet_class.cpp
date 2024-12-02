@@ -1,4 +1,5 @@
-#include "bhjet_class.h"
+#include "bhjet_class.hh"
+#include "jetmain.hh"
 
 #include <iostream>
 #include <stdexcept>
@@ -7,29 +8,18 @@
 #include <fstream>
 #include <sstream>
 #include <cstdlib>
+#include <memory>
 
 using namespace std;
 
-
-BhJetClass::BhJetClass() : params(28, 0.0) { // define constructor 
-
-    //internal BHJet Parameters ----- 
-
-    IsShock;   // Jet shock heating flag
-    nz;        // Total number of zones
-    nel;       // Number of elements for electron distribution
-    syn_res;   // Resolution for synchrotron calculations
-    com_res;   // Resolution for Compton calculations
-    nsyn;      // Number of synchrotron frequency bins
-    ncom;      // Number of Compton frequency bins
-    npsw;      // Proton calculation switch
-    
+BhJetClass::BhJetClass() : params(28, 0.0) {
+    //initializing a vector with 28 elements 
+    initialize_parameter_map(); //setting up mapping between the parameter names and their indicies in the file 
 }
 
-
-// Read parameters from a file (like .dat, normal)
-void BhJetClass::read_params(const std::string& file) {
-    std::ifstream inFile(file);
+// read parameters from a file (like .dat, normal) from some file 
+void BhJetClass::load_params(const std::string& file) {
+    std::ifstream inFile(file); //opening file 
     if (!inFile) {
         throw std::runtime_error("Cannot open parameter file: " + file);
     }
@@ -41,19 +31,53 @@ void BhJetClass::read_params(const std::string& file) {
         if (line.empty() || line[0] == '#') {
             continue;
         }
-        params[line_nb] = std::atof(line.c_str());
+        params[line_nb] = std::atof(line.c_str()); //stores new values in the param vector
         line_nb++;
     }
     inFile.close();
 
-    update_internal_parameters();
+    update_internal_parameters(); //now updates the member variable w/ new param value 
+    params_loaded = true; //for the run function 
 }
 
-// assigning the names and values 
+void BhJetClass::initialize_parameter_map() {  //how the params can be accessed by their name instead of indicies
+    param_name_to_index = {
+        {"Mbh", 0},
+        {"theta", 1},
+        {"dist", 2},
+        {"redsh", 3},
+        {"jetrat", 4},
+        {"r_0", 5},
+        {"z_diss", 6},
+        {"z_acc", 7},
+        {"z_max", 8},
+        {"t_e", 9},
+        {"f_nth", 10},
+        {"f_pl", 11},
+        {"pspec", 12},
+        {"f_heat", 13},
+        {"f_beta", 14},
+        {"f_sc", 15},
+        {"p_beta", 16},
+        {"sig_acc", 17},
+        {"l_disk", 18},
+        {"r_in", 19},
+        {"r_out", 20},
+        {"compar1", 21},
+        {"compar2", 22},
+        {"compar3", 23},
+        {"compsw", 24},
+        {"velsw", 25},
+        {"infosw", 26},
+        {"EBLsw", 27}
+    };
+}
+
+// assigning the names and values of parameters  
 void BhJetClass::update_internal_parameters() {
     Mbh = params[0];
     Eddlum = 1.25e38 * Mbh;
-    Rg = params[0] * 1.989e30 / (2.998e10 * 2.998e10); // Example gravitational radius
+    Rg = params[0] * 1.989e30 / (2.998e10 * 2.998e10);
     theta = params[1];
     dist = params[2];
     redsh = params[3];
@@ -84,58 +108,82 @@ void BhJetClass::update_internal_parameters() {
     zmin = 2.0 * Rg;
 }
 
-// Set individual parameter
-void BhJetClass::set_parameter(int index, double value) {
-    if (index < 0 || index >= params.size()) {
-        throw std::out_of_range("Parameter index out of range");
+double BhJetClass::get_parameter(const std::string& name) const {
+    auto it = param_name_to_index.find(name); //using the param map created above now 
+    if (it != param_name_to_index.end()) {
+        size_t index = it->second;
+        return params[index];
+    } else {
+        throw std::invalid_argument("Parameter name not found: " + name);
     }
-    params[index] = value;
-    update_internal_parameters();
 }
 
-
-// Set all parameters
-void BhJetClass::set_parameters(const std::vector<double>& new_params) {
-    if (new_params.size() != params.size()) {
-        throw std::invalid_argument("Parameter vector must have 28 elements");
+// this takes a parameter name and a new value to assign to it 
+void BhJetClass::set_parameter(const std::string& name, double value) {
+    auto it = param_name_to_index.find(name); //param map 
+    if (it != param_name_to_index.end()) {
+        size_t index = it->second;
+        params[index] = value;
+        update_internal_parameters();  // Update dependent variables
+    } else {
+        throw std::invalid_argument("Parameter name not found: " + name);
     }
-    params = new_params;
-    update_internal_parameters();
 }
 
-// Get current parameters
-std::vector<double> BhJetClass::get_parameters() const {
-    return params;
+std::vector<std::string> BhJetClass::get_parameter_names() const {
+    std::vector<std::string> names;
+    names.reserve(param_name_to_index.size());
+    for (const auto& kv : param_name_to_index) {
+        names.push_back(kv.first);
+    }
+    return names;
 }
+
+
+//kinda weird, I think this works, for getting the populated jet output to python  -- 
+const JetOutput& BhJetClass::get_output() const {
+    return output;
+}
+
 
 void BhJetClass::run() {
-    std::cout << "Running BHJet Model with the following parameters:\n";
-    std::cout << "Mbh (Black hole mass): " << Mbh << '\n';
-    std::cout << "theta (Viewing angle): " << theta << '\n';
-    std::cout << "dist (Distance): " << dist << '\n';
-    std::cout << "redsh (Redshift): " << redsh << '\n';
-    std::cout << "jetrat (Jet power): " << jetrat << '\n';
-    std::cout << "r_0 (Initial jet radius): " << r_0 << '\n';
-    std::cout << "z_acc (Shock distance): " << z_acc << '\n';
-    std::cout << "z_diss (Magnetic acceleration distance): " << z_diss << '\n';
-    std::cout << "z_max (Maximum distance): " << z_max << '\n';
-    std::cout << "t_e (Electron temperature): " << t_e << '\n';
-    std::cout << "f_nth (% Nonthermal particles): " << f_nth << '\n';
-    std::cout << "f_pl (Change in PL fraction): " << f_pl << '\n';
-    std::cout << "pspec (Nonthermal slope): " << pspec << '\n';
-    std::cout << "f_heat (Shock heating): " << f_heat << '\n';
-    std::cout << "f_beta (Dynamic time scale): " << f_beta << '\n';
-    std::cout << "f_sc (Particle acceleration time scale): " << f_sc << '\n';
-    std::cout << "p_beta (Plasma beta): " << p_beta << '\n';
-    std::cout << "sig_acc (Acceleration sigma): " << sig_acc << '\n';
-    std::cout << "l_disk (Disk luminosity): " << l_disk << '\n';
-    std::cout << "r_in (Disk inner radius): " << r_in << '\n';
-    std::cout << "r_out (Disk outer radius): " << r_out << '\n';
-    std::cout << "compar1: " << compar1 << '\n';
-    std::cout << "compar2: " << compar2 << '\n';
-    std::cout << "compar3: " << compar3 << '\n';
-    std::cout << "compsw (Compton switch): " << compsw << '\n';
-    std::cout << "velsw (Velocity switch): " << velsw << '\n';
-    std::cout << "infosw (Info switch): " << infosw << '\n';
-    std::cout << "EBLsw (EBL switch): " << EBLsw << '\n';
+    if (!params_loaded) {
+        throw std::runtime_error("Parameters have not been loaded. Please call load_params() first.");
+    }
+
+    //this is what was used in the bhwrap file for running bhjet alone ---- 
+    int npar = 28;
+    int ne = 201;
+    double emin	= -10;
+    double emax	= 10;
+    double einc	= (emax-emin)/ne;
+
+    auto ebins = std::make_unique<double[]>(ne); //energy bins 
+    auto spec = std::make_unique<double[]>(ne - 1); // photon energies 
+    auto dumarr = std::make_unique<double[]>(ne - 1); // dummy photon spectrum, if needed 
+
+    //fill the energy bins 
+    for (int i = 0; i < ne; ++i) { 
+        ebins[i] = std::pow(10, emin + i * einc);
+    }
+
+    output.clear();
+
+    // run the jetmain function: 
+    jetmain(*this, ebins.get(), ne - 1, spec.get(), dumarr.get(), output);
+
 }
+
+
+void BhJetClass::run_singlezone(){
+
+    if (!params_loaded) {
+        throw std::runtime_error("Parameters have not been loaded. Please call load_params() first.");
+    }
+
+    output.clear();
+
+    singlezone_jetmain(*this,output); 
+}
+
+
