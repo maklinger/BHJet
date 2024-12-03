@@ -11,6 +11,7 @@ public:
     BhJetClass(); 
 
     void load_params(const std::string& file);
+    void print_parameters() const; 
     void run();
     void run_singlezone();
     const JetOutput& get_output() const;
@@ -31,14 +32,16 @@ private:
     int npar, ne;
     double emin, emax;
     bool params_loaded = false; //Checking if parameters were loaded first before running code 
-    std::vector<double> params;
 
-    // Map of parameter names to indices
-    std::unordered_map<std::string, size_t> param_name_to_index;
+    std::vector<double> params;
+    std::vector<std::pair<std::string, std::string>> param_units; // Add units map
+    std::unordered_map<std::string, size_t> param_name_to_index; // Map of parameter names to indices
+    
 
     void initialize_parameter_map();
+    void initialize_parameter_units();
 
-    JetOutput output;  // JetOutput instance to store results
+    JetOutput output;  // JetOutput instance to store results, maybe should change to be more detailed per output type: 
 
     void update_internal_parameters();
 };

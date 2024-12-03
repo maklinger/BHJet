@@ -1,16 +1,12 @@
 #include "jetmain.hh"
-#include "bhjet_class.hh"
 
 #include <fstream>
 #include <stdarg.h>
-#include <cmath>
 
 using namespace std;
 
 void jetmain(BhJetClass& bhjet, double* ear, int ne, double* photeng, double* photspec, JetOutput& output) {
 
-
-    //Internal Parameters: 
     bool IsShock = false;						//flag to set shock heating
 
     int nz = 100;								//total number of zones
@@ -25,11 +21,11 @@ void jetmain(BhJetClass& bhjet, double* ear, int ne, double* photeng, double* ph
     double Eddlum = 1.25e38 * Mbh;
     double Rg = gconst * Mbh * msun / (cee * cee);
     double theta = bhjet.theta;
-    double dist = bhjet.dist * kpc;
+    double dist = bhjet.dist * kpc; 
     double redsh = bhjet.redsh;
-    double jetrat = bhjet.jetrat * Eddlum;
-    double r_0 = bhjet.r_0 * Rg;
-    double z_diss = bhjet.z_diss * Rg;
+    double jetrat = bhjet.jetrat * Eddlum; 
+    double r_0 = bhjet.r_0 * Rg; 
+    double z_diss = bhjet.z_diss * Rg; 
     double z_acc = bhjet.z_acc * Rg;
     double z_max = bhjet.z_max * Rg;
     double t_e = bhjet.t_e;
@@ -42,8 +38,8 @@ void jetmain(BhJetClass& bhjet, double* ear, int ne, double* photeng, double* ph
     double p_beta = bhjet.p_beta;
     double sig_acc = bhjet.sig_acc;
     double l_disk = bhjet.l_disk;
-    double r_in = bhjet.r_in * Rg;
-    double r_out = bhjet.r_out * Rg;
+    double r_in = bhjet.r_in * Rg; 
+    double r_out = bhjet.r_out * Rg; 
     double compar1 = bhjet.compar1;
     double compar2 = bhjet.compar2;
     double compar3 = bhjet.compar3;
@@ -97,7 +93,7 @@ void jetmain(BhJetClass& bhjet, double* ear, int ne, double* photeng, double* ph
     gsl_interp_accel *acc_deriv = gsl_interp_accel_alloc();
     gsl_spline *spline_deriv = gsl_spline_alloc(gsl_interp_steffen,nel);  
 
-    
+
     //initialize total energy/luminosity arrays
     for(int i=0;i<ne;i++){
        	tot_en[i] = (ear[i] + (ear[i+1]-ear[i])/2.)*herg/hkev;	
@@ -107,7 +103,6 @@ void jetmain(BhJetClass& bhjet, double* ear, int ne, double* photeng, double* ph
        	tot_com_post[i] = 1.;
        	tot_lum[i] = 1.;	
     }
-
 
 //STEP 3: DISK/EXTERNAL PHOTON CALCULATIONS
 
@@ -120,13 +115,11 @@ void jetmain(BhJetClass& bhjet, double* ear, int ne, double* photeng, double* ph
 	    Disk.disk_spectrum();
 	    if (compsw != 2 && l_disk > 0) {
 	        sum_ext(50,ne,Disk.get_energy_obs(),Disk.get_nphot_obs(),tot_en,tot_lum);   	    
-	    }	
-
-//Testing 		
-        // if(infosw >= 3) {
-        //     Disk.test();
-        //     cout << endl;
-        // }	
+	    }			
+        if(infosw >= 3) {
+            Disk.test();
+            cout << endl;
+        }	
     }
 
     //Depending on the value of compsw, we either include a) an extra homogeneous black body in every zone or
@@ -150,12 +143,12 @@ void jetmain(BhJetClass& bhjet, double* ear, int ne, double* photeng, double* ph
         Torus.set_lum(agn_com.ldt);	
         Torus.bb_spectrum();
         
-        Disk.cover_disk(compar1+compar2);		
-// Text Output
-        // if(infosw>=3){
-        //     cout << "BLR radius in Rg: " << agn_com.rblr/Rg << " and in cm: " << agn_com.rblr<< endl;
-        //     cout << "DT radius in Rg: " << agn_com.rdt/Rg  << " and in cm: " << agn_com.rdt<< endl;
-        // }
+        Disk.cover_disk(compar1+compar2);	
+
+        if(infosw>=3){
+            cout << "BLR radius in Rg: " << agn_com.rblr/Rg << " and in cm: " << agn_com.rblr<< endl;
+            cout << "DT radius in Rg: " << agn_com.rdt/Rg  << " and in cm: " << agn_com.rdt<< endl;
+        }
         sum_ext(40,ne,Torus.get_energy_obs(),Torus.get_nphot_obs(),tot_en,tot_lum);
         if (l_disk > 0) {
             sum_ext(50,ne,Disk.get_energy_obs(),Disk.get_nphot_obs(),tot_en,tot_lum);    
@@ -207,21 +200,25 @@ void jetmain(BhJetClass& bhjet, double* ear, int ne, double* photeng, double* ph
     }	
 
     //check that the pair content is not negative, and also if running bljet that it's not too high
-    // if(nozzle_ener.eta<1){
+    if(nozzle_ener.eta<1){
+        cout << "Unphysical pair content: " << nozzle_ener.eta << " pairs per proton. Check the value of " <<
+                "plasma beta!" << endl;
+    } else if (velsw>1 && dummy_elec.av_gamma()*nozzle_ener.eta >= 3e2){
+           cout << "Pair content or temperature too high for  for bljet! " << endl;
+           cout << "Pair content: " << nozzle_ener.eta << " pairs per proton" << endl;
+           cout << "Average lepton Lorenz factor: " << dummy_elec.av_gamma() << endl;
+           cout << "Check the value of Te and/or plasma beta!" << endl;
+    }
 
-//Warning for pair content 
-        // cout << "Unphysical pair content: " << nozzle_ener.eta << " pairs per proton. Check the value of " <<
-        //         "plasma beta!" << endl;
-    // } else if (velsw>1 && dummy_elec.av_gamma()*nozzle_ener.eta >= 3e2){
-    //        cout << "Pair content or temperature too high for  for bljet! " << endl;
-    //        cout << "Pair content: " << nozzle_ener.eta << " pairs per proton" << endl;
-    //        cout << "Average lepton Lorenz factor: " << dummy_elec.av_gamma() << endl;
-    //        cout << "Check the value of Te and/or plasma beta!" << endl;
-    // }
-
-//-- output for init conditions 
     if(infosw>=3){
-    
+        cout << "Jet base parameters: " << endl;
+        cout << "Pair content (ne/np): " << nozzle_ener.eta << endl;
+        cout << "Initial magnetization: " << nozzle_ener.sig0 << endl;
+        cout << "Particle average Lorenz factor: " << dummy_elec.av_gamma() << endl;
+        cout << "Jet nozzle ends at: " << jet_dyn.h0/Rg << " Rg" << endl ;
+        cout << "Jet nozzle optical depth: " << jet_dyn.r0*nozzle_ener.lepdens*sigtom << endl << endl;
+
+
         output.jet_base_properties.pair_content.push_back(nozzle_ener.eta);
         output.jet_base_properties.init_mag.push_back(nozzle_ener.sig0);
         output.jet_base_properties.particle_avg_lorentz_factor.push_back(dummy_elec.av_gamma());
@@ -232,6 +229,7 @@ void jetmain(BhJetClass& bhjet, double* ear, int ne, double* photeng, double* ph
 //STEP 5: TOTAL JET CALCULATIONS, LOOPING OVER EACH SEGMENT OF THE JET
 
     for(int i=0;i<nz;i++){
+
         //calculate dynamics/energetics in each zone
         jetgrid(i,grid,jet_dyn,zone.r,zone.delz,z);	
         if(velsw==0){
@@ -367,7 +365,6 @@ void jetmain(BhJetClass& bhjet, double* ear, int ne, double* photeng, double* ph
                 
             if(infosw>=2){
                 store_numdens(nel, acc_lep.get_p(),acc_lep.get_gamma(),acc_lep.get_pdens(),acc_lep.get_gdens(), output.numdens);
-
             }
         } else if (zone.nth_frac == 1.) {
             if (IsShock==false){
@@ -466,12 +463,12 @@ void jetmain(BhJetClass& bhjet, double* ear, int ne, double* photeng, double* ph
         Compton InvCompton(ncom,nsyn);
         InvCompton.set_frequency(com_min,com_max);
 
-        // if(infosw>1) {
-        //     for (int k=0;k<ncom;k++){
-        //         com_lum[k] = 0;
-        //         com_en[k] = InvCompton.get_energy()[k];
-        //     }
-        // }
+        if(infosw>1) {
+            for (int k=0;k<ncom;k++){
+                com_lum[k] = 0;
+                com_en[k] = InvCompton.get_energy()[k];
+            }
+        }
 
         //calculate cyclosynchrotron spectrum
         //Set up the calculation by reading in magnetic field,beaming,volume,counterjet presence	
@@ -482,10 +479,9 @@ void jetmain(BhJetClass& bhjet, double* ear, int ne, double* photeng, double* ph
         Syncro.cycsyn_spectrum(gmin,gmax,spline_eldis,acc_eldis,spline_deriv,acc_deriv);
         sum_counterjet(nsyn,Syncro.get_energy_obs(),Syncro.get_nphot_obs(),syn_en,syn_lum);	        
 
-//test for synchrotron 
-        // if (infosw>=4){
-        //     Syncro.test();
-        // }  
+        if (infosw>=4){
+            Syncro.test();
+        }  
 
         //Include zone's emission to the pre/post particle acceleration spectrum
         if(z<z_diss){
@@ -496,70 +492,65 @@ void jetmain(BhJetClass& bhjet, double* ear, int ne, double* photeng, double* ph
 
         //calculate inverse Compton spectrum, if it's expected to be bright enough	
         if (Compton_check(IsShock,i,Mbh,jetrat,Urad,velsw,zone) == true){
-            std::cout << "Compton Check Passed for Zone " << i << std::endl;
 
-            // InvCompton.set_beaming(theta,zone.beta,zone.delta);
-            // InvCompton.set_geometry("cylinder",zone.r,zone.delz);
-            // InvCompton.set_counterjet(true);	
-            // InvCompton.set_tau(zone.lepdens,zone.eltemp);
+            InvCompton.set_beaming(theta,zone.beta,zone.delta);
+            InvCompton.set_geometry("cylinder",zone.r,zone.delz);
+            InvCompton.set_counterjet(true);	
+            InvCompton.set_tau(zone.lepdens,zone.eltemp);
 
-        //     if(InvCompton.get_ypar() > 1.e-2 && InvCompton.get_tau() > 5.e-2){
-        //         InvCompton.set_niter(15);		
-        //     }
+            if(InvCompton.get_ypar() > 1.e-2 && InvCompton.get_tau() > 5.e-2){
+                InvCompton.set_niter(15);		
+            }
 
-        //     //Cyclosynchrotron photons are always considered in the scattering						
-        //     InvCompton.cyclosyn_seed(Syncro.get_energy(),Syncro.get_nphot());
+            //Cyclosynchrotron photons are always considered in the scattering						
+            InvCompton.cyclosyn_seed(Syncro.get_energy(),Syncro.get_nphot());
             
-            // //Disk photons are included only if the disk is present
-            // if(r_in<r_out){
-            //     InvCompton.shsdisk_seed(Syncro.get_energy(),Disk.tin(),r_in,r_out,Disk.hdisk(),z+zone.delz/2.);
-            // }
-            // //Black body photons included only if compsw==1
-            // if(compsw==1){						
-            //     InvCompton.bb_seed_k(Syncro.get_energy(),Ubb1,zone.delta*BlackBody.temp_k());
-            // }
-            // //AGN photon fields photons are considered only if disk is present and compsw==2
-            // if(compsw==2 && r_in<r_out){
-            //     InvCompton.bb_seed_k(Syncro.get_energy(),Ubb1,zone.delta*BLR.temp_k());
-            //     InvCompton.bb_seed_k(Syncro.get_energy(),Ubb2,zone.delta*Torus.temp_k());
-            // }
+            //Disk photons are included only if the disk is present
+            if(r_in<r_out){
+                InvCompton.shsdisk_seed(Syncro.get_energy(),Disk.tin(),r_in,r_out,Disk.hdisk(),z+zone.delz/2.);
+            }
+            //Black body photons included only if compsw==1
+            if(compsw==1){						
+                InvCompton.bb_seed_k(Syncro.get_energy(),Ubb1,zone.delta*BlackBody.temp_k());
+            }
+            //AGN photon fields photons are considered only if disk is present and compsw==2
+            if(compsw==2 && r_in<r_out){
+                InvCompton.bb_seed_k(Syncro.get_energy(),Ubb1,zone.delta*BLR.temp_k());
+                InvCompton.bb_seed_k(Syncro.get_energy(),Ubb2,zone.delta*Torus.temp_k());
+            }
 
-            // // Calculate the spectrum with whichever fields have been invoked		
-            // InvCompton.compton_spectrum(gmin,gmax,spline_eldis,acc_eldis);
-            // sum_counterjet(ncom,InvCompton.get_energy_obs(),InvCompton.get_nphot_obs(),com_en,com_lum);  
+            // Calculate the spectrum with whichever fields have been invoked		
+            InvCompton.compton_spectrum(gmin,gmax,spline_eldis,acc_eldis);
+            sum_counterjet(ncom,InvCompton.get_energy_obs(),InvCompton.get_nphot_obs(),com_en,com_lum);  
 
-            // if (infosw>=4){
-            //     InvCompton.test();
-            // }
+            if (infosw>=4){
+                InvCompton.test();
+            }
 
-            // if(z<z_diss){
-            //     sum_zones(ncom,ne,com_en,com_lum,tot_en,tot_com_pre);
-            // } else {
-            //     sum_zones(ncom,ne,com_en,com_lum,tot_en,tot_com_post);
-            // }
-        }  
-        
-        //else if (infosw>=5){
-        //     cout << "Out of the Comptonization region" << endl;
-        // }
-        
+            if(z<z_diss){
+                sum_zones(ncom,ne,com_en,com_lum,tot_en,tot_com_pre);
+            } else {
+                sum_zones(ncom,ne,com_en,com_lum,tot_en,tot_com_post);
+            }
+        } else if (infosw>=5){
+            cout << "Out of the Comptonization region" << endl;
+        }
+    
         if(infosw>=2){
             store_output(nsyn,syn_en,syn_lum,output.cyclosyn_zones, dist, redsh); 
-            // store_output(ncom,com_en,com_lum, output.compton_zones, dist,redsh);
+            store_output(ncom,com_en,com_lum, output.compton_zones, dist,redsh);
         }			
         delete[] syn_en,delete[] syn_lum;
         delete[] com_en,delete[] com_lum;
 
     } //closing bracket for jet loop 
 
-    // for(int k=0;k<ne;k++){
-    //     tot_lum[k] = (tot_lum[k]+tot_syn_pre[k]+tot_syn_post[k]+tot_com_pre[k]+tot_com_post[k]);
-    //     photeng[k] = log10(tot_en[k]/herg);
-    // }
-
-
 //FINAL STEP: SUM JET COMPONENTS TO TOTAL OUTPUT, WRITE/CLOSE PLOT FILES, FREE MEMORY
 
+    for(int k=0;k<ne;k++){
+        tot_lum[k] = (tot_lum[k]+tot_syn_pre[k]+tot_syn_post[k]+tot_com_pre[k]+tot_com_post[k]);
+        photeng[k] = log10(tot_en[k]/herg);
+    }
     if(infosw>=1){
         
         store_output(ne,tot_en,tot_syn_pre,output.presyn,dist,redsh); 
@@ -595,9 +586,8 @@ void jetmain(BhJetClass& bhjet, double* ear, int ne, double* photeng, double* ph
         output.spectral_properties.jetbase_compactness.push_back(compactness); 
     }
 
-
 //Warning for compactness --- 
-    //     if (compactness >= 10.*(param[9]/511.)*exp(511./param[9])) {
+    // if (compactness >= 10.*(param[9]/511.)*exp(511./param[9])) {
     //         cout << "Possible pair production in the jet base!" << endl; 
     //         cout << "Lower limit on allowed compactness: " << 10.*(param[9]/511.)*exp(511./param[9]) << endl;
     //         cout << "Note: this is for a slab, a cylinder allows higher l by a factor of ~10" << std::endl;}
@@ -611,9 +601,6 @@ void jetmain(BhJetClass& bhjet, double* ear, int ne, double* photeng, double* ph
     delete[] tot_com_pre,delete[] tot_com_post;
 
 }
-    
-
-
 
 void singlezone_jetmain(BhJetClass& bhjet, JetOutput& output) {
 

@@ -1,28 +1,28 @@
-1e9		//black hole mass
-45		//viewing angle
-543e3		//distance (kpc)
-0               //redshift
-1.9e-4		//jet power (Eddington units)	
-18		//r0 (rg)
-600		//shock distance (rg)
-600		//magnetic acceleration distance (rg)
-6.6e5		//maximum distance (rg) - z_max
-3000		//electron temperature (electron peak gamma) - eltemp
-.1              // % non thermal at dissipation region
-0               // change plfrac over distance
-1.8		//non-thermal slope - pspec   
-12		//shock heating
-10.		//dynamic time scale parameter
-3e-6		//particle acceleratino time scale - fsc
-0.02		//plasma beta
-0.025		//acceleration sigma
-0.01		//disk temperature/accretion rate
-50		//disk inner radius (rg)
-1e3		//disk outer radius (rg)
-3300		//compar1
-3e-10		//compar2
-3.e10		//compar3
-0		//compsw
-5		//velsw
-2		//infosw
-0		//EBLsw
+6.6e+08
+66
+9080
+0.003633
+0.00064
+7.720575
+24.971
+24.971
+100000
+655.9865
+0.1
+4.676338
+1.5
+16.24698
+0.1
+7.989679e-09
+0.02
+0.01
+2.3e-06
+20
+1000
+2736.151
+1.693794e+37
+3e-10
+0
+6
+2
+0

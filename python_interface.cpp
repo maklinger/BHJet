@@ -98,6 +98,7 @@ PYBIND11_MODULE(pybhjet, m){
     py::class_<BhJetClass>(m, "PyBHJet")
         .def(py::init<>(), "Initialize the BHJet model.")
         .def("load_params", &BhJetClass::load_params, "Load parameters from a file.")
+        .def("print_parameters", &BhJetClass::print_parameters, "Print all parameters with units.")
         .def("run", &BhJetClass::run, "Run the BHJet model.")
         .def("run_singlezone", &BhJetClass::run_singlezone, "Run the BHJet Single Zone model.")
         .def("get_output", &BhJetClass::get_output, py::return_value_policy::reference, "Retrieve the output from the run.")
