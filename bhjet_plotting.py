@@ -21,7 +21,7 @@ def preprocess_component_output(output):
     For all emission components out of bhjet, they are saved in structs of energy & flux, with units [hz, mjy].
     """
     data = {}
-    components = ["disk", "presyn", "postsyn", "precom", "postcom", "bb"]
+    components = ["disk", "presyn", "postsyn", "precom", "postcom", "bb", "total"]
     for component in components:
         try:
             energy = np.array([point.energy for point in getattr(output, component)])

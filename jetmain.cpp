@@ -551,6 +551,11 @@ void jetmain(BhJetClass& bhjet, double* ear, int ne, double* photeng, double* ph
         tot_lum[k] = (tot_lum[k]+tot_syn_pre[k]+tot_syn_post[k]+tot_com_pre[k]+tot_com_post[k]);
         photeng[k] = log10(tot_en[k]/herg);
     }
+    
+    if(infosw==0){
+        cout << "Infosw is turned off, nothing will be written to the output directories and arrays" << endl;
+    }
+
     if(infosw>=1){
         
         store_output(ne,tot_en,tot_syn_pre,output.presyn,dist,redsh); 

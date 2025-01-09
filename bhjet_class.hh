@@ -27,6 +27,7 @@ public:
     double f_nth, f_pl, pspec, f_heat, f_beta, f_sc, p_beta, sig_acc, l_disk, r_in, r_out;
     double compar1, compar2, compar3, compsw, velsw;
     int infosw, EBLsw;
+    std::vector<double> energy_grid,total_flux_vals;
 
 private:
     int npar, ne;
@@ -37,7 +38,6 @@ private:
     std::vector<std::pair<std::string, std::string>> param_units; // Add units map
     std::unordered_map<std::string, size_t> param_name_to_index; // Map of parameter names to indices
     
-
     void initialize_parameter_map();
     void initialize_parameter_units();
 

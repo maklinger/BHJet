@@ -198,20 +198,17 @@ std::vector<std::string> BhJetClass::get_parameter_names() const {
     return names;
 }
 
-
 //kinda weird, I think this works, for getting the populated jet output to python  -- 
 const JetOutput& BhJetClass::get_output() const {
-
     return output;
 }
 
-
 void BhJetClass::run() {
-    if (!params_loaded) {
-        throw std::runtime_error("Parameters have not been loaded. Please call load_params() first.");
-    }
+    // if (!params_loaded) {
+    //     throw std::runtime_error("Parameters have not been loaded. Please call load_params() first.");
+    // }
 
-    auto start_time = std::chrono::high_resolution_clock::now();
+    // auto start_time = std::chrono::high_resolution_clock::now();
 
     //this is what was used in the bhwrap file for running bhjet alone ---- 
     int npar = 28;
@@ -235,11 +232,11 @@ void BhJetClass::run() {
     jetmain(*this, ebins.get(), ne - 1, spec.get(), dumarr.get(), output);
 
     // Stop the timer
-    auto end_time = std::chrono::high_resolution_clock::now();
+    // auto end_time = std::chrono::high_resolution_clock::now();
 
-    // Calculate and print elapsed time
-    std::chrono::duration<double> elapsed_time = end_time - start_time;
-    std::cout << "run() execution time: " << elapsed_time.count() << " seconds" << std::endl;
+    // // Calculate and print elapsed time
+    // std::chrono::duration<double> elapsed_time = end_time - start_time;
+    // std::cout << "run() execution time: " << elapsed_time.count() << " seconds" << std::endl;
 
 }
 

@@ -18,6 +18,14 @@ namespace py = pybind11;
 		a.function(std::vector<type>(array.data(), array.data() + array.size()));}
 
 
+#define GET_ARGS_VEC(classtype, function, type)        \
+	[](classtype &a) {                                 \
+		return py::array_t<type>(                      \
+			a.function().size(),                       \
+			a.function().data());                      \
+	},                                                 \
+		py::return_value_policy::copy
+
 
 PYBIND11_MODULE(pybhjet, m){
 
@@ -108,5 +116,6 @@ PYBIND11_MODULE(pybhjet, m){
         .def("get_parameter_names", &BhJetClass::get_parameter_names, "Get the names of all parameters.")
         // Implement __getitem__ and __setitem__ for dictionary-like access
         .def("__getitem__", &BhJetClass::get_parameter, "Get the value of a parameter by name.")
-        .def("__setitem__", &BhJetClass::set_parameter, "Set the value of a parameter by name.");
+        .def("__setitem__", &BhJetClass::set_parameter, "Set the value of a parameter by name.")
+        ;
 }
