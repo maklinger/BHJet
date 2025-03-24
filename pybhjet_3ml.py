@@ -172,10 +172,40 @@ class BHJetModel(Function1D, metaclass=FunctionMeta):
     def _set_units(self, x_unit, y_unit):
     
         # Units for input energy grid (e.g., keV)
-        self.x_unit = x_unit
+        # self.x_unit = x_unit
 
         # Output unit: Photon flux (ph / cm^2 / s / keV)
-        self.y_unit = y_unit
+        # self.y_unit = y_unit
+
+        #--------- units for parameters? -----
+        self.Mbh.unit = u.dimensionless_unscaled
+        self.theta.unit = u.dimensionless_unscaled
+        self.dist.unit = u.dimensionless_unscaled
+        self.redsh.unit = u.dimensionless_unscaled
+        self.jetrat.unit = u.dimensionless_unscaled
+        self.r_0.unit = u.dimensionless_unscaled
+        self.z_acc.unit = u.dimensionless_unscaled
+        self.z_diss.unit = u.dimensionless_unscaled
+        self.z_max.unit = u.dimensionless_unscaled
+        self.t_e.unit = u.dimensionless_unscaled
+        self.f_nth.unit = u.dimensionless_unscaled
+        self.f_pl.unit = u.dimensionless_unscaled
+        self.pspec.unit = u.dimensionless_unscaled
+        self.f_heat.unit = u.dimensionless_unscaled
+        self.f_beta.unit = u.dimensionless_unscaled
+        self.f_sc.unit = u.dimensionless_unscaled
+        self.p_beta.unit = u.dimensionless_unscaled
+        self.sig_acc.unit = u.dimensionless_unscaled
+        self.l_disk.unit = u.dimensionless_unscaled
+        self.r_in.unit = u.dimensionless_unscaled
+        self.r_out.unit = u.dimensionless_unscaled
+        self.compar1.unit = u.dimensionless_unscaled
+        self.compar2.unit = u.dimensionless_unscaled
+        self.compar3.unit = u.dimensionless_unscaled
+        self.compsw.unit = u.dimensionless_unscaled
+        self.velsw.unit = u.dimensionless_unscaled
+        self.infosw.unit = u.dimensionless_unscaled
+        self.EBLsw.unit = u.dimensionless_unscaled
 
 
     def evaluate(self, x, Mbh, theta,  dist, redsh, jetrat, r_0, z_acc, z_diss, z_max, t_e, 

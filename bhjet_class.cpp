@@ -82,7 +82,7 @@ void BhJetClass::initialize_parameter_units() {
         {"theta", "degrees"},
         {"dist", "kpc"},
         {"redsh", ""},
-        {"jetrat", "Eddington ratio"},
+        {"jetrat", "Jet Power, L_edd"},
         {"r_0", "Jet base radius, R_g"},
         {"z_diss", "nT particle injection region, R_g"},
         {"z_acc", "Jet acceleration region, R_g"},

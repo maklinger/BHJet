@@ -5,11 +5,10 @@ project(PyBHJet)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Specify CMAKE_PREFIX_PATH for pybind11
-# set(CMAKE_PREFIX_PATH "${CMAKE_PREFIX_PATH};/Users/ruby/anaconda3/envs/threeML/lib/python3.9/site-packages/pybind11/share/cmake/pybind11")
+# Specify CMAKE_PREFIX_PATH for pybind11 
+find_package(pybind11 REQUIRED) #shoudl find the CMAKE_PREFIX_PATH for pybind11, can set it directly if it is not found. 
 
-# Find dependencies
-find_package(pybind11 REQUIRED)
+# set(CMAKE_PREFIX_PATH "${CMAKE_PREFIX_PATH};/path/to/pybind11/share/cmake/pybind11")
 find_package(GSL REQUIRED)
 
 # environment variable for Python paths
@@ -32,7 +31,6 @@ set(KARIBA_SOURCES
     ../Kariba/Thermal.cpp
 )
 
-# Add PyBHJet source files 
 set(PYBHJET_SOURCES
     python_interface.cpp
     bhjet_class.cpp
@@ -41,7 +39,6 @@ set(PYBHJET_SOURCES
     jetpars.cpp
 )
 
-# Combine all sources
 set(ALL_SOURCES ${PYBHJET_SOURCES} ${KARIBA_SOURCES})
 
 # Add pybind11 module
@@ -55,7 +52,6 @@ target_include_directories(pybhjet PRIVATE
     ${PROJECT_SOURCE_DIR}
     ${PROJECT_SOURCE_DIR}/../Kariba
     $ENV{PYBIND11_INCLUDE_DIR}
-    #/Users/ruby/anaconda3/envs/threeML/lib/python3.9/site-packages/pybind11/include
     /opt/local/include
 )
 

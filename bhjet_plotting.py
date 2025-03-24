@@ -4,9 +4,10 @@ import pandas as pd
 import math 
 from matplotlib import rc, rcParams
 
-rc('text', usetex=True)
-rc('font', **{'family': 'serif', 'serif': ['DejaVu Serif Display']})
-plt.rcParams.update({'font.size': 14})
+#for using latex commands for plotting
+# rc('text', usetex=True)
+# rc('font', **{'family': 'serif', 'serif': ['DejaVu Serif Display']})
+# plt.rcParams.update({'font.size': 14})
 
 kev_conv = 2.41*10**17
 mjy_conv = 1.e26
@@ -42,9 +43,9 @@ def preprocess_numdens_output(output):
     data = {}
     components = ["cyclosyn_zones", "compton_zones"]
     for component in components:
-        try:
-            energy = np.array([point.energy for point in getattr(output, component)])
-            flux = np.array([point.flux for point in getattr(output, component)])
+        try: #to be unit consistent, need to change the names here 
+            energy = np.array([point.energy for point in getattr(output, component)]) #change this to be frequency_hz
+            flux = np.array([point.flux for point in getattr(output, component)]) #change this to be flux_mjy
             if len(energy) > 0 and len(flux) > 0:
                 data[component] = {"energy": energy, "flux": flux}
             else:
@@ -52,7 +53,6 @@ def preprocess_numdens_output(output):
         except AttributeError:
             print(f"Component {component} not found in output.")
     return data
-
 
 
 def preprocess_jet_profile(output, include_descriptions=False):
@@ -106,7 +106,7 @@ def preprocess_jet_zone_properties(output, include_descriptions=False):
     
     Args:
         output: The output object from the jet model.
-        include_descriptions (bool): If True, print a textual description of all properties.
+        include_descriptions (bool): If True, print a description of all properties.
         
     Returns:
         Dictionary of jet zone properties.
@@ -154,7 +154,7 @@ def preprocess_jet_base_properties(output, include_descriptions=False):
     
     Args:
         output: The output object from the jet model.
-        include_descriptions (bool): If True, print a textual description of all properties.
+        include_descriptions (bool): If True, print a description of all properties.
         
     Returns:
         Dictionary of jet base properties.
@@ -186,7 +186,7 @@ def preprocess_spectral_properties(output, include_descriptions=False):
     
     Args:
         output: The output of spectral properties from jet model.
-        include_descriptions (bool): If True, print a textual description of all properties.
+        include_descriptions (bool): If True, print a description of all properties.
         
     Returns:
         Dictionary of spectral properties.
@@ -218,8 +218,7 @@ def preprocess_spectral_properties(output, include_descriptions=False):
 
 
 
-
-def plot_nufnu_ergshz(data, output_path=None, title="Emission Components"):
+def plot_nufnu_ergshz(data, fig_output_path=None, title="Emission Components"):
 
     component_styles = {
         'postsyn': {'color': 'darkblue', 'style': (0, (5, 1)), 'label': 'Syn , $z>z_{\\rm diss}$'},
@@ -243,13 +242,14 @@ def plot_nufnu_ergshz(data, output_path=None, title="Emission Components"):
     ax.set_xscale("log")
     ax.set_yscale("log")
     ax.set_xlabel("Frequency (Hz)", fontsize=14)
-    ax.set_ylabel(r"$\nu F_{\nu}$ (erg/s/cm$^{2}$)", fontsize=16)
+    ax.set_ylabel("$\\nu F_\\nu$ (erg/cm2/s)")
+    # ax.set_ylabel(r"$\nu F_{\nu}$ (erg/s/cm$^{2}$)", fontsize=16)
     ax.set_title(title, fontsize=16)
     ax.legend(fontsize=12)
     ax.grid(True)
 
-    if output_path:
-        plt.savefig(output_path, dpi = 300)
+    if fig_output_path:
+        plt.savefig(fig_output_path, dpi = 300)
 
 
 
@@ -277,7 +277,8 @@ def plot_flux_mjy(data, output_path=None, title=None):
     ax.set_xscale("log")
     ax.set_yscale("log")
     ax.set_xlabel("Frequency (Hz)", fontsize=14)
-    ax.set_ylabel(r"$F_{\nu}$ (erg/s/cm$^{2}$)", fontsize=16)
+    ax.set_ylabel("$F_\\nu$ (mJy)")
+    # ax.set_ylabel(r"$F_{\nu}$ (erg/s/cm$^{2}$)", fontsize=16)
     ax.set_title(title, fontsize=16)
     ax.legend(fontsize=12)
     ax.grid(True)
