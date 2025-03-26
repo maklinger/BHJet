@@ -6,7 +6,8 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Specify CMAKE_PREFIX_PATH for pybind11 
-find_package(pybind11 REQUIRED) #shoudl find the CMAKE_PREFIX_PATH for pybind11, can set it directly if it is not found. 
+find_package(pybind11 REQUIRED) #shoudl find the CMAKE_PREFIX_PATH for pybind11 in environment, can set it directly if it is not found. 
+# use this in terminal to find path:  python -m pybind11 --cmakedir
 
 # set(CMAKE_PREFIX_PATH "${CMAKE_PREFIX_PATH};/path/to/pybind11/share/cmake/pybind11")
 find_package(GSL REQUIRED)
