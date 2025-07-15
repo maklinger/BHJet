@@ -1,0 +1,50 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*.so
+*.pyd
+*.dll
+*.dylib
+
+
+# CMake build directories
+build/
+cmake-build-*/
+CMakeFiles/
+CMakeCache.txt
+Makefile
+cmake_install.cmake
+install_manifest.txt
+
+# Python distribution artifacts
+dist/
+*.egg-info/
+*.egg
+*.whl
+*.tar.gz
+
+# VS Code / IDEs
+.vscode/
+.idea/
+*.swp
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Test / coverage
+*.log
+coverage/
+*.cover
+.cache/
+pytest_cache/
+
+# Backup files
+*~
+*.bak
+
+# PyInstaller
+*.spec
+
+# wheel output
+src/pybhjet/pybhjet*.so
