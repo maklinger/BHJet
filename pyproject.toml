@@ -1,0 +1,17 @@
+[build-system]
+requires = ["scikit-build-core[pyproject]", "pybind11", "setuptools", "wheel"]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "pybhjet"
+version = "0.1.0"
+description = "Python bindings for BHJet"
+authors = [{name = "Ruby"}]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">=3.8"
+
+[tool.scikit-build]
+minimum-version = "0.5"
+build-dir = "build"
+wheel.packages = ["src/pybhjet"]

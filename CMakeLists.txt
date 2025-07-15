@@ -43,7 +43,7 @@ set(PYBHJET_SOURCES
 set(ALL_SOURCES ${PYBHJET_SOURCES} ${KARIBA_SOURCES})
 
 # Add pybind11 module
-pybind11_add_module(pybhjet ${ALL_SOURCES})
+pybind11_add_module(pybhjet MODULE ${ALL_SOURCES})
 
 # Link libraries
 target_link_libraries(pybhjet PRIVATE GSL::gsl GSL::gslcblas m pybind11::module)
@@ -58,3 +58,7 @@ target_include_directories(pybhjet PRIVATE
 
 # Set library search paths
 target_link_directories(pybhjet PRIVATE /opt/local/lib)
+
+set_target_properties(pybhjet PROPERTIES
+    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src/pybhjet"
+)
