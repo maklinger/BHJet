@@ -7,7 +7,7 @@ from astromodels.functions.function import (
 )
 
 # this needs to be compatible with the location of the library with the model 
-import build.pybhjet as pybhjet
+import pybhjet
 
 # to define a custom model in 3ml, need to include docstring, units setter, evaluate function: 
 class BHJetModel(Function1D, metaclass=FunctionMeta):

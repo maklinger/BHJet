@@ -9,12 +9,14 @@ __pycache__/
 
 # CMake build directories
 build/
-cmake-build-*/
-CMakeFiles/
-CMakeCache.txt
-Makefile
-cmake_install.cmake
-install_manifest.txt
+/cpp_code/CMakeFiles/
+/cpp_code/CMakeCache.txt
+/cpp_code/cmake_install.cmake
+/cpp_code/Makefile
+
+# Compiled Python extension
+/src/pybhjet/*.so
+/src/pybhjet/*.pyd
 
 # Python distribution artifacts
 dist/
