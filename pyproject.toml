@@ -10,9 +10,11 @@ authors = [{name = "Ruby"}]
 license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.8"
+dependencies = []
 
 [tool.scikit-build]
 minimum-version = "0.5"
 build-dir = "build"
 wheel.packages = ["src/pybhjet"]
 cmake.source-dir = "cpp_code"
+sdist.include = ["src/pybhjet"]
