@@ -35,8 +35,8 @@ include_directories(${kariba_SOURCE_DIR}/src)
 include_directories(${kariba_SOURCE_DIR}/src/kariba)
 
 
-file(GLOB BHJET_SOURCES "${kariba_SOURCE_DIR}/examples/model/*.cpp")
-include_directories(${kariba_SOURCE_DIR}/examples/model)
+# file(GLOB BHJET_SOURCES "${kariba_SOURCE_DIR}/examples/model/*.cpp")
+# include_directories(${kariba_SOURCE_DIR}/examples/model)
 
 
 # # Add Kariba source files
@@ -57,10 +57,10 @@ include_directories(${kariba_SOURCE_DIR}/examples/model)
 # Add bhjet and pybind source files
 set(PYBHJET_SOURCES
     python_interface.cpp
-    # bhjet_class.cpp
-    # jetmain.cpp
-    # utils.cpp
-    # jetpars.cpp
+    bhjet_class.cpp
+    bhjet.cpp
+    jetpars.cpp
+    utils.cpp
 )
 
 # merge all src files into one name
@@ -77,7 +77,6 @@ target_include_directories(pybhjet PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR} # for headers in cpp_code
     ${kariba_SOURCE_DIR}/src # for kariba headers
     ${kariba_SOURCE_DIR}/src/kariba # for kariba headers
-    ${kariba_SOURCE_DIR}/examples/model # for kariba headers
     /opt/local/include
 )
 
