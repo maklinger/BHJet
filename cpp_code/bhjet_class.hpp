@@ -27,6 +27,7 @@ public:
     double f_nth, f_pl, pspec, f_heat, f_beta, f_sc, p_beta, sig_acc, l_disk, r_in, r_out;
     double compar1, compar2, compar3, compsw, velsw;
     int infosw, EBLsw;
+    bool writeToFile, verbose;
     std::vector<double> energy_grid,total_flux_vals;
 
 private:

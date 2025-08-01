@@ -92,7 +92,7 @@ void jetmain(std::vector<double>& ear, size_t ne, std::vector<double>& param,
 
 void jetmain_output(std::vector<double>& ear, size_t ne, std::vector<double>& param,
              std::vector<double>& photeng, std::vector<double>& photspec,
-             bool writeToFile, JetOutput& output);
+             bool writeToFile, bool verbose, JetOutput& output);
 
 void param_write(const std::vector<double>& par, const std::string& path);
 void plot_write(size_t size, const std::vector<double>& en, const std::vector<double>& lum,

@@ -13,7 +13,7 @@
 
 using namespace std;
 
-BhJetClass::BhJetClass() : params(28, 0.0) {
+BhJetClass::BhJetClass() : params(28, 0.0), writeToFile(false), verbose(false) {
     //initializing a vector with 28 elements 
     initialize_parameter_map(); //setting up mapping between the parameter names and their indicies in the file 
     initialize_parameter_units();
@@ -242,7 +242,7 @@ void BhJetClass::run() {
     }
  
     // run the jetmain function: 
-    jetmain_output(ebins, ne - 1, param, spec, dumarr, false, output);
+    jetmain_output(ebins, ne - 1, param, spec, dumarr, writeToFile, verbose, output);
 
     // Stop the timer
     // auto end_time = std::chrono::high_resolution_clock::now();
