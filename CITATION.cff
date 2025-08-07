@@ -1,0 +1,44 @@
+cff-version: 1.2.0
+message: "If you use this software, please also cite Lucchini et al. 2022"
+
+title: "BHJet: Semi-analytical black hole jet model"
+authors:
+- family-names: "Lucchini"
+  given-names: "M."
+  orcid: "https://orcid.org/0000-0002-2235-3347"
+- family-names: "Ceccobello"
+  given-names: "C."
+  orcid: "https://orcid.org/0000-0002-4767-9925"
+- family-names: "Markoff"
+  given-names: "S."
+  orcid: "https://orcid.org/0000-0001-9564-0876"
+- family-names: "Kini"
+  given-names: "Y."
+  orcid: "https://orcid.org/0000-0002-0428-8430"
+- family-names: "Chhotray"
+  given-names: "A."
+  orcid: "https://orcid.org/0000-0002-4240-3292"
+- family-names: "Connors"
+  given-names: "R.,M.,T."
+  orcid: "https://orcid.org/0000-0002-8908-759X"
+- family-names: "Crumley"
+  given-names: "P."
+  orcid: "https://orcid.org/0000-0002-5355-7158"
+- family-names: "Falcke"
+  given-names: "H."
+  orcid: "https://orcid.org/0000-0002-2526-6724"
+- family-names: "Kantzas"
+  given-names: "D."
+  orcid: "https://orcid.org/0000-0002-7364-606X"
+- family-names: "Maitra"
+  given-names: "D."
+  orcid: "https://orcid.org/0000-0003-1897-6872"
+
+identifiers:
+  - type: url
+    description: ASCL entry
+    value: "https://ascl.net/2109.024"
+
+version: 1.0.0
+date-released: 2021-09-01
+url: "https://github.com/matteolucchini1/BHJet/"
