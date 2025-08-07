@@ -4,7 +4,7 @@ PyBHJet is a Python interface and plotting suite for the **BHJet** code. It allo
 
 ---
 
-## Installation
+## Installation (outdated! Will be updated soon..)
 
 ### Option 1: Using Conda 
 To simplify dependency management, we provide a **Conda environment file** (`conda_setup.yml`) that installs all required dependencies, including CMake and Python packages.
