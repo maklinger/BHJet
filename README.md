@@ -4,92 +4,30 @@ PyBHJet is a Python interface and plotting suite for the **BHJet** code. It allo
 
 ---
 
-## Installation (outdated! Will be updated soon..)
+## Installation
+We suggest to use a micromamba environment (which works similar to conda/miniconda/mamba - just exchange micromamba with e.g. conda in the commands).
+make a new environment like:
 
-### Option 1: Using Conda 
-To simplify dependency management, we provide a **Conda environment file** (`conda_setup.yml`) that installs all required dependencies, including CMake and Python packages.
-
-#### 1. Create and activate the Conda environment
-```bash
-conda env create -f conda_setup.yaml
-conda activate pybhjet
+```shell
+micromamba create -n bhjet_env python compilers cmake gsl pybind11 pandas numpy scipy matplotlib jupyterlab ipywidgets ipympl
 ```
 
-#### 2. Clone the repository: (or download as zip file from git) 
-   ```bash
-   git clone https://github.com/rubyduncan/PyBHJet.git
-   cd PyBHJet
-   ```
+activate the environment
 
-#### 3. Build the C++ library
-```bash
-bash pybhjet_setup.sh
+```shell
+micromamba activate bhjet_env
 ```
 
-##### 2. Test the installation in a notebook 
-```python
-import build.pybhjet as pybhjet
+and install inside the environment with pip:
+
+```shell
+pip install git+https://github.com/antonpannekoek/BHJet
 ```
----
-
-### Option 2: venv setup (no Conda) 
-
-#### Can use the `venv_setup.sh` script to setup a virtual environment with all dependencies, which can then be activated: 
-
-```bash
-
-bash venv_setup.sh
-
-source pybhjet_venv/bin/activate
+In order to modify the code, it is also possible to clone the repository to a location, and in that folder compile/install it using:
+```shell
+pip install -e .
 ```
 
-#### 2. Clone the repository: (or download as zip file from git) 
-   ```bash
-   git clone https://github.com/rubyduncan/PyBHJet.git
-   cd PyBHJet
-   ```
-
-#### 3. Build the C++ Library 
-```bash
-bash pybhjet_setup.sh
-```
-
-
-### Option 3: Manual Installation
-If you prefer to install dependencies manually, ensure you have the following:
-
-#### Prerequisites
-- **C++17 compatible compiler** (e.g., GCC, Clang)
-- **CMake (≥3.10)**
-- **Python 3.8+**
-- **gsl+**
-- Required Python libraries:
-  - `numpy`
-  - `pandas`
-  - `matplotlib`
-  - `pybind11`
-  - `ipympl`
-
-
-#### Steps: 
-
-1. Clone the repository: (or download as zip file from git) 
-   ```bash
-   git clone https://github.com/rubyduncan/PyBHJet.git
-   cd PyBHJet
-   ```
-
-B. Build the C++ library:
-   ```bash
-   mkdir build && cd build
-   cmake ..
-   make
-   ```
-
-4. Test the installation:
-   ```python
-   import build.pybhjet as pybhjet
-   ```
 
 ---
 
