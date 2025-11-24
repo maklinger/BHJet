@@ -1,20 +1,22 @@
 [build-system]
-requires = ["scikit-build-core[pyproject]", "pybind11", "setuptools", "wheel"]
+requires = ["scikit-build-core>=0.5.0", "pybind11", "setuptools"]
 build-backend = "scikit_build_core.build"
 
 [project]
-name = "pybhjet"
+name = "bhjet"
 version = "0.1.0"
-description = "Python bindings for BHJet"
-authors = [{name = "Ruby Duncan"}, {name = "Matteo Lucchini"}, {name = "Marc Klinger-Plaisier"}]
-license = {text = "MIT"}
+description = "Jet dynamics simulation with pybind11 and Kariba backend"
+authors = [
+  { name = "Your Name", email = "you@example.com" }
+]
+license = { text = "MIT" }
 readme = "README.md"
 requires-python = ">=3.8"
-dependencies = []
+
 
 [tool.scikit-build]
 minimum-version = "0.5"
 build-dir = "build"
-wheel.packages = ["src/pybhjet"]
-cmake.source-dir = "cpp_code"
-sdist.include = ["src/pybhjet"]
+cmake.source-dir = "."          # CMakeLists.txt handles src/ and libpython/
+wheel.packages = ["python/bhjet"]     # point to the Python folder (contains __init__.py)
+sdist.include = ["python/bhjet"]      # include Python package in sdist
