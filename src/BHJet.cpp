@@ -42,7 +42,7 @@ void BHJet::compute_full_jet(
         double Urad = 1e-30;
         double Volume = jet_dynamics->get_z_height_grid()[i] * jet_dynamics->get_radius_grid()[i] * jet_dynamics->get_radius_grid()[i];
 
-        std::cout << i << std::endl;
+        // std::cout << i << std::endl;
         radiation_zones[i] = RadiationZone(
             jet_dynamics->get_B_grid()[i],
             Urad,
