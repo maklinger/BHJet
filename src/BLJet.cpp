@@ -187,6 +187,10 @@ void BLJet::calc_zone_properties(size_t i){
     r_acc = jet_dyn.r0 + (jet_dyn.acc - jet_dyn.h0) * tan(theta_acc);
     n_acc = nozzle_ener.lepdens * std::pow(jet_dyn.r0 / r_acc, 2.) * (gb0 / gbf);
     electron_density_grid[i] = nozzle_ener.lepdens * std::pow(jet_dyn.r0 / radius_grid[i], 2.) / mj;
+    // Todo: fill here proton density and temperature arrays
+    proton_density_grid[i] = electron_density_grid[i]; // fix this
+    electron_temperature_grid[i] = electron_temperature_jet_base;
+    proton_temperature_grid[i] = electron_temperature_jet_base;
 
     // magnetic field calculation:
     // Only accounts for the injected distribution, not for extra accelerated
@@ -206,7 +210,7 @@ void BLJet::calc_zone_properties(size_t i){
                       (n_acc / nozzle_ener.eta * karcst::pmgm * std::pow(karcst::cee, 2.) + w));
         B_grid[i] = b_acc * (jet_dyn.acc / z_min_grid[i]);
     }
-    temperature_shift_grid[i] = 1.;
+    // temperature_shift_grid[i] = 1.;
 }
 
 

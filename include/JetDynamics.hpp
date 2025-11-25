@@ -37,8 +37,10 @@ public:
         beta_grid, // speed in units of speed of light (converted from gamma)
         beta_gamma_grid, // product of beta and gamma
         B_grid, // magnetic field of cells
-        temperature_shift_grid,
-        electron_density_grid; // electron number density
+        electron_density_grid,
+        proton_density_grid,
+        electron_temperature_grid,
+        proton_temperature_grid; // electron number density
 
     virtual void reinit_grid_arrays();
 
@@ -55,6 +57,9 @@ public:
     virtual std::vector<double> get_beta_gamma_grid();
     virtual std::vector<double> get_B_grid();
     virtual std::vector<double> get_electron_density_grid();
+    virtual std::vector<double> get_proton_density_grid();
+    virtual std::vector<double> get_electron_temperature_grid();
+    virtual std::vector<double> get_proton_temperature_grid();
 
 
 };

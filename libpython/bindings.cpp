@@ -5,6 +5,7 @@
 #include "JetDynamics.hpp"
 #include "BLJet.hpp"
 #include "RadiationZone.hpp"
+#include "BHJet.hpp"
 
 namespace py = pybind11;
 using namespace bhjet;
@@ -62,6 +63,26 @@ using namespace bhjet;
     // X(n_zones, size_t, BLJet::DEFAULT_N_ZONES, SEP_COMMA) \
     // X(verbosity_level, size_t, JetDynamics::DEFAULT_VERBOSITY_LEVEL,  ) 
 
+
+#define BHJET_PARAMS \
+    X(verbosity_level, size_t, JetDynamics::DEFAULT_VERBOSITY_LEVEL,  ) 
+
+
+#define BHJET_COMPUTE_FULL_PARAMS \
+    X(theta_obs, double, RadiationZone::DEFAULT_THETA_OBS, SEP_COMMA ) \
+    X(distance, double, RadiationZone::DEFAULT_DISTANCE, SEP_COMMA ) \
+    X(redshift, double, RadiationZone::DEFAULT_REDSHIFT, SEP_COMMA ) \
+    X(frac_nonthermal_e, double, RadiationZone::DEFAULT_FRAC_NONTHERMAL_E, SEP_COMMA ) \
+    X(frac_nonthermal_p, double, RadiationZone::DEFAULT_FRAC_NONTHERMAL_P, SEP_COMMA ) \
+    X(frac_break_e, double, RadiationZone::DEFAULT_FRAC_BREAK_E, SEP_COMMA ) \
+    X(frac_break_p, double, RadiationZone::DEFAULT_FRAC_BREAK_P, SEP_COMMA ) \
+    X(frac_max_energy_e, double, RadiationZone::DEFAULT_FRAC_MAX_ENERGY_E, SEP_COMMA ) \
+    X(frac_max_energy_p, double, RadiationZone::DEFAULT_FRAC_MAX_ENERGY_P, SEP_COMMA ) \
+    X(index_inj_e, double, RadiationZone::DEFAULT_INDEX_INJ_E, SEP_COMMA ) \
+    X(index_inj_p, double, RadiationZone::DEFAULT_INDEX_INJ_P, SEP_COMMA )\
+    X(verbosity_level, size_t, RadiationZone::DEFAULT_VERBOSITY_LEVEL,  ) // leave the last one empty
+
+
 // function to convert the returned std::vector<type> from c++ function "function" 
 // into a numpy array
 #define GET_ARGS_VEC(classtype, function, type)        \
@@ -77,7 +98,7 @@ using namespace bhjet;
 PYBIND11_MODULE(bhjet, m) {
     m.doc() = "Jet dynamics simulation module with Kariba backend";
 
-    py::class_<JetDynamics> jetdyn(m, "JetDynamics");
+    py::class_<JetDynamics, std::shared_ptr<JetDynamics>> jetdyn(m, "JetDynamics");
     jetdyn.def(py::init<
             #define X(NAME, TYPE, DEFAULT, SEPARATOR) TYPE SEPARATOR
             JETDYNAMICS_PARAMS
@@ -105,7 +126,7 @@ PYBIND11_MODULE(bhjet, m) {
     jetdyn.def("get_electron_density_grid", GET_ARGS_VEC(JetDynamics, get_electron_density_grid, double), "Get array with z grid of zone start positions [r_g]");
     jetdyn.def("info", &JetDynamics::info);
 
-    py::class_<BLJet, JetDynamics> bljet(m, "BLJet");
+    py::class_<BLJet, JetDynamics, std::shared_ptr<BLJet>> bljet(m, "BLJet");
     bljet.def(py::init<
             #define X(NAME, TYPE, DEFAULT, SEPARATOR) TYPE SEPARATOR
             BLJET_PARAMS
@@ -144,6 +165,34 @@ PYBIND11_MODULE(bhjet, m) {
         #undef X
         ;
     radzone.def("compute_particles", &RadiationZone::compute_particles);
+    radzone.def("get_electron_density", GET_ARGS_VEC(RadiationZone, get_electron_density, double), "Get array with electron number density grid [1/cm³]");
     radzone.def("get_electron_momentum_grid", GET_ARGS_VEC(RadiationZone, get_electron_momentum_grid, double), "Get array with electron momentum grid [eV/c]");
+    radzone.def("get_observed_photon_frequency_grid_syn", GET_ARGS_VEC(RadiationZone, get_observed_photon_frequency_grid_syn, double), "Get array with .. [..]");
+    radzone.def("get_observed_photon_emission_syn", GET_ARGS_VEC(RadiationZone, get_observed_photon_emission_syn, double), "Get array with .. [..]");
 
+    py::class_<BHJet> bhjet(m, "BHJet");
+    bhjet.def(py::init<
+            #define X(NAME, TYPE, DEFAULT, SEPARATOR) TYPE SEPARATOR
+            BHJET_PARAMS
+            #undef X
+        >(),
+        // py::arg defaults
+        #define X(NAME, TYPE, DEFAULT, SEPARATOR) py::arg(#NAME) = DEFAULT SEPARATOR
+        BHJET_PARAMS
+        #undef X
+        )
+        // members
+        #define X(NAME, TYPE, DEFAULT, SEPARATOR) .def_readwrite(#NAME, &BHJet::NAME)
+        BHJET_PARAMS
+        #undef X
+        ;
+    bhjet.def("init_jet_dynamics", &BHJet::init_jet_dynamics);
+    bhjet.def("compute_full_jet", &BHJet::compute_full_jet, 
+        // py::arg defaults
+        #define X(NAME, TYPE, DEFAULT, SEPARATOR) py::arg(#NAME) = DEFAULT SEPARATOR
+        BHJET_COMPUTE_FULL_PARAMS
+        #undef X
+        );
+    bhjet.def_readonly("radiation_zones", &BHJet::radiation_zones);
+    
 }

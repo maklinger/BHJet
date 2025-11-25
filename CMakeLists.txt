@@ -39,6 +39,7 @@ set(SRC_FILES
     src/JetDynamics.cpp
     src/BLJet.cpp
     src/RadiationZone.cpp
+    src/BHJet.cpp
 )
 
 # --- Python module ---

@@ -22,8 +22,10 @@ void JetDynamics::reinit_grid_arrays(){
     beta_grid = std::vector<double>(n_zones, 0.0);
     beta_gamma_grid = std::vector<double>(n_zones, 0.0);
     B_grid = std::vector<double>(n_zones, 0.0);
-    temperature_shift_grid = std::vector<double>(n_zones, 0.0);
     electron_density_grid = std::vector<double>(n_zones, 0.0);
+    proton_density_grid = std::vector<double>(n_zones, 0.0);
+    electron_temperature_grid = std::vector<double>(n_zones, 0.0);
+    proton_temperature_grid = std::vector<double>(n_zones, 0.0);
 }
 
 
@@ -63,6 +65,18 @@ std::vector<double> JetDynamics::get_B_grid() {
 std::vector<double> JetDynamics::get_electron_density_grid() {
     if (verbosity_level > 1) std::cout << "Base: get_z_min_grid" << std::endl;
     return electron_density_grid;
+}
+std::vector<double> JetDynamics::get_proton_density_grid() {
+    if (verbosity_level > 1) std::cout << "Base: get_z_min_grid" << std::endl;
+    return proton_density_grid;
+}
+std::vector<double> JetDynamics::get_electron_temperature_grid() {
+    if (verbosity_level > 1) std::cout << "Base: get_z_min_grid" << std::endl;
+    return electron_temperature_grid;
+}
+std::vector<double> JetDynamics::get_proton_temperature_grid() {
+    if (verbosity_level > 1) std::cout << "Base: get_z_min_grid" << std::endl;
+    return proton_temperature_grid;
 }
 
 }    // namespace bhjet

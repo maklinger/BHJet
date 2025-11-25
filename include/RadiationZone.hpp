@@ -13,7 +13,7 @@ namespace bhjet {
 class RadiationZone {
 public:
 
-    ~RadiationZone() = default;
+    ~RadiationZone();
 
     void compute_particles();
     void compute_radiation();
@@ -86,6 +86,7 @@ public:
     gsl_spline* spline_electrons_derivative;
     gsl_interp_accel* spline_electrons_derivative_accel;
 
+    size_t syn_res = 10;
 
 
     // ----------------------------
@@ -132,12 +133,20 @@ public:
           spline_electrons_derivative(nullptr), spline_electrons_derivative_accel(nullptr)
     {}
 
+    std::vector<double> photon_frequency_grid_syn, photon_observed_flux_syn;
 
     std::vector<double> get_electron_momentum_grid();
+    std::vector<double> get_electron_gamma_grid();
     std::vector<double> get_electron_density();
     std::vector<double> get_proton_momentum_grid();
     std::vector<double> get_proton_density();
 
+    std::vector<double> get_observed_photon_frequency_grid_syn();
+    std::vector<double> get_observed_photon_emission_syn();
+
+    void sum_counterjet(size_t size, const std::vector<double>& input_en,
+                    const std::vector<double>& input_lum, std::vector<double>& en,
+                    std::vector<double>& lum);
 };
 
 
