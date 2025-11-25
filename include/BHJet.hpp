@@ -15,6 +15,7 @@ public:
 
     void init_jet_dynamics(std::shared_ptr<JetDynamics> jet_dynamics_);
     void compute_full_jet(
+        std::vector<double> photon_frequency_grid,
         double theta_obs_ = RadiationZone::DEFAULT_THETA_OBS,
         double distance_ = RadiationZone::DEFAULT_DISTANCE,
         double redshift_ = RadiationZone::DEFAULT_REDSHIFT,
@@ -33,7 +34,6 @@ public:
     // Default values (only defined here, automatically in python too)
     // ----------------------------
     static constexpr size_t DEFAULT_VERBOSITY_LEVEL = 1;
-
     // ----------------------------
     // Member variables
     // ----------------------------
@@ -52,6 +52,16 @@ public:
 
     std::vector<RadiationZone> radiation_zones;
 
+    // choose better names here
+    std::vector<double> photon_energy_obs, photon_lum_obs;
+    std::vector<double> get_photon_energy_obs();
+    std::vector<double> get_photon_lum_obs();
+
+
+    void add_emission_on_interpolated_grid(
+        const std::vector<double>& input_en,
+        const std::vector<double>& input_lum, 
+        std::vector<double>& en, std::vector<double>& lum);
 };
 
 

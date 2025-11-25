@@ -188,11 +188,14 @@ PYBIND11_MODULE(bhjet, m) {
         ;
     bhjet.def("init_jet_dynamics", &BHJet::init_jet_dynamics);
     bhjet.def("compute_full_jet", &BHJet::compute_full_jet, 
+        py::arg("photon_frequency_grid"),
         // py::arg defaults
         #define X(NAME, TYPE, DEFAULT, SEPARATOR) py::arg(#NAME) = DEFAULT SEPARATOR
         BHJET_COMPUTE_FULL_PARAMS
         #undef X
         );
     bhjet.def_readonly("radiation_zones", &BHJet::radiation_zones);
+    bhjet.def("get_photon_energy_obs", GET_ARGS_VEC(BHJet, get_photon_energy_obs, double), "Get array with .. [..]");
+    bhjet.def("get_photon_lum_obs", GET_ARGS_VEC(BHJet, get_photon_lum_obs, double), "Get array with .. [..]");
     
 }

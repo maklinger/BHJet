@@ -188,11 +188,6 @@ void RadiationZone::compute_radiation() {
     Syncro.cycsyn_spectrum(gmin, gmax, spline_electrons, spline_electrons_accel, spline_electrons_derivative, spline_electrons_derivative_accel);
     sum_counterjet(nsyn, Syncro.get_energy_obs(), Syncro.get_nphot_obs(), photon_frequency_grid_syn, photon_observed_flux_syn);
 
-    std::cout << "B=" << B << ",ne=" << n_e << ",gamma_bulk=" << gamma_bulk
-        << ",beta_bulk=" <<beta_bulk << ",doppler=" << delta 
-        << ",thetaobs=" << theta_obs << ",gmin=" << gmin << ",gmax=" << gmax 
-        << ", synmin=" << syn_min << ",synmax=" << syn_max << std::endl;
-    Syncro.test();
 }
 
 
