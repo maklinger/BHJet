@@ -2,8 +2,8 @@
 #include "JetDynamics.hpp"
 #include "RadiationZone.hpp"
 #include <iostream>
-// #include "kariba/constants.hpp"
-// namespace karcst = kariba::constants;  
+#include "kariba/constants.hpp"
+namespace karcst = kariba::constants;  
 
 namespace bhjet {
 
@@ -71,7 +71,10 @@ void BHJet::compute_full_jet(
             photon_energy_obs, photon_lum_obs
         );
     }
-    
+    photon_flux_obs = std::vector<double>(n_bins_phot, 0.0);
+    for (size_t i=0; i< n_bins_phot; i++) {
+        photon_flux_obs[i] = photon_lum_obs[i] * (1.0 + redshift_) / (4.0 * karcst::pi * pow(distance_, 2.0) );
+    }
 
 }
 std::vector<double> BHJet::get_photon_energy_obs() {
@@ -79,6 +82,9 @@ std::vector<double> BHJet::get_photon_energy_obs() {
 }
 std::vector<double> BHJet::get_photon_lum_obs() {
     return photon_lum_obs;
+}
+std::vector<double> BHJet::get_photon_flux_obs() {
+    return photon_flux_obs;
 }
 
 // Used for summing individual zone contributions for a generic spectral

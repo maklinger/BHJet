@@ -53,9 +53,10 @@ public:
     std::vector<RadiationZone> radiation_zones;
 
     // choose better names here
-    std::vector<double> photon_energy_obs, photon_lum_obs;
+    std::vector<double> photon_energy_obs, photon_lum_obs, photon_flux_obs;
     std::vector<double> get_photon_energy_obs();
     std::vector<double> get_photon_lum_obs();
+    std::vector<double> get_photon_flux_obs();
 
 
     void add_emission_on_interpolated_grid(

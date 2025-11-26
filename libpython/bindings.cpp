@@ -195,7 +195,8 @@ PYBIND11_MODULE(bhjet, m) {
         #undef X
         );
     bhjet.def_readonly("radiation_zones", &BHJet::radiation_zones);
-    bhjet.def("get_photon_energy_obs", GET_ARGS_VEC(BHJet, get_photon_energy_obs, double), "Get array with .. [..]");
-    bhjet.def("get_photon_lum_obs", GET_ARGS_VEC(BHJet, get_photon_lum_obs, double), "Get array with .. [..]");
+    bhjet.def("get_photon_energy_obs", GET_ARGS_VEC(BHJet, get_photon_energy_obs, double), "Get array with .. [erg]");
+    bhjet.def("get_photon_lum_obs", GET_ARGS_VEC(BHJet, get_photon_lum_obs, double), "Get array with .. [erg/Hz]");
+    bhjet.def("get_photon_flux_obs", GET_ARGS_VEC(BHJet, get_photon_flux_obs, double), "Get array with .. [erg/cm²sHz]");
     
 }
