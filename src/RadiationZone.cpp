@@ -188,6 +188,20 @@ void RadiationZone::compute_radiation() {
     Syncro.cycsyn_spectrum(gmin, gmax, spline_electrons, spline_electrons_accel, spline_electrons_derivative, spline_electrons_derivative_accel);
     sum_counterjet(nsyn, Syncro.get_energy_obs(), Syncro.get_nphot_obs(), photon_frequency_grid_syn, photon_observed_flux_syn);
 
+
+    double com_min = 0.1 * Syncro.nu_syn();
+    // this can be done more clever: com_max = min( 10 * min(gamma^2 * Etarget/h, gamma*me*c^2/h), grid_max), 
+    // Etarget = max(syn_max, other target energy eg BB temperature * 10)
+    // grid_max = cut off, e.g. if I only have data until keV, no need to calc higher
+    double com_max = 1e9 / karcst::hkev;
+    size_t ncom = (size_t) (std::log10(com_max) - std::log10(com_min)) * com_res;
+
+    photon_frequency_grid_com = std::vector<double>(ncom, 0.0);
+    photon_observed_flux_com = std::vector<double>(ncom, 0.0);
+    kariba::Compton InvCompton(ncom, nsyn);
+    InvCompton.set_frequency(com_min, com_max);
+    
+
 }
 
 

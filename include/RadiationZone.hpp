@@ -6,7 +6,8 @@
 #include "kariba/Thermal.hpp"
 #include "kariba/Powerlaw.hpp"
 #include "kariba/Bknpower.hpp"
-
+#include "kariba/BBody.hpp"
+#include "kariba/ShSDisk.hpp"
 
 namespace bhjet {
 
@@ -16,6 +17,9 @@ public:
     ~RadiationZone();
 
     void compute_particles();
+    // radiation targets per zone, for total luminosity track one for each in BHJet class
+    void add_target_black_body(double temperature, double luminosity);
+    void add_target_disk(double Mbh, double inner_radius, double outer_radius, double luminosity, double inclination);
     void compute_radiation();
     void compute_zone();
 
@@ -87,6 +91,7 @@ public:
     gsl_interp_accel* spline_electrons_derivative_accel;
 
     size_t syn_res = 10;
+    size_t com_res = 6;
 
 
     // ----------------------------
@@ -133,7 +138,9 @@ public:
           spline_electrons_derivative(nullptr), spline_electrons_derivative_accel(nullptr)
     {}
 
-    std::vector<double> photon_frequency_grid_syn, photon_observed_flux_syn;
+    std::vector<double> 
+        photon_frequency_grid_syn, photon_observed_flux_syn,
+        photon_frequency_grid_com, photon_observed_flux_com;
 
     std::vector<double> get_electron_momentum_grid();
     std::vector<double> get_electron_gamma_grid();
@@ -143,6 +150,8 @@ public:
 
     std::vector<double> get_observed_photon_frequency_grid_syn();
     std::vector<double> get_observed_photon_emission_syn();
+    std::vector<double> get_observed_photon_frequency_grid_com();
+    std::vector<double> get_observed_photon_emission_com();
 
     void sum_counterjet(size_t size, const std::vector<double>& input_en,
                     const std::vector<double>& input_lum, std::vector<double>& en,
