@@ -88,11 +88,13 @@ void BLJet::calc_velocity_profile_magnetized_jet(){
         if (gbx_vel_mag[i] < jet_dyn.h0) {
             gby_vel_mag[i] = jet_dyn.gam0;
         } else if (gbx_vel_mag[i] < jet_dyn.acc) {
+            double alpha = gamma_acceleration_exponent;
             gby_vel_mag[i] = jet_dyn.gam0 + ((jet_dyn.gamf - jet_dyn.gam0) /
-                                         ((std::pow(jet_dyn.acc, 0.5) - std::pow(jet_dyn.h0, 0.5)))) *
-                                            (std::pow(gbx_vel_mag[i], 0.5) - std::pow(jet_dyn.h0, 0.5));
+                                         ((std::pow(jet_dyn.acc, alpha) - std::pow(jet_dyn.h0, alpha)))) *
+                                            (std::pow(gbx_vel_mag[i], alpha) - std::pow(jet_dyn.h0, alpha));
         } else {
-            gby_vel_mag[i] = jet_dyn.gamf;
+            double alphad = gamma_deceleration_exponent;
+            gby_vel_mag[i] = std::max(jet_dyn.gamf * std::pow(gbx_vel_mag[i]/jet_dyn.acc, alphad), jet_dyn.gam0);
         }
         gby_vel_mag[i] = std::sqrt(std::pow(gby_vel_mag[i], 2.) - 1.);
     }
@@ -173,6 +175,7 @@ void BLJet::calc_zone_properties(size_t i){
         gb = gsl_spline_eval(spline_speed, z_min_grid[i], spline_speed_accel);
     } else {
         gb = gbf;
+        gb = gsl_spline_eval(spline_speed, z_min_grid[i], spline_speed_accel);
     }
 
     mj = gb / gb0;
@@ -181,9 +184,9 @@ void BLJet::calc_zone_properties(size_t i){
     beta_grid[i] = std::sqrt((std::pow(gamma_grid[i], 2.) - 1.) / std::pow(gamma_grid[i], 2.));
     beta_gamma_grid[i] = beta_grid[i] * gamma_grid[i];
 
-    theta = jet_opening_constant / gamma_grid[i];
+    theta = opening_angle_constant / gamma_grid[i];
     radius_grid[i] = jet_dyn.r0 + std::max(z_min_grid[i] - jet_dyn.h0, 0.) * tan(theta);
-    theta_acc = jet_opening_constant / jet_dyn.gamf;
+    theta_acc = opening_angle_constant / jet_dyn.gamf;
     r_acc = jet_dyn.r0 + (jet_dyn.acc - jet_dyn.h0) * tan(theta_acc);
     n_acc = nozzle_ener.lepdens * std::pow(jet_dyn.r0 / r_acc, 2.) * (gb0 / gbf);
     electron_density_grid[i] = nozzle_ener.lepdens * std::pow(jet_dyn.r0 / radius_grid[i], 2.) / mj;

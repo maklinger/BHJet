@@ -1,7 +1,9 @@
 #include "BHJet.hpp"
 #include "JetDynamics.hpp"
 #include "RadiationZone.hpp"
+#include "utils.hpp"
 #include <iostream>
+#include <chrono>
 #include "kariba/constants.hpp"
 namespace karcst = kariba::constants;  
 
@@ -12,69 +14,109 @@ void BHJet::init_jet_dynamics(std::shared_ptr<JetDynamics> jet_dynamics_) {
     jet_dynamics = jet_dynamics_;
 }
 
+void BHJet::add_target_constant_black_body(double luminosity, double temperature, double energy_density, std::string name){
+    if (verbosity_level > 1) std::cout << "adding black body: " << name << std::endl;
+    target_list_blackbody.emplace_back(luminosity, temperature, energy_density, name);
+}
+
 void BHJet::compute_full_jet(
-        std::vector<double> photon_frequency_grid,
-        double theta_obs_,
-        double distance_,
-        double redshift_,
-        double frac_nonthermal_e_,
-        double frac_nonthermal_p_,
-        double frac_break_e_,
-        double frac_break_p_,
-        double frac_max_energy_e_,
-        double frac_max_energy_p_,
-        double index_inj_e_,
-        double index_inj_p_,
-        size_t verbosity_level_
+        std::vector<double> photon_frequency_grid
 ){
     if (verbosity_level > 1) std::cout << "Computing full jet (dynamics + radiation)" << std::endl;
 
     // compute jet dynamics
+    auto t0 = std::chrono::high_resolution_clock::now();
     jet_dynamics->compute_jet_dynamics();
+    auto t1 = std::chrono::high_resolution_clock::now();
+    auto elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(t1 - t0);
+    std::cout << " compute_jet_dynamics took " << elapsed_ms.count() << "ms" << std::endl;
+
     // init zones and compute radiation
     photon_energy_obs = photon_frequency_grid;
     size_t n_bins_phot = photon_energy_obs.size();
     photon_lum_obs = std::vector<double>(n_bins_phot, 0.0);
     radiation_zones = std::vector<RadiationZone>(jet_dynamics->n_zones);
+    bool force_compton = false;
     for (size_t i = 0; i < jet_dynamics->n_zones; i++)
     {
-        // remove these variables later from RadiationZone/ by adding proper readout functions
-        double Urad = 1e-30;
-        double Volume = jet_dynamics->get_z_height_grid()[i] * jet_dynamics->get_radius_grid()[i] * jet_dynamics->get_radius_grid()[i];
 
+        auto t0 = std::chrono::high_resolution_clock::now();
+        force_compton = (i < 2);
         // std::cout << i << std::endl;
         radiation_zones[i] = RadiationZone(
             jet_dynamics->get_B_grid()[i],
-            Urad,
             jet_dynamics->get_radius_grid()[i],
             jet_dynamics->get_z_height_grid()[i],
-            Volume,
+            "cylinder",
             jet_dynamics->get_beta_gamma_grid()[i],
-            theta_obs_, distance_, redshift_,
+            theta_obs, distance, redshift,
             jet_dynamics->get_electron_density_grid()[i],
             jet_dynamics->get_proton_density_grid()[i],
             jet_dynamics->get_electron_temperature_grid()[i],
             jet_dynamics->get_proton_temperature_grid()[i],
-            frac_nonthermal_e_, frac_nonthermal_p_,
-            frac_break_e_, frac_break_p_,
-            frac_max_energy_e_, frac_max_energy_p_,
-            index_inj_e_, index_inj_p_,
+            frac_nonthermal_e, frac_nonthermal_p,
+            frac_break_e, frac_break_p,
+            frac_max_energy_e, frac_max_energy_p,
+            index_inj_e, index_inj_p, include_counterjet, force_compton,
             verbosity_level
         );
+
+        auto t1 = std::chrono::high_resolution_clock::now();
+        elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(t1 - t0);
+        std::cout << " init RadZone took " << elapsed_ms.count() << "ms" << std::endl;
+        for (size_t b = 0; b < target_list_blackbody.size(); b++)
+        {
+            radiation_zones[i].add_target_black_body(
+                target_list_blackbody[b].temperature, 
+                target_list_blackbody[b].energy_density,
+                target_list_blackbody[b].name);
+        }
+        
+        auto t2 = std::chrono::high_resolution_clock::now();
+        elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1);
+        std::cout << " add BB took" << elapsed_ms.count() << "ms" << std::endl;
         radiation_zones[i].compute_particles();
-        radiation_zones[i].compute_radiation();
+        auto t3 = std::chrono::high_resolution_clock::now();
+        elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(t3 - t2);
+        std::cout << " compute_particles took " << elapsed_ms.count() << "ms" << std::endl;
+        radiation_zones[i].compute_radiation(photon_energy_obs);
+        auto t4 = std::chrono::high_resolution_clock::now();
+        elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(t4 - t3);
+        std::cout << " compute_radiation took " << elapsed_ms.count() << "ms" << std::endl;
 
         // split this up into the pre/post..
         add_emission_on_interpolated_grid(
-            radiation_zones[i].get_observed_photon_frequency_grid_syn(),
-            radiation_zones[i].get_observed_photon_emission_syn(),
-            photon_energy_obs, photon_lum_obs
+            radiation_zones[i].get_observed_photon_energy_grid_total(),
+            radiation_zones[i].get_observed_photon_flux_total(),
+            photon_energy_obs, photon_flux_obs
         );
     }
-    photon_flux_obs = std::vector<double>(n_bins_phot, 0.0);
-    for (size_t i=0; i< n_bins_phot; i++) {
-        photon_flux_obs[i] = photon_lum_obs[i] * (1.0 + redshift_) / (4.0 * karcst::pi * pow(distance_, 2.0) );
+    // photon_flux_obs = std::vector<double>(n_bins_phot, 0.0);
+    // for (size_t i=0; i< n_bins_phot; i++) {
+    //     photon_flux_obs[i] = photon_lum_obs[i] * (1.0 + redshift) / (4.0 * karcst::pi * pow(distance, 2.0) );
+    // }
+
+}
+
+std::vector<double> BHJet::get_photon_cumulative_flux_obs(double z_max) {
+    std::vector<double> photon_flux_obs_cum(photon_energy_obs.size(), 0.0);
+    std::vector<double> z_values = jet_dynamics->get_z_center_grid();
+    for (size_t i = 0; i < jet_dynamics->n_zones; i++)
+    {
+        if(z_values[i] < z_max){
+
+            add_emission_on_interpolated_grid(
+                radiation_zones[i].get_observed_photon_energy_grid_total(),
+                radiation_zones[i].get_observed_photon_flux_total(),
+                photon_energy_obs, photon_flux_obs_cum
+            );
+        }
     }
+
+    for (size_t i=0; i< photon_energy_obs.size(); i++) {
+        photon_flux_obs_cum[i] *= (1.0 + redshift) / (4.0 * karcst::pi * pow(distance, 2.0) );
+    }
+    return photon_flux_obs_cum;
 
 }
 std::vector<double> BHJet::get_photon_energy_obs() {
@@ -85,30 +127,6 @@ std::vector<double> BHJet::get_photon_lum_obs() {
 }
 std::vector<double> BHJet::get_photon_flux_obs() {
     return photon_flux_obs;
-}
-
-// Used for summing individual zone contributions for a generic spectral
-// component from code: pre/post particle acceleration synchrotron, pre/post
-// particle acceleration Comptonization The second function does the same, but
-// sums the disk/corona/bb to the total jet spectrum. The reason for the const
-// arryas in input is that the input arrays are directly accessed from the
-// ShSDisk class, which are const
-void BHJet::add_emission_on_interpolated_grid(
-        const std::vector<double>& input_en,
-        const std::vector<double>& input_lum, 
-        std::vector<double>& en, std::vector<double>& lum) {
-    size_t size_in = input_en.size();
-    size_t size_out= en.size();
-    gsl_interp_accel* acc = gsl_interp_accel_alloc();
-    gsl_spline* input_spline = gsl_spline_alloc(gsl_interp_akima, size_in);
-    gsl_spline_init(input_spline, input_en.data(), input_lum.data(), size_in);
-
-    for (size_t i = 0; i < size_out; i++) {
-        if (en[i] > input_en[0] && en[i] < input_en[size_in - 1]) {
-            lum[i] = lum[i] + gsl_spline_eval(input_spline, en[i], acc);
-        }
-    }
-    gsl_spline_free(input_spline), gsl_interp_accel_free(acc);
 }
 
 }    // namespace bhjet

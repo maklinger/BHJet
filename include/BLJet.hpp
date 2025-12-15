@@ -53,6 +53,9 @@ public:
     static constexpr double DEFAULT_GAMMA_FINAL = 15;
     static constexpr double DEFAULT_PLASMA_BETA_JET_BASE = 1;
     static constexpr double DEFAULT_ELECTRON_TEMPERATURE_JET_BASE = 1e3;
+    static constexpr double DEFAULT_GAMMA_ACCELERATION_EXPONENT = 0.5;
+    static constexpr double DEFAULT_GAMMA_DECELERATION_EXPONENT = 0.0;
+    static constexpr double DEFAULT_OPENING_ANGLE_CONSTANT = 0.15;
     // static constexpr size_t DEFAULT_N_ZONES = 1;
     // static constexpr size_t DEFAULT_VERBOSITY_LEVEL = 1;
 
@@ -69,6 +72,9 @@ public:
     double gamma_final = DEFAULT_GAMMA_FINAL;
     double plasma_beta_jet_base = DEFAULT_PLASMA_BETA_JET_BASE;
     double electron_temperature_jet_base = DEFAULT_ELECTRON_TEMPERATURE_JET_BASE;
+    double gamma_acceleration_exponent = DEFAULT_GAMMA_ACCELERATION_EXPONENT;
+    double gamma_deceleration_exponent = DEFAULT_GAMMA_DECELERATION_EXPONENT;
+    double opening_angle_constant = DEFAULT_OPENING_ANGLE_CONSTANT;
     // size_t n_zones = DEFAULT_N_ZONES;
     // size_t verbosity_level = DEFAULT_VERBOSITY_LEVEL;
 
@@ -77,7 +83,7 @@ public:
 
     // hardcoded values
     size_t n_bins_speed = 54;
-    double jet_opening_constant = 0.15;
+    // double jet_opening_constant = 0.15;
 
     // ----------------------------
     // Constructor with defaults
@@ -95,6 +101,9 @@ public:
         double gamma_final_ = DEFAULT_GAMMA_FINAL,
         double plasma_beta_jet_base_ = DEFAULT_PLASMA_BETA_JET_BASE,
         double electron_temperature_jet_base_ = DEFAULT_ELECTRON_TEMPERATURE_JET_BASE,
+        double gamma_acceleration_exponent_ = DEFAULT_GAMMA_ACCELERATION_EXPONENT,
+        double gamma_deceleration_exponent_ = DEFAULT_GAMMA_DECELERATION_EXPONENT,
+        double opening_angle_constant_ = DEFAULT_OPENING_ANGLE_CONSTANT,
         size_t n_zones_ = JetDynamics::DEFAULT_N_ZONES,
         size_t verbosity_level_ = JetDynamics::DEFAULT_VERBOSITY_LEVEL
     )
@@ -106,7 +115,10 @@ public:
           z_dissipation(z_dissipation_), z_max_calculation(z_max_calculation_),
           sigma_final(sigma_final_), gamma_final(gamma_final_),
           plasma_beta_jet_base(plasma_beta_jet_base_),
-          electron_temperature_jet_base(electron_temperature_jet_base_)
+          electron_temperature_jet_base(electron_temperature_jet_base_),
+          gamma_acceleration_exponent(gamma_acceleration_exponent_),
+          gamma_deceleration_exponent(gamma_deceleration_exponent_),
+          opening_angle_constant(opening_angle_constant_)
     {}
     ~BLJet() override = default;
 

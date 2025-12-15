@@ -6,6 +6,9 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
+# I added this only for unsuccesful profiling attempts
+# set(CMAKE_BUILD_TYPE Debug)
+# add_compile_options(-g)
 
 # --- Dependencies ---
 set(PYBIND11_FINDPYTHON ON)
@@ -16,10 +19,10 @@ find_package(GSL REQUIRED)
 include(FetchContent)
 FetchContent_Declare(
   kariba
-#   GIT_REPOSITORY https://github.com/maklinger/kariba.git
-#   GIT_TAG bhjetnew
-  GIT_REPOSITORY https://github.com/antonpannekoek/kariba.git
-  GIT_TAG main
+  GIT_REPOSITORY https://github.com/maklinger/kariba.git
+  GIT_TAG bhjetnew
+#   GIT_REPOSITORY https://github.com/antonpannekoek/kariba.git
+#   GIT_TAG main
 )
 FetchContent_MakeAvailable(kariba)
 
@@ -40,6 +43,7 @@ set(SRC_FILES
     src/BLJet.cpp
     src/RadiationZone.cpp
     src/BHJet.cpp
+    src/utils.cpp
 )
 
 # --- Python module ---
