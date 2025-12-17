@@ -1,5 +1,6 @@
 #pragma once
 #include "JetDynamics.hpp"
+#include "RadiationZone.hpp"
 #include "kariba/Thermal.hpp"
 
 #include <gsl/gsl_spline.h>
@@ -42,7 +43,6 @@ public:
 
     // DEFAULTS
     static constexpr double DEFAULT_MASS_BH = 1e9;
-    static constexpr double DEFAULT_THETA_VIEW = 15;
     static constexpr double DEFAULT_JET_POWER_EDDINGTON = 1e-5;
     static constexpr double DEFAULT_Z_JET_LAUNCHING = 2;
     static constexpr double DEFAULT_R_INITIAL = 3;
@@ -61,7 +61,6 @@ public:
 
     // Member variables
     double mass_bh = DEFAULT_MASS_BH;
-    double theta_view = DEFAULT_THETA_VIEW;
     double jet_power_eddington = DEFAULT_JET_POWER_EDDINGTON;
     double z_jet_launching = DEFAULT_Z_JET_LAUNCHING;
     double r_initial = DEFAULT_R_INITIAL;
@@ -75,11 +74,19 @@ public:
     double gamma_acceleration_exponent = DEFAULT_GAMMA_ACCELERATION_EXPONENT;
     double gamma_deceleration_exponent = DEFAULT_GAMMA_DECELERATION_EXPONENT;
     double opening_angle_constant = DEFAULT_OPENING_ANGLE_CONSTANT;
+    double fraction_nonthermal_electrons = RadiationZone::DEFAULT_FRACTION_NONTHERMAL_ELECTRONS;
+    double fraction_nonthermal_protons = RadiationZone::DEFAULT_FRACTION_NONTHERMAL_PROTONS;
+    double factor_break_electrons = RadiationZone::DEFAULT_FACTOR_BREAK_ELECTRONS;
+    double factor_break_protons = RadiationZone::DEFAULT_FACTOR_BREAK_PROTONS;
+    double factor_max_energy_electrons = RadiationZone::DEFAULT_FACTOR_MAX_ENERGY_ELECTRONS;
+    double factor_max_energy_protons = RadiationZone::DEFAULT_FACTOR_MAX_ENERGY_PROTONS;
+    double index_injected_electrons = RadiationZone::DEFAULT_INDEX_INJECTED_ELECTRONS;
+    double index_injected_protons = RadiationZone::DEFAULT_INDEX_INJECTED_PROTONS;
     // size_t n_zones = DEFAULT_N_ZONES;
     // size_t verbosity_level = DEFAULT_VERBOSITY_LEVEL;
 
     // internal variables
-    double EddingtonLuminosity, Rg, zmin;
+    double eddington_luminosity, r_g, zmin;
 
     // hardcoded values
     size_t n_bins_speed = 54;
@@ -90,7 +97,6 @@ public:
     // ----------------------------
     BLJet(
         double mass_bh_ = DEFAULT_MASS_BH,
-        double theta_view_ = DEFAULT_THETA_VIEW,
         double jet_power_eddington_ = DEFAULT_JET_POWER_EDDINGTON,
         double z_jet_launching_ = DEFAULT_Z_JET_LAUNCHING,
         double r_initial_ = DEFAULT_R_INITIAL,
@@ -104,11 +110,19 @@ public:
         double gamma_acceleration_exponent_ = DEFAULT_GAMMA_ACCELERATION_EXPONENT,
         double gamma_deceleration_exponent_ = DEFAULT_GAMMA_DECELERATION_EXPONENT,
         double opening_angle_constant_ = DEFAULT_OPENING_ANGLE_CONSTANT,
+        double fraction_nonthermal_electrons_ = RadiationZone::DEFAULT_FRACTION_NONTHERMAL_ELECTRONS,
+        double fraction_nonthermal_protons_ = RadiationZone::DEFAULT_FRACTION_NONTHERMAL_PROTONS,
+        double factor_break_electrons_ = RadiationZone::DEFAULT_FACTOR_BREAK_ELECTRONS,
+        double factor_break_protons_ = RadiationZone::DEFAULT_FACTOR_BREAK_PROTONS,
+        double factor_max_energy_electrons_ = RadiationZone::DEFAULT_FACTOR_MAX_ENERGY_ELECTRONS,
+        double factor_max_energy_protons_ = RadiationZone::DEFAULT_FACTOR_MAX_ENERGY_PROTONS,
+        double index_injected_electrons_ = RadiationZone::DEFAULT_INDEX_INJECTED_ELECTRONS,
+        double index_injected_protons_ = RadiationZone::DEFAULT_INDEX_INJECTED_PROTONS,
         size_t n_zones_ = JetDynamics::DEFAULT_N_ZONES,
         size_t verbosity_level_ = JetDynamics::DEFAULT_VERBOSITY_LEVEL
     )
         : JetDynamics(n_zones_, verbosity_level_),
-          mass_bh(mass_bh_), theta_view(theta_view_),
+          mass_bh(mass_bh_),
           jet_power_eddington(jet_power_eddington_),
           z_jet_launching(z_jet_launching_), r_initial(r_initial_),
           z_end_of_acceleration(z_end_of_acceleration_),
@@ -118,7 +132,13 @@ public:
           electron_temperature_jet_base(electron_temperature_jet_base_),
           gamma_acceleration_exponent(gamma_acceleration_exponent_),
           gamma_deceleration_exponent(gamma_deceleration_exponent_),
-          opening_angle_constant(opening_angle_constant_)
+          opening_angle_constant(opening_angle_constant_),
+          fraction_nonthermal_electrons(fraction_nonthermal_electrons_), 
+          fraction_nonthermal_protons(fraction_nonthermal_protons_),
+          factor_break_electrons(factor_break_electrons_), factor_break_protons(factor_break_protons_),
+          factor_max_energy_electrons(factor_max_energy_electrons_), 
+          factor_max_energy_protons(factor_max_energy_protons_),
+          index_injected_electrons(index_injected_electrons_), index_injected_protons(index_injected_protons_)
     {}
     ~BLJet() override = default;
 
@@ -136,7 +156,6 @@ public:
     void calc_zone_properties(size_t i);
 
     void compute_jet_dynamics() override;
-    std::string info() const override;
 };
 
 

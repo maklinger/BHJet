@@ -37,7 +37,8 @@ void RadiationZone::add_target_black_body(double temperature, double energy_dens
 
 void RadiationZone::compute_particles(){
     // reset computation times
-    for (size_t i = 0; i < 2; i++) computation_times[i] = 0.0;
+    for (size_t i = 0; i < 3; i++) computation_times[i] = 0.0;
+    auto tstart = std::chrono::steady_clock::now();
 
     // clean up existing gsl interpolation
     if (verbosity_level > 2) std::cout << "cleaning up spline memory" << std::endl;
@@ -161,6 +162,8 @@ void RadiationZone::compute_particles(){
         throw std::out_of_range("fraction_nonthermal_electrons has to be <=1!");
     }
     // same for protons...
+
+    if (profile_time) computation_times[0] = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now()-tstart).count();
 }
 
 
@@ -207,8 +210,8 @@ void RadiationZone::compute_radiation(std::vector<double> obs_energy_grid) {
     // add disk here
 
     size_t nsyn = (size_t) (std::log10(syn_max) - std::log10(syn_min)) * syn_res;
-    photon_energy_grid_electron_cyclosyn = std::vector<double>(nsyn, 0.0);
-    photon_observed_luminosity_electron_cyclosyn = std::vector<double>(nsyn, 0.0);
+    photon_energy_grid_electron_cyclosyn = std::vector<double>(nsyn, 1e-100);
+    photon_observed_luminosity_electron_cyclosyn = std::vector<double>(nsyn, 1e-100);
     
     auto tstart = std::chrono::steady_clock::now();
     kariba::Cyclosyn Syncro(nsyn);
@@ -235,12 +238,12 @@ void RadiationZone::compute_radiation(std::vector<double> obs_energy_grid) {
         sum_jet_only(nsyn, Syncro.get_energy_obs(), Syncro.get_nphot_obs(), 
             photon_energy_grid_electron_cyclosyn, photon_observed_luminosity_electron_cyclosyn);
     }
-    if (profile_time) computation_times[0] = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now()-tstart).count();
+    if (profile_time) computation_times[1] = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now()-tstart).count();
     if (verbosity_level > 2) Syncro.test();
 
 
     photon_energy_grid_total = obs_energy_grid; 
-    photon_observed_luminosity_total = std::vector<double>(obs_energy_grid.size(), 0.0);
+    photon_observed_luminosity_total = std::vector<double>(obs_energy_grid.size(), 1e-100);
     add_emission_on_interpolated_grid(
         photon_energy_grid_electron_cyclosyn, photon_observed_luminosity_electron_cyclosyn, 
         photon_energy_grid_total, photon_observed_luminosity_total);
@@ -268,16 +271,21 @@ void RadiationZone::compute_radiation(std::vector<double> obs_energy_grid) {
     com_max = std::min(com_max, obs_energy_grid[obs_energy_grid.size()-1] / karcst::herg);
     size_t ncom = (size_t) (std::log10(com_max) - std::log10(com_min)) * com_res;
 
-    photon_energy_grid_electron_compton = std::vector<double>(ncom, 0.0);
-    photon_observed_luminosity_electron_compton = std::vector<double>(ncom, 0.0);
+    photon_energy_grid_electron_compton = std::vector<double>(ncom, 1e-100);
+    photon_observed_luminosity_electron_compton = std::vector<double>(ncom, 1e-100);
     if (profile_time) tstart = std::chrono::steady_clock::now();
     kariba::Compton InvCompton(ncom, nsyn);
     InvCompton.set_frequency(com_min, com_max);
-    // std::cout << "com max " << 3*gmax*karcst::emerg << "erg " << std::endl;
+    for (size_t i = 0; i < ncom; i++)
+    {  // needed to make sure the energy grid is initialised even when skipping Compton calulcation
+        photon_energy_grid_electron_compton[i] = InvCompton.get_energy()[i];
+    }
+    
+    // std::cout << "com max " << com_max << "Hz " << std::endl;
     // std::cout << "doppler_factor_bulk " << doppler_factor_bulk << std::endl;
 
-    // skip Compton check for now
-    if (Compton_calculation_necessary()) {
+    // readout of the target fields needed to compute Compton cooling time
+    // if (compton_calculation_necessary()) {
 
         // Set up the calculation by reading in/calculating
         // beaming,volume,counterjet presence,tau
@@ -306,11 +314,13 @@ void RadiationZone::compute_radiation(std::vector<double> obs_energy_grid) {
                 doppler_factor_bulk * target_vector_blackbody[i].temperature);
             // is here a doppler factor ^2 or gamma^2 needed? 
         }
+        target_radiation_energy_grid = InvCompton.get_seed_energ();
+        target_radiation_energy_density = InvCompton.get_seed_urad();
+
+    if (compton_calculation_necessary()) {
 
         InvCompton.compton_spectrum(gmin, gmax, spline_electrons, spline_electrons_accel);
         
-        target_radiation_energy_grid = InvCompton.get_seed_energ();
-        target_radiation_energy_density = InvCompton.get_seed_urad();
         // std::cout << "sum" << std::endl;
         if(include_counterjet){
             sum_jet_and_counterjet(ncom, InvCompton.get_energy_obs(), InvCompton.get_nphot_obs(), 
@@ -325,7 +335,7 @@ void RadiationZone::compute_radiation(std::vector<double> obs_energy_grid) {
             photon_energy_grid_electron_compton, photon_observed_luminosity_electron_compton,
             photon_energy_grid_total, photon_observed_luminosity_total);
     }
-    if (profile_time) computation_times[1] = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now()-tstart).count();
+    if (profile_time) computation_times[2] = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now()-tstart).count();
     
 
 }
@@ -449,7 +459,7 @@ std::vector<double> RadiationZone::get_observed_photon_flux_electron_cyclosyn() 
     std::vector<double> flux(photon_observed_luminosity_electron_cyclosyn.size(), 1e-100);
     for (size_t i = 0; i < flux.size(); i++)
     {
-        flux[i] = photon_observed_luminosity_electron_cyclosyn[i] * (1.0 + redshift) / (4.0 * karcst::pi * pow(distance, 2.0));
+        flux[i] = kariba_luminosity_to_number_flux(photon_observed_luminosity_electron_cyclosyn[i]);
     }
     return flux;
 }
@@ -464,7 +474,7 @@ std::vector<double> RadiationZone::get_observed_photon_flux_electron_compton() {
     std::vector<double> flux(photon_observed_luminosity_electron_compton.size(), 1e-100);
     for (size_t i = 0; i < flux.size(); i++)
     {
-        flux[i] = photon_observed_luminosity_electron_compton[i] * (1.0 + redshift) / (4.0 * karcst::pi * pow(distance, 2.0));
+        flux[i] = kariba_luminosity_to_number_flux(photon_observed_luminosity_electron_compton[i]);
     }
     return flux;
 }
@@ -479,13 +489,22 @@ std::vector<double> RadiationZone::get_observed_photon_flux_total() {
     std::vector<double> flux(photon_observed_luminosity_total.size(), 1e-100);
     for (size_t i = 0; i < flux.size(); i++)
     {
-        flux[i] = photon_observed_luminosity_total[i] * (1.0 + redshift) / (4.0 * karcst::pi * pow(distance, 2.0));
+        flux[i] = kariba_luminosity_to_number_flux(photon_observed_luminosity_total[i]);
     }
     return flux;
 }
 
+// kariba libraries give fluxes EdN/dtdnu [erg/(sHz)]
+// convert via EdN/dtdnu / h * (1+z) / (4*pi * dL^2) in [1/(cm²s)]
+double RadiationZone::kariba_luminosity_to_number_flux(double lum_kariba){
+    return lum_kariba * (1.0 + redshift) / (4.0 * karcst::pi * pow(distance * karcst::kpc, 2.0) * karcst::herg);
+}
 
-
+// kariba libraries give fluxes EdN/dtdnu [erg/(sHz)]
+// returns via EdN/dtdnu * (1+z) / (4*pi * dL^2) * 1e-26 in [mJy = 1e-26 erg/(cm² s Hz)]
+double RadiationZone::number_flux_to_milijansky(double number_flux){
+    return number_flux * karcst::herg * karcst::mjy;
+}
 
 
 // This function takes the observed arrays of the Cyclosyn and Compton classes
@@ -495,13 +514,13 @@ void RadiationZone::sum_jet_and_counterjet(size_t size, const std::vector<double
                     const std::vector<double>& input_lum, std::vector<double>& en,
                     std::vector<double>& lum) {
     double en_cj_min, en_j_min, en_cj_max, en_j_max, einc;
-    std::vector<double> en_j(size, 0.0);
-    std::vector<double> lum_j(size, 0.0);
+    std::vector<double> en_j(size, 1e-100);
+    std::vector<double> lum_j(size, 1e-100);
     en_j_min = input_en[0];
     en_j_max = input_en[size - 1];
 
-    std::vector<double> en_cj(size, 0.0);
-    std::vector<double> lum_cj(size, 0.0);
+    std::vector<double> en_cj(size, 1e-100);
+    std::vector<double> lum_cj(size, 1e-100);
     en_cj_min = input_en[size];
     en_cj_max = input_en[2 * size - 1];
 
@@ -555,8 +574,8 @@ void RadiationZone::sum_jet_only(size_t size, const std::vector<double>& input_e
                     const std::vector<double>& input_lum, std::vector<double>& en,
                     std::vector<double>& lum) {
     double en_cj_min, en_j_min, en_cj_max, en_j_max, einc;
-    std::vector<double> en_j(size, 0.0);
-    std::vector<double> lum_j(size, 0.0);
+    std::vector<double> en_j(size, 1e-100);
+    std::vector<double> lum_j(size, 1e-100);
     en_j_min = input_en[0];
     en_j_max = input_en[size - 1];
 
@@ -610,6 +629,17 @@ std::vector<double> RadiationZone::get_timescale_electron_cyclosyn(std::vector<d
 std::vector<double> RadiationZone::get_timescale_electron_compton_thomson(std::vector<double> momentum) {
     double gamma = 1;
     double U_rad = 1e-100;
+
+    if (target_radiation_energy_grid.size() < 2 ||
+        target_radiation_energy_density.size() !=
+        target_radiation_energy_grid.size())
+    {
+        std::cout<<  "Invalid target radiation field in RadiationZone, egridsize=" << target_radiation_energy_grid.size() << ", densitygridsize=" <<target_radiation_energy_density.size() << std::endl;
+        throw std::runtime_error(
+            "Invalid target radiation field in RadiationZone (Compton not calculated?)"
+        );
+    }
+
     double dlogE = std::log(target_radiation_energy_grid[1]/target_radiation_energy_grid[0]);
     for (size_t i = 0; i < target_radiation_energy_density.size(); i++)
     {
@@ -630,10 +660,18 @@ std::vector<double> RadiationZone::get_timescale_electron_compton_thomson(std::v
 }
 
 std::vector<double> RadiationZone::get_timescale_electron_compton(std::vector<double> momentum) {
-    double fac_gamma2p = 1;
-    double gamma = 1;
-    double alpha = 1;
-    double integral = 0;
+    double fac_gamma2p, gamma, alpha, integral;
+
+    if (target_radiation_energy_grid.size() < 2 ||
+        target_radiation_energy_density.size() !=
+        target_radiation_energy_grid.size())
+    {
+        std::cout<<  "Invalid target radiation field in RadiationZone, egridsize=" << target_radiation_energy_grid.size() << ", densitygridsize=" <<target_radiation_energy_density.size() << std::endl;
+        throw std::runtime_error(
+            "Invalid target radiation field in RadiationZone (Compton not calculated?)"
+        );
+    }
+
     double dlogEph = std::log(target_radiation_energy_grid[1]/target_radiation_energy_grid[0]);
     double fac_comp = 0.5 * karcst::pi * std::pow(karcst::re0, 2) * karcst::cee;
     std::vector<double> t_com(momentum.size(), 1e100);
@@ -687,12 +725,17 @@ double RadiationZone::get_electron_max_momentum(){
     std::vector<double> t_syn = get_timescale_electron_cyclosyn(momentum);
     std::vector<double> t_com = get_timescale_electron_compton(momentum);
 
-    size_t imax = 0; 
-	// Find maximum energy by comparing losses and acceleration
-	while (t_acc[imax] <= 1/(1/t_adi[imax]+1/t_syn[imax]+1/t_com[imax]) && imax < momentum.size())
-	{
-		imax++;
-	}
+    size_t imax = momentum.size() - 1;  // default: highest momentum
+
+    for (size_t i = 0; i < momentum.size(); ++i)
+    {
+        double t_loss = 1.0 / (1.0/t_adi[i] + 1.0/t_syn[i] + 1.0/t_com[i]);
+
+        if (t_acc[i] > t_loss) {
+            imax = (i == 0) ? 0 : i - 1;
+            break;
+        }
+    }
     return momentum[imax];
 }
 double RadiationZone::get_electron_break_momentum(){
@@ -701,18 +744,23 @@ double RadiationZone::get_electron_break_momentum(){
     std::vector<double> t_syn = get_timescale_electron_cyclosyn(momentum);
     std::vector<double> t_com = get_timescale_electron_compton(momentum);
 
-    size_t imax = 0; 
-	// Find maximum energy by comparing losses and acceleration
-	while (t_adi[imax] <= 1/(1/t_syn[imax]+1/t_com[imax]) && imax < momentum.size())
-	{
-		imax++;
-	}
-    return momentum[imax];
+    size_t ibreak = momentum.size() - 1;
+
+    for (size_t i = 0; i < momentum.size(); ++i)
+    {
+        double t_rad = 1.0 / (1.0/t_syn[i] + 1.0/t_com[i]);
+
+        if (t_adi[i] > t_rad) {
+            ibreak = (i == 0) ? 0 : i - 1;
+            break;
+        }
+    }
+    return momentum[ibreak];
 }
 
 
-bool RadiationZone::Compton_calculation_necessary(){
-    if (force_compton_calculation) return true;
+bool RadiationZone::compton_calculation_necessary(){
+    if (force_compton_calculation) return compton_switch;
     else{
         double Lumnorm, Ub, Usyn, Lsyn, Lcom;
         double average_gamma_squared =
@@ -729,11 +777,14 @@ bool RadiationZone::Compton_calculation_necessary(){
         Usyn = Lsyn / (karcst::pi * std::pow(radius, 2.) * karcst::cee * std::pow(doppler_factor_bulk, 4.));
         Lcom = Lumnorm * (Usyn + radiation_energy_density);
 
-        bool test1 = (Lcom / Lsyn > 1e-2);
+        bool test1 = (Lcom / Lsyn > compton_threshold);
         // bool test2 = (Lcom >= Nj * 1e-8); // don't know the jet power here in this class
-        bool test3 = (Lcom >= 1e-8 * average_gamma_squared * karcst::emerg * electron_number_density);
+        // bool test3 = (Lcom >= 1e-8 * average_gamma_squared * karcst::emerg * electron_number_density);
         // std::cout << "test3=" << test3 << std::endl;
-        return (test1 == true) && (test3 == true);
+        if(verbosity_level>2){
+            std::cout << "Lsyn=" << Lsyn << "Lcom=" << Lcom << ", compton?=" << (test1 == true) << std::endl;
+        }
+        return (test1 == true);
     }
 }
 

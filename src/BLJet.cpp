@@ -22,20 +22,20 @@ void BLJet::compute_jet_dynamics() {
     reinit_grid_arrays();
 
     // init basic internal params
-    EddingtonLuminosity = 1.25e38 * mass_bh;
-    Rg = karcst::gconst * mass_bh * karcst::msun / (karcst::cee * karcst::cee);
+    eddington_luminosity = 1.25e38 * mass_bh;
+    r_g = karcst::gconst * mass_bh * karcst::msun / (karcst::cee * karcst::cee);
 
-    jet_dyn.min = z_jet_launching*Rg;
-    jet_dyn.max = z_max_calculation*Rg;
-    jet_dyn.h0 = 2. * r_initial*Rg + z_jet_launching*Rg;
-    jet_dyn.r0 = r_initial*Rg;
-    jet_dyn.acc = z_end_of_acceleration*Rg;
+    jet_dyn.min = z_jet_launching*r_g;
+    jet_dyn.max = z_max_calculation*r_g;
+    jet_dyn.h0 = 2. * r_initial*r_g + z_jet_launching*r_g;
+    jet_dyn.r0 = r_initial*r_g;
+    jet_dyn.acc = z_end_of_acceleration*r_g;
     jet_dyn.beta0 = sqrt(4. / 3. * (4. / 3. - 1.) /
                          (4. / 3. + 1.));    // set initial jet speed for relativistic fluid, g=4/3
     jet_dyn.gam0 = 1. / sqrt(1. - (std::pow(jet_dyn.beta0,
                                             2.)));    // set corresponding lorentz factor
     jet_dyn.gamf = gamma_final;
-    jet_dyn.Rg = Rg;
+    jet_dyn.Rg = r_g;
 
     // complex way to calculate integral over thermal distribution using kariba
     // Dummy particle distribution, needed for average lorentz factor in
@@ -49,7 +49,7 @@ void BLJet::compute_jet_dynamics() {
     dummy_elec.set_ndens();
 
     nozzle_ener.pbeta = plasma_beta_jet_base;
-    nozzle_ener.Nj = jet_power_eddington*EddingtonLuminosity;
+    nozzle_ener.Nj = jet_power_eddington*eddington_luminosity;
     nozzle_ener.sig_acc = sigma_final;
     nozzle_ener.av_gamma = dummy_elec.av_gamma();
 
@@ -61,7 +61,7 @@ void BLJet::compute_jet_dynamics() {
     // build the grid
     // reset grid parameters
     size_t cut = 0;
-    double zcut = 1.e3 * Rg;
+    double zcut = 1.e3 * r_g;
     for (size_t i = 0; i < n_zones; i++) {
         // calculate the size of the next zone (formerly "jetgrid")
         // fills z_min_grid and z_height_grid
@@ -203,7 +203,7 @@ void BLJet::calc_zone_properties(size_t i){
     if (z_min_grid[i] < std::max(jet_dyn.h0, jet_dyn.acc)) {
         double w = 4. / 3. * nozzle_ener.av_gamma * electron_density_grid[i] * karcst::emgm * std::pow(karcst::cee, 2.);
         double sigma = (jet_dyn.gam0 / gamma_grid[i]) * (1. + nozzle_ener.sig0) - 1.;
-        B_grid[i] = std::sqrt(sigma * 4. * karcst::pi *
+        magnetic_field_grid[i] = std::sqrt(sigma * 4. * karcst::pi *
                       (electron_density_grid[i] / nozzle_ener.eta * karcst::pmgm * std::pow(karcst::cee, 2.) + w));
         
     } else {
@@ -211,14 +211,23 @@ void BLJet::calc_zone_properties(size_t i){
         double sigma = (jet_dyn.gam0 / gamma_grid[i]) * (1. + nozzle_ener.sig0) - 1.;
         b_acc = std::sqrt(sigma * 4. * karcst::pi *
                       (n_acc / nozzle_ener.eta * karcst::pmgm * std::pow(karcst::cee, 2.) + w));
-        B_grid[i] = b_acc * (jet_dyn.acc / z_min_grid[i]);
+        magnetic_field_grid[i] = b_acc * (jet_dyn.acc / z_min_grid[i]);
     }
     // temperature_shift_grid[i] = 1.;
-}
-
-
-std::string BLJet::info() const {
-    return "BLJet dynamics";
+    
+    if(z_min_grid[i] < z_dissipation*r_g){
+        fraction_nonthermal_electrons_grid[i] = 0.0;
+        fraction_nonthermal_protons_grid[i] = 0.0;
+    } else {
+        fraction_nonthermal_electrons_grid[i] = fraction_nonthermal_electrons;
+        fraction_nonthermal_protons_grid[i] = fraction_nonthermal_protons;
+    }
+    factor_break_electrons_grid[i] = factor_break_electrons;
+    factor_break_protons_grid[i] = factor_break_protons;
+    factor_max_energy_electrons_grid[i] = factor_max_energy_electrons;
+    factor_max_energy_protons_grid[i] = factor_max_energy_protons;
+    index_injected_electrons_grid[i] = index_injected_electrons;
+    index_injected_protons_grid[i] = index_injected_protons;
 }
 
 

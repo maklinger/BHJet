@@ -51,7 +51,7 @@ public:
     static constexpr const char* DEFAULT_GEOMETRY = "sphere";
     static constexpr double DEFAULT_BULK_MOMENTUM = 1.0;
     static constexpr double DEFAULT_THETA_OBS = 0.0;
-    static constexpr double DEFAULT_DISTANCE = 1e6;
+    static constexpr double DEFAULT_DISTANCE = 1e3;
     static constexpr double DEFAULT_REDSHIFT = 0.0;
     static constexpr double DEFAULT_ELECTRON_NUMBER_DENSITY = 1;
     static constexpr double DEFAULT_PROTON_NUMBER_DENSITY = 1;
@@ -68,6 +68,8 @@ public:
     static constexpr size_t DEFAULT_VERBOSITY_LEVEL = 1;
     static constexpr bool DEFAULT_INCLUDE_COUNTERJET = true;
     static constexpr bool DEFAULT_FORCE_COMPTON_CALCULATION = false;
+    static constexpr bool DEFAULT_COMPTON_SWITCH = true;
+    static constexpr double DEFAULT_COMPTON_THRESHOLD = 1e-2;
     static constexpr bool DEFAULT_PROFILE_TIME = false;
 
     // ----------------------------
@@ -95,6 +97,8 @@ public:
     double index_injected_protons = DEFAULT_INDEX_INJECTED_PROTONS;
     bool include_counterjet = DEFAULT_INCLUDE_COUNTERJET;
     bool force_compton_calculation = DEFAULT_FORCE_COMPTON_CALCULATION;
+    bool compton_switch = DEFAULT_COMPTON_SWITCH;
+    double compton_threshold = DEFAULT_COMPTON_THRESHOLD;
     bool profile_time = DEFAULT_PROFILE_TIME;
     size_t verbosity_level = DEFAULT_VERBOSITY_LEVEL;
 
@@ -150,6 +154,8 @@ public:
         double index_injected_protons_ = DEFAULT_INDEX_INJECTED_PROTONS,
         bool include_counterjet_ = DEFAULT_INCLUDE_COUNTERJET,
         bool force_compton_calculation_ = DEFAULT_FORCE_COMPTON_CALCULATION,
+        bool compton_switch_ = DEFAULT_COMPTON_SWITCH,
+        double compton_threshold_ = DEFAULT_COMPTON_THRESHOLD,
         bool profile_time_ = DEFAULT_PROFILE_TIME,
         size_t verbosity_level_ = DEFAULT_VERBOSITY_LEVEL
     )
@@ -164,7 +170,9 @@ public:
           factor_max_energy_electrons(factor_max_energy_electrons_), 
           factor_max_energy_protons(factor_max_energy_protons_),
           index_injected_electrons(index_injected_electrons_), index_injected_protons(index_injected_protons_),
-          include_counterjet(include_counterjet_), force_compton_calculation(force_compton_calculation_),
+          include_counterjet(include_counterjet_), 
+          force_compton_calculation(force_compton_calculation_), compton_switch(compton_switch_),
+          compton_threshold(compton_threshold_),
           profile_time(profile_time_),
           verbosity_level(verbosity_level_),
           n_bins_e(100), n_bins_p(100), radiation_energy_density(0.), 
@@ -173,7 +181,7 @@ public:
           electrons_bpl(kariba::Bknpower(0)), electrons_pl(kariba::Powerlaw(0)),
           spline_electrons(nullptr), spline_electrons_accel(nullptr),
           spline_electrons_derivative(nullptr), spline_electrons_derivative_accel(nullptr),
-          computation_times(2, 0.)
+          computation_times(3, 0.)
     {
 
         gamma_bulk = pow(1 + bulk_momentum*bulk_momentum, 0.5);
@@ -227,8 +235,9 @@ public:
     void sum_jet_only(size_t size, const std::vector<double>& input_en,
                     const std::vector<double>& input_lum, std::vector<double>& en,
                     std::vector<double>& lum);
-
-    bool Compton_calculation_necessary();
+    double kariba_luminosity_to_number_flux(double lum_kariba);
+    double number_flux_to_milijansky(double number_flux);
+    bool compton_calculation_necessary();
     /**
      * @brief function to compute ker_ic[][].
      * 

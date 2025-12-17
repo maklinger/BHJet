@@ -36,11 +36,19 @@ public:
         gamma_grid, // Lorentz factor
         beta_grid, // speed in units of speed of light (converted from gamma)
         beta_gamma_grid, // product of beta and gamma
-        B_grid, // magnetic field of cells
-        electron_density_grid,
+        magnetic_field_grid, // magnetic field of cells
+        electron_density_grid, // electron number density
         proton_density_grid,
         electron_temperature_grid,
-        proton_temperature_grid; // electron number density
+        proton_temperature_grid,
+        fraction_nonthermal_electrons_grid,
+        fraction_nonthermal_protons_grid,
+        factor_break_electrons_grid,
+        factor_break_protons_grid,
+        factor_max_energy_electrons_grid,
+        factor_max_energy_protons_grid,
+        index_injected_electrons_grid,
+        index_injected_protons_grid; 
 
     virtual void reinit_grid_arrays();
 
@@ -55,11 +63,19 @@ public:
     virtual std::vector<double> get_gamma_grid();
     virtual std::vector<double> get_beta_grid();
     virtual std::vector<double> get_beta_gamma_grid();
-    virtual std::vector<double> get_B_grid();
+    virtual std::vector<double> get_magnetic_field_grid();
     virtual std::vector<double> get_electron_density_grid();
     virtual std::vector<double> get_proton_density_grid();
     virtual std::vector<double> get_electron_temperature_grid();
     virtual std::vector<double> get_proton_temperature_grid();
+    virtual std::vector<double> get_fraction_nonthermal_electrons_grid();
+    virtual std::vector<double> get_fraction_nonthermal_protons_grid();
+    virtual std::vector<double> get_factor_break_electrons_grid();
+    virtual std::vector<double> get_factor_break_protons_grid();
+    virtual std::vector<double> get_factor_max_energy_electrons_grid();
+    virtual std::vector<double> get_factor_max_energy_protons_grid();
+    virtual std::vector<double> get_index_injected_electrons_grid();
+    virtual std::vector<double> get_index_injected_protons_grid();
 
 
 };

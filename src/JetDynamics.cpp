@@ -21,11 +21,19 @@ void JetDynamics::reinit_grid_arrays(){
     gamma_grid = std::vector<double>(n_zones, 0.0);
     beta_grid = std::vector<double>(n_zones, 0.0);
     beta_gamma_grid = std::vector<double>(n_zones, 0.0);
-    B_grid = std::vector<double>(n_zones, 0.0);
+    magnetic_field_grid = std::vector<double>(n_zones, 0.0);
     electron_density_grid = std::vector<double>(n_zones, 0.0);
     proton_density_grid = std::vector<double>(n_zones, 0.0);
     electron_temperature_grid = std::vector<double>(n_zones, 0.0);
     proton_temperature_grid = std::vector<double>(n_zones, 0.0);
+    fraction_nonthermal_electrons_grid = std::vector<double>(n_zones, 0.0);
+    fraction_nonthermal_protons_grid = std::vector<double>(n_zones, 0.0);
+    factor_break_electrons_grid = std::vector<double>(n_zones, 0.0);
+    factor_break_protons_grid = std::vector<double>(n_zones, 0.0);
+    factor_max_energy_electrons_grid = std::vector<double>(n_zones, 0.0);
+    factor_max_energy_protons_grid = std::vector<double>(n_zones, 0.0);
+    index_injected_electrons_grid = std::vector<double>(n_zones, 0.0);
+    index_injected_protons_grid = std::vector<double>(n_zones, 0.0);
 }
 
 
@@ -57,10 +65,9 @@ std::vector<double> JetDynamics::get_beta_gamma_grid() {
     if (verbosity_level > 1) std::cout << "Base: get_z_min_grid" << std::endl;
     return beta_gamma_grid;
 }
-
-std::vector<double> JetDynamics::get_B_grid() {
+std::vector<double> JetDynamics::get_magnetic_field_grid() {
     if (verbosity_level > 1) std::cout << "Base: get_z_min_grid" << std::endl;
-    return B_grid;
+    return magnetic_field_grid;
 }
 std::vector<double> JetDynamics::get_electron_density_grid() {
     if (verbosity_level > 1) std::cout << "Base: get_z_min_grid" << std::endl;
@@ -77,6 +84,38 @@ std::vector<double> JetDynamics::get_electron_temperature_grid() {
 std::vector<double> JetDynamics::get_proton_temperature_grid() {
     if (verbosity_level > 1) std::cout << "Base: get_z_min_grid" << std::endl;
     return proton_temperature_grid;
+}
+std::vector<double> JetDynamics::get_fraction_nonthermal_electrons_grid() {
+    if (verbosity_level > 1) std::cout << "Base: get_z_min_grid" << std::endl;
+    return fraction_nonthermal_electrons_grid;
+}
+std::vector<double> JetDynamics::get_fraction_nonthermal_protons_grid() {
+    if (verbosity_level > 1) std::cout << "Base: get_z_min_grid" << std::endl;
+    return fraction_nonthermal_protons_grid;
+}
+std::vector<double> JetDynamics::get_factor_break_electrons_grid() {
+    if (verbosity_level > 1) std::cout << "Base: get_z_min_grid" << std::endl;
+    return factor_break_electrons_grid;
+}
+std::vector<double> JetDynamics::get_factor_break_protons_grid() {
+    if (verbosity_level > 1) std::cout << "Base: get_z_min_grid" << std::endl;
+    return factor_break_protons_grid;
+}
+std::vector<double> JetDynamics::get_factor_max_energy_electrons_grid() {
+    if (verbosity_level > 1) std::cout << "Base: get_z_min_grid" << std::endl;
+    return factor_max_energy_electrons_grid;
+}
+std::vector<double> JetDynamics::get_factor_max_energy_protons_grid() {
+    if (verbosity_level > 1) std::cout << "Base: get_z_min_grid" << std::endl;
+    return factor_max_energy_protons_grid;
+}
+std::vector<double> JetDynamics::get_index_injected_electrons_grid() {
+    if (verbosity_level > 1) std::cout << "Base: get_z_min_grid" << std::endl;
+    return index_injected_electrons_grid;
+}
+std::vector<double> JetDynamics::get_index_injected_protons_grid() {
+    if (verbosity_level > 1) std::cout << "Base: get_z_min_grid" << std::endl;
+    return index_injected_protons_grid;
 }
 
 }    // namespace bhjet
