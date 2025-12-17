@@ -27,7 +27,7 @@ public:
     void add_target_constant_black_body(double luminosity, double temperature, double energy_density, std::string name);
     void add_target_constant_bulge(double luminosity, double temperature, double radius);
     void add_target_cmb();
-    void compute_full_jet(std::vector<double> photon_frequency_grid);
+    void compute_full_jet(std::vector<double> photon_energy_grid);
 
     // parameters
     // ----------------------------
