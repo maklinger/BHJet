@@ -39,10 +39,10 @@ target_include_directories(kariba_lib PUBLIC
 
 # --- Sources ---
 set(SRC_FILES
-    src/JetDynamics.cpp
-    src/BLJet.cpp
-    src/RadiationZone.cpp
     src/BHJet.cpp
+    src/BLJet.cpp
+    src/JetDynamics.cpp
+    src/RadiationZone.cpp
     src/utils.cpp
 )
 
