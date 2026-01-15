@@ -146,7 +146,8 @@ PYBIND11_MODULE(bhjet, m) {
     jetdyn.def("get_beta_gamma_grid", GET_ARGS_VEC(JetDynamics, get_beta_gamma_grid, double), "Get array of zone bulk speeds (beta*gamma)");
     jetdyn.def("get_magnetic_field_grid", GET_ARGS_VEC(JetDynamics, get_magnetic_field_grid, double), "Get array of zone magnetic field strnegths [G]");
     jetdyn.def("get_electron_density_grid", GET_ARGS_VEC(JetDynamics, get_electron_density_grid, double), "Get array of zone electron densities [1/cm³]");
-    jetdyn.def("get_proton_density_grid", GET_ARGS_VEC(JetDynamics, get_proton_density_grid, double), "Get array of zone proton densities [1/cm³]");
+    jetdyn.def("get_electron_temperature_grid", GET_ARGS_VEC(JetDynamics, get_electron_temperature_grid, double), "Get array of zone electron temperatures [keV]");
+    jetdyn.def("get_proton_temperature_grid", GET_ARGS_VEC(JetDynamics, get_proton_temperature_grid, double), "Get array of zone proton temperatures [keV]");
     jetdyn.def("get_fraction_nonthermal_electrons_grid", GET_ARGS_VEC(JetDynamics, get_fraction_nonthermal_electrons_grid, double), "Get array of non-thermal electron fractions");
     jetdyn.def("get_fraction_nonthermal_protons_grid", GET_ARGS_VEC(JetDynamics, get_fraction_nonthermal_protons_grid, double), "Get array of non-thermal proton fractions");
     jetdyn.def("get_factor_break_electrons_grid", GET_ARGS_VEC(JetDynamics, get_factor_break_electrons_grid, double), "Get array of scaling factors for electron adiabtic timescale");
@@ -198,6 +199,7 @@ PYBIND11_MODULE(bhjet, m) {
     radzone.def_readonly("gamma_bulk", &RadiationZone::gamma_bulk, "Bulk Lorentz factor of the zone");
     radzone.def_readonly("doppler_factor_bulk", &RadiationZone::doppler_factor_bulk, "Bulk Doppler factor of the zone");
     radzone.def("add_target_black_body", &RadiationZone::add_target_black_body, py::arg("temperature"), py::arg("energy_density"), py::arg("name"), "Takes as arguments the temperature [keV] and energy density [erg/cm³] of a target black body radiation field. Run before compute_particles() and compute_radiation().");
+    // radzone.def("add_target_field", &RadiationZone::add_target_field);
     radzone.def("compute_particles", &RadiationZone::compute_particles, "Computes the steady-state particle spectra (electrons). Run before compute_radiation().");
     radzone.def("compute_radiation", py::overload_cast<>(&RadiationZone::compute_radiation), "Computes the radiation from the particles (photons). Uses the default energy grid.");
     radzone.def("compute_radiation", py::overload_cast<const std::vector<double>>(&RadiationZone::compute_radiation), "Computes the radiation from the particles (photons). Takes as an argument the observed energy grid [erg].");
@@ -264,6 +266,16 @@ PYBIND11_MODULE(bhjet, m) {
         "Add a target black body radiation field, at rest in the black hole frame indexed with a given name. \
         Total luminosity [erg/s] is added to the total emission, temperature [keV] and energy_density [erg/cm³] \
         are boosted to each RadiationZone.");
+    bhjet.def("add_target_constant_bulge", &BHJet::add_target_constant_bulge, 
+        py::arg("luminosity"), py::arg("temperature"), py::arg("radius"), py::arg("name"), 
+        "Add a target black body radiation field, at rest in the black hole frame indexed with a given name. \
+        Total luminosity [erg/s] is added to the total emission, temperature [keV] and radius (converted to a \
+        homogeneous energy_density) [erg/cm³]  are boosted to each RadiationZone.");
+    bhjet.def("add_target_cmb", &BHJet::add_target_cmb, 
+        "Add a target black body radiation field with the CMB properties called CMB, at rest in the black hole \
+        frame indexed with a given name.");
+    bhjet.def("clear_targets", &BHJet::clear_targets, "Removes all target photon fields");
+        
     bhjet.def("compute_full_jet", &BHJet::compute_full_jet, 
         py::arg("photon_energy_grid")
         // py::arg defaults

@@ -19,6 +19,34 @@ void BHJet::add_target_constant_black_body(double luminosity, double temperature
     target_list_blackbody.emplace_back(luminosity, temperature, energy_density, name);
 }
 
+void BHJet::add_target_constant_bulge(double luminosity, double temperature, double radius, std::string name){
+    if (verbosity_level > 1) std::cout << "BHJet: adding black body bulge: " << name << std::endl;
+    double energy_density = luminosity / (4. * karcst::pi * std::pow(radius * karcst::kpc, 2.) * karcst::cee);
+    target_list_blackbody.emplace_back(luminosity, temperature, energy_density, name);
+}
+
+void BHJet::add_target_cmb(){
+    if (verbosity_level > 1) std::cout << "BHJet: adding CMB" << std::endl;
+    bool cmb_already_there = false;
+    for (size_t i = 0; i < target_list_blackbody.size(); i++)
+    {
+        if(target_list_blackbody[i].name == "CMB") cmb_already_there = true;
+    }
+    if (cmb_already_there){
+        std::cout << "CMB has been already added!";
+    } else {
+        double temperature = 6e-7 * (1 + redshift); // keV
+        double erg2eV = 6.242e+11;  // 1erg in eV
+        double energy_density = 0.26/erg2eV * std::pow(1 + redshift, 4.); // erg/cm³
+        double luminosity = 0.;
+        target_list_blackbody.emplace_back(luminosity, temperature, energy_density, "CMB");
+    }
+}
+void BHJet::clear_targets(){
+    if (verbosity_level > 1) std::cout << "BHJet: clearing target fields "<< std::endl;
+    target_list_blackbody = std::vector<TargetFieldBlackBody>();
+}
+
 void BHJet::compute_full_jet(
         std::vector<double> photon_energy_grid
 ){

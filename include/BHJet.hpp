@@ -25,8 +25,10 @@ public:
 
     void init_jet_dynamics(std::shared_ptr<JetDynamics> jet_dynamics_);
     void add_target_constant_black_body(double luminosity, double temperature, double energy_density, std::string name);
-    void add_target_constant_bulge(double luminosity, double temperature, double radius);
+    void add_target_constant_bulge(double luminosity, double temperature, double radius, std::string name);
+    void add_target_agn_fields(double luminosity, double temperature, double radius, std::string name);
     void add_target_cmb();
+    void clear_targets();
     void compute_full_jet(std::vector<double> photon_energy_grid);
 
     // parameters
