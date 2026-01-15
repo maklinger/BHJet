@@ -9,14 +9,7 @@ __pycache__/
 
 # CMake build directories
 build/
-/cpp_code/CMakeFiles/
-/cpp_code/CMakeCache.txt
-/cpp_code/cmake_install.cmake
-/cpp_code/Makefile
 
-# Compiled Python extension
-/src/pybhjet/*.so
-/src/pybhjet/*.pyd
 
 # Python distribution artifacts
 dist/
@@ -48,5 +41,5 @@ pytest_cache/
 # PyInstaller
 *.spec
 
-# wheel output
-src/pybhjet/pybhjet*.so
+# test folder
+test/
