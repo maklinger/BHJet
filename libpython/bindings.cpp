@@ -11,7 +11,6 @@
 namespace py = pybind11;
 using namespace bhjet;
 
-
 // ----------------------------
 // Macros for parameter lists
 // ----------------------------
@@ -19,122 +18,112 @@ using namespace bhjet;
 // This is needed to build a list of the arguments with no comma at the last one
 #define SEP_COMMA ,
 
-#define RADIATIONZONE_PARAMS \
-    X(magnetic_field, double, RadiationZone::DEFAULT_MAGNETIC_FIELD, "Turbulent magnetic field [G]", SEP_COMMA ) \
-    X(radius, double, RadiationZone::DEFAULT_RADIUS, "Radius of the zone [cm]", SEP_COMMA ) \
-    X(height, double, RadiationZone::DEFAULT_HEIGHT, "Height of the zone (only used for cylindrical geometry) [cm]", SEP_COMMA ) \
-    X(geometry, std::string, RadiationZone::DEFAULT_GEOMETRY, "Geometry of zone. Default: 'sphere', alternative 'cylinder'", SEP_COMMA ) \
-    X(bulk_momentum, double, RadiationZone::DEFAULT_BULK_MOMENTUM, "Bulk speed as beta*gamma, with beta=speed/c and gamma^2=1/(1-beta^2)", SEP_COMMA ) \
-    X(theta_obs, double, RadiationZone::DEFAULT_THETA_OBS, "Observation angle [degree]", SEP_COMMA ) \
-    X(distance, double, RadiationZone::DEFAULT_DISTANCE, "Distance to zone [kpc]", SEP_COMMA ) \
-    X(redshift, double, RadiationZone::DEFAULT_REDSHIFT, "Redshift of zone", SEP_COMMA ) \
-    X(electron_number_density, double, RadiationZone::DEFAULT_ELECTRON_NUMBER_DENSITY, "Number density of electrons in zone [1/cm³]", SEP_COMMA ) \
-    X(proton_number_density, double, RadiationZone::DEFAULT_PROTON_NUMBER_DENSITY, "Number density of protons in zone [1/cm³]", SEP_COMMA ) \
-    X(electron_temperature, double, RadiationZone::DEFAULT_ELECTRON_TEMPERATURE, "Temperature of electrons in zone [keV]", SEP_COMMA ) \
-    X(proton_temperature, double, RadiationZone::DEFAULT_PROTON_TEMPERATURE, "Temperature of protons in zone [keV]", SEP_COMMA ) \
-    X(fraction_nonthermal_electrons, double, RadiationZone::DEFAULT_FRACTION_NONTHERMAL_ELECTRONS, "Fraction of energy in non-thermal electron tail", SEP_COMMA ) \
-    X(fraction_nonthermal_protons, double, RadiationZone::DEFAULT_FRACTION_NONTHERMAL_PROTONS, "Fraction of energy in non-thermal proton tail", SEP_COMMA ) \
-    X(factor_break_electrons, double, RadiationZone::DEFAULT_FACTOR_BREAK_ELECTRONS, "Scaling factor for electron adiabtic timescale", SEP_COMMA ) \
-    X(factor_break_protons, double, RadiationZone::DEFAULT_FACTOR_BREAK_PROTONS, "Scaling factor for proton adiabtic timescale", SEP_COMMA ) \
-    X(factor_max_energy_electrons, double, RadiationZone::DEFAULT_FACTOR_MAX_ENERGY_ELECTRONS, "Scaling factor for electron acceleration rate, translating to an effective scaling of the maximum energy", SEP_COMMA ) \
-    X(factor_max_energy_protons, double, RadiationZone::DEFAULT_FACTOR_MAX_ENERGY_PROTONS, "Scaling factor for proton acceleration rate, translating to an effective scaling of the maximum energy", SEP_COMMA ) \
-    X(index_injected_electrons, double, RadiationZone::DEFAULT_INDEX_INJECTED_ELECTRONS, "Injected electron spectral index (dlogN/dlogE), ie. before cooling", SEP_COMMA ) \
-    X(index_injected_protons, double, RadiationZone::DEFAULT_INDEX_INJECTED_PROTONS, "Injected proton spectral index (dlogN/dlogE), ie. before cooling", SEP_COMMA )\
-    X(include_counterjet, bool, RadiationZone::DEFAULT_INCLUDE_COUNTERJET, "True: Includes the emission of the counterjet; False: Includes only one jet", SEP_COMMA )\
-    X(force_compton_calculation, bool, RadiationZone::DEFAULT_FORCE_COMPTON_CALCULATION, "True: Forces the Compton emission to be computed or not based on compton_switch; False: Uses internal criteria and ignores compton_switch", SEP_COMMA )\
-    X(compton_switch, bool, RadiationZone::DEFAULT_COMPTON_SWITCH, "True: Forces the Compton emission to be computed; False: Skips Compton emission computation", SEP_COMMA )\
-    X(compton_threshold, double, RadiationZone::DEFAULT_COMPTON_THRESHOLD, "Internal rough threshold for Compton emission computation: L_syn/L_com > compton_threshold ? Do calculation. Otheriwse skip.", SEP_COMMA )\
-    X(profile_time, bool, RadiationZone::DEFAULT_PROFILE_TIME, "True: measures computation time of multiple emission processes; False: Does nothing", SEP_COMMA )\
-    X(verbosity_level, size_t, RadiationZone::DEFAULT_VERBOSITY_LEVEL, "Regulates print output of the code. 0: No output; 1: Only important warnings; 2: More output; 3: Debugging output",  ) // leave the last one empty
+#define RADIATIONZONE_PARAMS                                                                                                                                                                                                                     \
+    X(magnetic_field, double, RadiationZone::DEFAULT_MAGNETIC_FIELD, "Turbulent magnetic field [G]", SEP_COMMA)                                                                                                                                  \
+    X(radius, double, RadiationZone::DEFAULT_RADIUS, "Radius of the zone [cm]", SEP_COMMA)                                                                                                                                                       \
+    X(height, double, RadiationZone::DEFAULT_HEIGHT, "Height of the zone (only used for cylindrical geometry) [cm]", SEP_COMMA)                                                                                                                  \
+    X(geometry, std::string, RadiationZone::DEFAULT_GEOMETRY, "Geometry of zone. Default: 'sphere', alternative 'cylinder'", SEP_COMMA)                                                                                                          \
+    X(bulk_momentum, double, RadiationZone::DEFAULT_BULK_MOMENTUM, "Bulk speed as beta*gamma, with beta=speed/c and gamma^2=1/(1-beta^2)", SEP_COMMA)                                                                                            \
+    X(theta_obs, double, RadiationZone::DEFAULT_THETA_OBS, "Observation angle [degree]", SEP_COMMA)                                                                                                                                              \
+    X(distance, double, RadiationZone::DEFAULT_DISTANCE, "Distance to zone [kpc]", SEP_COMMA)                                                                                                                                                    \
+    X(redshift, double, RadiationZone::DEFAULT_REDSHIFT, "Redshift of zone", SEP_COMMA)                                                                                                                                                          \
+    X(electron_number_density, double, RadiationZone::DEFAULT_ELECTRON_NUMBER_DENSITY, "Number density of electrons in zone [1/cm³]", SEP_COMMA)                                                                                                 \
+    X(proton_number_density, double, RadiationZone::DEFAULT_PROTON_NUMBER_DENSITY, "Number density of protons in zone [1/cm³]", SEP_COMMA)                                                                                                       \
+    X(electron_temperature, double, RadiationZone::DEFAULT_ELECTRON_TEMPERATURE, "Temperature of electrons in zone [keV]", SEP_COMMA)                                                                                                            \
+    X(proton_temperature, double, RadiationZone::DEFAULT_PROTON_TEMPERATURE, "Temperature of protons in zone [keV]", SEP_COMMA)                                                                                                                  \
+    X(fraction_nonthermal_electrons, double, RadiationZone::DEFAULT_FRACTION_NONTHERMAL_ELECTRONS, "Fraction of energy in non-thermal electron tail", SEP_COMMA)                                                                                 \
+    X(fraction_nonthermal_protons, double, RadiationZone::DEFAULT_FRACTION_NONTHERMAL_PROTONS, "Fraction of energy in non-thermal proton tail", SEP_COMMA)                                                                                       \
+    X(factor_break_electrons, double, RadiationZone::DEFAULT_FACTOR_BREAK_ELECTRONS, "Scaling factor for electron adiabtic timescale", SEP_COMMA)                                                                                                \
+    X(factor_break_protons, double, RadiationZone::DEFAULT_FACTOR_BREAK_PROTONS, "Scaling factor for proton adiabtic timescale", SEP_COMMA)                                                                                                      \
+    X(factor_max_energy_electrons, double, RadiationZone::DEFAULT_FACTOR_MAX_ENERGY_ELECTRONS, "Scaling factor for electron acceleration rate, translating to an effective scaling of the maximum energy", SEP_COMMA)                            \
+    X(factor_max_energy_protons, double, RadiationZone::DEFAULT_FACTOR_MAX_ENERGY_PROTONS, "Scaling factor for proton acceleration rate, translating to an effective scaling of the maximum energy", SEP_COMMA)                                  \
+    X(index_injected_electrons, double, RadiationZone::DEFAULT_INDEX_INJECTED_ELECTRONS, "Injected electron spectral index (dlogN/dlogE), ie. before cooling", SEP_COMMA)                                                                        \
+    X(index_injected_protons, double, RadiationZone::DEFAULT_INDEX_INJECTED_PROTONS, "Injected proton spectral index (dlogN/dlogE), ie. before cooling", SEP_COMMA)                                                                              \
+    X(include_counterjet, bool, RadiationZone::DEFAULT_INCLUDE_COUNTERJET, "True: Includes the emission of the counterjet; False: Includes only one jet", SEP_COMMA)                                                                             \
+    X(force_compton_calculation, bool, RadiationZone::DEFAULT_FORCE_COMPTON_CALCULATION, "True: Forces the Compton emission to be computed or not based on compton_switch; False: Uses internal criteria and ignores compton_switch", SEP_COMMA) \
+    X(compton_switch, bool, RadiationZone::DEFAULT_COMPTON_SWITCH, "True: Forces the Compton emission to be computed; False: Skips Compton emission computation", SEP_COMMA)                                                                     \
+    X(compton_threshold, double, RadiationZone::DEFAULT_COMPTON_THRESHOLD, "Internal rough threshold for Compton emission computation: L_syn/L_com > compton_threshold ? Do calculation. Otheriwse skip.", SEP_COMMA)                            \
+    X(profile_time, bool, RadiationZone::DEFAULT_PROFILE_TIME, "True: measures computation time of multiple emission processes; False: Does nothing", SEP_COMMA)                                                                                 \
+    X(verbosity_level, size_t, RadiationZone::DEFAULT_VERBOSITY_LEVEL, "Regulates print output of the code. 0: No output; 1: Only important warnings; 2: More output; 3: Debugging output", ) // leave the last one empty
 
-#define JETDYNAMICS_PARAMS \
+#define JETDYNAMICS_PARAMS                                \
     X(n_zones, size_t, BLJet::DEFAULT_N_ZONES, SEP_COMMA) \
-    X(verbosity_level, size_t, JetDynamics::DEFAULT_VERBOSITY_LEVEL,  ) 
+    X(verbosity_level, size_t, JetDynamics::DEFAULT_VERBOSITY_LEVEL, )
 
+#define BLJET_PARAMS                                                                                                                                                                                                  \
+    X(mass_bh, double, BLJet::DEFAULT_MASS_BH, "Black hole mass in units of solar mass", SEP_COMMA)                                                                                                                   \
+    X(jet_power_eddington, double, BLJet::DEFAULT_JET_POWER_EDDINGTON, "Jet power in units of the Eddington luminosity", SEP_COMMA)                                                                                   \
+    X(z_jet_launching, double, BLJet::DEFAULT_Z_JET_LAUNCHING, "Distance from black hole where the jet starts [rg]", SEP_COMMA)                                                                                       \
+    X(r_initial, double, BLJet::DEFAULT_R_INITIAL, "Jet radius when the jet starts [rg]", SEP_COMMA)                                                                                                                  \
+    X(z_end_of_acceleration, double, BLJet::DEFAULT_Z_END_OF_ACCELERATION, "Distance from black hole where the bulk jet accelerated to gamma_final [rg]", SEP_COMMA)                                                  \
+    X(z_dissipation, double, BLJet::DEFAULT_Z_DISSIPATION, "Distance from black hole where the jet starts to dissipate energy into non-thermal particles [rg]", SEP_COMMA)                                            \
+    X(z_max_calculation, double, BLJet::DEFAULT_Z_MAX_CALCULATION, "Distance from black hole where the calulation stops [rg]", SEP_COMMA)                                                                             \
+    X(sigma_final, double, BLJet::DEFAULT_SIGMA_FINAL, "Magnetisation at z_end_of_acceleration", SEP_COMMA)                                                                                                           \
+    X(gamma_final, double, BLJet::DEFAULT_GAMMA_FINAL, "Bulk Lorentz factor at z_end_of_acceleration", SEP_COMMA)                                                                                                     \
+    X(plasma_beta_jet_base, double, BLJet::DEFAULT_PLASMA_BETA_JET_BASE, "Plasma beta value at z_jet_launching (the jet base)", SEP_COMMA)                                                                            \
+    X(electron_temperature_jet_base, double, BLJet::DEFAULT_ELECTRON_TEMPERATURE_JET_BASE, "Electron temperature value at z_jet_launching (the jet base) [keV]", SEP_COMMA)                                           \
+    X(gamma_acceleration_exponent, double, BLJet::DEFAULT_GAMMA_ACCELERATION_EXPONENT, "Exponent alpha of jet acceleration profile, gamma_bulk propto z^alpha", SEP_COMMA)                                            \
+    X(gamma_deceleration_exponent, double, BLJet::DEFAULT_GAMMA_DECELERATION_EXPONENT, "  ", SEP_COMMA)                                                                                                               \
+    X(opening_angle_constant, double, BLJet::DEFAULT_OPENING_ANGLE_CONSTANT, "Jet opening angle used to convert Lorentz factor to jet radius, r=opening_angle_constant / gamma", SEP_COMMA)                           \
+    X(fraction_nonthermal_electrons, double, RadiationZone::DEFAULT_FRACTION_NONTHERMAL_ELECTRONS, "Fraction of energy in non-thermal electron tail", SEP_COMMA)                                                      \
+    X(fraction_nonthermal_protons, double, RadiationZone::DEFAULT_FRACTION_NONTHERMAL_PROTONS, "Fraction of energy in non-thermal proton tail", SEP_COMMA)                                                            \
+    X(factor_break_electrons, double, RadiationZone::DEFAULT_FACTOR_BREAK_ELECTRONS, "Scaling factor for electron adiabtic timescale", SEP_COMMA)                                                                     \
+    X(factor_break_protons, double, RadiationZone::DEFAULT_FACTOR_BREAK_PROTONS, "Scaling factor for proton adiabtic timescale", SEP_COMMA)                                                                           \
+    X(factor_max_energy_electrons, double, RadiationZone::DEFAULT_FACTOR_MAX_ENERGY_ELECTRONS, "Scaling factor for electron acceleration rate, translating to an effective scaling of the maximum energy", SEP_COMMA) \
+    X(factor_max_energy_protons, double, RadiationZone::DEFAULT_FACTOR_MAX_ENERGY_PROTONS, "Scaling factor for proton acceleration rate, translating to an effective scaling of the maximum energy", SEP_COMMA)       \
+    X(index_injected_electrons, double, RadiationZone::DEFAULT_INDEX_INJECTED_ELECTRONS, "Injected electron spectral index (dlogN/dlogE), ie. before cooling", SEP_COMMA)                                             \
+    X(index_injected_protons, double, RadiationZone::DEFAULT_INDEX_INJECTED_PROTONS, "Injected proton spectral index (dlogN/dlogE), ie. before cooling", SEP_COMMA)                                                   \
+    X(n_zones, size_t, BLJet::DEFAULT_N_ZONES, "Number of zones used to discretize the jet", SEP_COMMA)                                                                                                               \
+    X(verbosity_level, size_t, JetDynamics::DEFAULT_VERBOSITY_LEVEL, "Regulates print output of the code. 0: No output; 1: Only important warnings; 2: More output; 3: Debugging output", )
 
-#define BLJET_PARAMS \
-    X(mass_bh, double, BLJet::DEFAULT_MASS_BH, "Black hole mass in units of solar mass", SEP_COMMA) \
-    X(jet_power_eddington, double, BLJet::DEFAULT_JET_POWER_EDDINGTON, "Jet power in units of the Eddington luminosity", SEP_COMMA) \
-    X(z_jet_launching, double, BLJet::DEFAULT_Z_JET_LAUNCHING, "Distance from black hole where the jet starts [rg]", SEP_COMMA) \
-    X(r_initial, double, BLJet::DEFAULT_R_INITIAL, "Jet radius when the jet starts [rg]", SEP_COMMA) \
-    X(z_end_of_acceleration, double, BLJet::DEFAULT_Z_END_OF_ACCELERATION, "Distance from black hole where the bulk jet accelerated to gamma_final [rg]", SEP_COMMA) \
-    X(z_dissipation, double, BLJet::DEFAULT_Z_DISSIPATION, "Distance from black hole where the jet starts to dissipate energy into non-thermal particles [rg]", SEP_COMMA) \
-    X(z_max_calculation, double, BLJet::DEFAULT_Z_MAX_CALCULATION, "Distance from black hole where the calulation stops [rg]", SEP_COMMA) \
-    X(sigma_final, double, BLJet::DEFAULT_SIGMA_FINAL, "Magnetisation at z_end_of_acceleration", SEP_COMMA) \
-    X(gamma_final, double, BLJet::DEFAULT_GAMMA_FINAL, "Bulk Lorentz factor at z_end_of_acceleration", SEP_COMMA) \
-    X(plasma_beta_jet_base, double, BLJet::DEFAULT_PLASMA_BETA_JET_BASE, "Plasma beta value at z_jet_launching (the jet base)", SEP_COMMA) \
-    X(electron_temperature_jet_base, double, BLJet::DEFAULT_ELECTRON_TEMPERATURE_JET_BASE, "Electron temperature value at z_jet_launching (the jet base) [keV]", SEP_COMMA) \
-    X(gamma_acceleration_exponent, double, BLJet::DEFAULT_GAMMA_ACCELERATION_EXPONENT, "Exponent alpha of jet acceleration profile, gamma_bulk propto z^alpha", SEP_COMMA) \
-    X(gamma_deceleration_exponent, double, BLJet::DEFAULT_GAMMA_DECELERATION_EXPONENT, "  ", SEP_COMMA) \
-    X(opening_angle_constant, double, BLJet::DEFAULT_OPENING_ANGLE_CONSTANT, "Jet opening angle used to convert Lorentz factor to jet radius, r=opening_angle_constant / gamma", SEP_COMMA) \
-    X(fraction_nonthermal_electrons, double, RadiationZone::DEFAULT_FRACTION_NONTHERMAL_ELECTRONS, "Fraction of energy in non-thermal electron tail", SEP_COMMA ) \
-    X(fraction_nonthermal_protons, double, RadiationZone::DEFAULT_FRACTION_NONTHERMAL_PROTONS, "Fraction of energy in non-thermal proton tail", SEP_COMMA ) \
-    X(factor_break_electrons, double, RadiationZone::DEFAULT_FACTOR_BREAK_ELECTRONS, "Scaling factor for electron adiabtic timescale", SEP_COMMA ) \
-    X(factor_break_protons, double, RadiationZone::DEFAULT_FACTOR_BREAK_PROTONS, "Scaling factor for proton adiabtic timescale", SEP_COMMA ) \
-    X(factor_max_energy_electrons, double, RadiationZone::DEFAULT_FACTOR_MAX_ENERGY_ELECTRONS, "Scaling factor for electron acceleration rate, translating to an effective scaling of the maximum energy", SEP_COMMA ) \
-    X(factor_max_energy_protons, double, RadiationZone::DEFAULT_FACTOR_MAX_ENERGY_PROTONS, "Scaling factor for proton acceleration rate, translating to an effective scaling of the maximum energy", SEP_COMMA ) \
-    X(index_injected_electrons, double, RadiationZone::DEFAULT_INDEX_INJECTED_ELECTRONS, "Injected electron spectral index (dlogN/dlogE), ie. before cooling", SEP_COMMA ) \
-    X(index_injected_protons, double, RadiationZone::DEFAULT_INDEX_INJECTED_PROTONS, "Injected proton spectral index (dlogN/dlogE), ie. before cooling", SEP_COMMA )\
-    X(n_zones, size_t, BLJet::DEFAULT_N_ZONES, "Number of zones used to discretize the jet", SEP_COMMA) \
-    X(verbosity_level, size_t, JetDynamics::DEFAULT_VERBOSITY_LEVEL, "Regulates print output of the code. 0: No output; 1: Only important warnings; 2: More output; 3: Debugging output", ) 
+#define BHJET_PARAMS                                                                                                                                                 \
+    X(theta_obs, double, RadiationZone::DEFAULT_THETA_OBS, "Observation angle [degree]", SEP_COMMA)                                                                  \
+    X(distance, double, RadiationZone::DEFAULT_DISTANCE, "Distance to source [kpc]", SEP_COMMA)                                                                      \
+    X(redshift, double, RadiationZone::DEFAULT_REDSHIFT, "Redshift of source", SEP_COMMA)                                                                            \
+    X(include_counterjet, bool, RadiationZone::DEFAULT_INCLUDE_COUNTERJET, "True: Includes the emission of the counterjet; False: Includes only one jet", SEP_COMMA) \
+    X(profile_time, bool, BHJet::DEFAULT_PROFILE_TIME, "True: measures computation time of each zone; False: Does nothing", SEP_COMMA)                               \
+    X(verbosity_level, size_t, BHJet::DEFAULT_VERBOSITY_LEVEL, "Regulates print output of the code. 0: No output; 1: Only important warnings; 2: More output; 3: Debugging output", )
 
-
-#define BHJET_PARAMS \
-    X(theta_obs, double, RadiationZone::DEFAULT_THETA_OBS, "Observation angle [degree]", SEP_COMMA ) \
-    X(distance, double, RadiationZone::DEFAULT_DISTANCE, "Distance to source [kpc]", SEP_COMMA ) \
-    X(redshift, double, RadiationZone::DEFAULT_REDSHIFT, "Redshift of source", SEP_COMMA ) \
-    X(include_counterjet, bool, RadiationZone::DEFAULT_INCLUDE_COUNTERJET, "True: Includes the emission of the counterjet; False: Includes only one jet", SEP_COMMA )\
-    X(profile_time, bool, BHJet::DEFAULT_PROFILE_TIME, "True: measures computation time of each zone; False: Does nothing", SEP_COMMA )\
-    X(verbosity_level, size_t, BHJet::DEFAULT_VERBOSITY_LEVEL, "Regulates print output of the code. 0: No output; 1: Only important warnings; 2: More output; 3: Debugging output", ) 
-
-
-// function to convert the returned std::vector<type> from c++ function "function" 
+// function to convert the returned std::vector<type> from c++ function "function"
 // into a numpy array
-#define GET_ARGS_VEC(classtype, function, type)        \
-	[](classtype &self) {                                 \
+#define GET_ARGS_VEC(classtype, function, type) \
+    [](classtype &self) {                                 \
         auto vec = self.function(); \
-        return py::array_t<type>(vec.size(), vec.data()); \
-	}                             
+        return py::array_t<type>(vec.size(), vec.data()); }
 #define GET_TIMESCALE(classtype, function, type, argname) \
     [](classtype &self, std::vector<double> argname) {                  \
         auto vec = self.function(argname);                 \
-        return py::array_t<type>(vec.size(), vec.data());  \
-    }, py::arg("argname")
+        return py::array_t<type>(vec.size(), vec.data()); }, py::arg("argname")
 
 #define GET_NPARRAY_ARG(classtype, function, type, argname, argtype) \
     [](classtype &self, argtype argname) {                  \
         auto vec = self.function(argname);                 \
-        return py::array_t<type>(vec.size(), vec.data());  \
-    }, py::arg("argname")
+        return py::array_t<type>(vec.size(), vec.data()); }, py::arg("argname")
 
 #define GET_NPARRAY_2ARG(classtype, function, type, argname, argtype, argname2, argtype2) \
     [](classtype &self, argtype argname, argtype2 argname2) {                  \
         auto vec = self.function(argname, argname2);                 \
-        return py::array_t<type>(vec.size(), vec.data());  \
-    }, py::arg("argname"), py::arg("argname2")
+        return py::array_t<type>(vec.size(), vec.data()); }, py::arg("argname"), py::arg("argname2")
 
-#define BIND_VARIABLE(CLASS, NAME) \
-    .def_readwrite(#NAME, &CLASS::NAME)
-
-
-PYBIND11_MODULE(bhjet, m) {
+PYBIND11_MODULE(bhjet, m)
+{
     m.doc() = "Jet dynamics simulation module with Kariba backend";
 
     py::class_<JetDynamics, std::shared_ptr<JetDynamics>> jetdyn(m, "JetDynamics");
     jetdyn.def(py::init<
-            #define X(NAME, TYPE, DEFAULT, SEPARATOR) TYPE SEPARATOR
-            JETDYNAMICS_PARAMS
-            #undef X
-        >(),
-        // py::arg defaults
-        #define X(NAME, TYPE, DEFAULT, SEPARATOR) py::arg(#NAME) = DEFAULT SEPARATOR
+#define X(NAME, TYPE, DEFAULT, SEPARATOR) TYPE SEPARATOR
+                   JETDYNAMICS_PARAMS
+#undef X
+                   >(),
+// py::arg defaults
+#define X(NAME, TYPE, DEFAULT, SEPARATOR) py::arg(#NAME) = DEFAULT SEPARATOR
+               JETDYNAMICS_PARAMS
+#undef X
+               )
+// members
+#define X(NAME, TYPE, DEFAULT, SEPARATOR) .def_readwrite(#NAME, &JetDynamics::NAME)
         JETDYNAMICS_PARAMS
-        #undef X
-        )
-        // members
-        #define X(NAME, TYPE, DEFAULT, SEPARATOR) .def_readwrite(#NAME, &JetDynamics::NAME)
-        JETDYNAMICS_PARAMS
-        #undef X
+#undef X
         ;
     jetdyn.def("compute_jet_dynamics", &JetDynamics::compute_jet_dynamics);
     jetdyn.def("get_z_min_grid", GET_ARGS_VEC(JetDynamics, get_z_min_grid, double), "Get array with z grid of zone start positions [r_g]");
@@ -160,40 +149,41 @@ PYBIND11_MODULE(bhjet, m) {
 
     py::class_<BLJet, JetDynamics, std::shared_ptr<BLJet>> bljet(m, "BLJet");
     bljet.def(py::init<
-            #define X(NAME, TYPE, DEFAULT, DOC, SEPARATOR) TYPE SEPARATOR
-            BLJET_PARAMS
-            #undef X
-        >(),
-        // py::arg defaults
-        #define X(NAME, TYPE, DEFAULT, DOC, SEPARATOR) py::arg(#NAME) = DEFAULT SEPARATOR
+#define X(NAME, TYPE, DEFAULT, DOC, SEPARATOR) TYPE SEPARATOR
+                  BLJET_PARAMS
+#undef X
+                  >(),
+// py::arg defaults
+#define X(NAME, TYPE, DEFAULT, DOC, SEPARATOR) py::arg(#NAME) = DEFAULT SEPARATOR
+              BLJET_PARAMS
+#undef X
+              )
+// members
+#define X(NAME, TYPE, DEFAULT, DOC, SEPARATOR) .def_readwrite(#NAME, &BLJet::NAME, DOC)
         BLJET_PARAMS
-        #undef X
-        )
-        // members
-        #define X(NAME, TYPE, DEFAULT, DOC, SEPARATOR) .def_readwrite(#NAME, &BLJet::NAME, DOC)
-        BLJET_PARAMS
-        #undef X
+#undef X
         ;
     bljet.def_readonly("r_g", &BLJet::r_g, "Gravitational Radius [cm]");
     bljet.def_readonly("eddington_luminosity", &BLJet::eddington_luminosity, "Eddington Luminosity [erg/s]");
     bljet.def("compute_jet_dynamics", &BLJet::compute_jet_dynamics, "Computes the physical quantities along the jet");
 
     py::class_<RadiationZone> radzone(m, "RadiationZone");
-        // constructor
+    // constructor
     radzone.def(py::init<
-            #define X(NAME, TYPE, DEFAULT, DOC, SEPARATOR) TYPE SEPARATOR
-            RADIATIONZONE_PARAMS
-            #undef X
-        >(),
-        // py::arg defaults
-        #define X(NAME, TYPE, DEFAULT, DOC, SEPARATOR) py::arg(#NAME) = DEFAULT SEPARATOR
+#define X(NAME, TYPE, DEFAULT, DOC, SEPARATOR) TYPE SEPARATOR
+                    RADIATIONZONE_PARAMS
+#undef X
+                    >(),
+// py::arg defaults
+#define X(NAME, TYPE, DEFAULT, DOC, SEPARATOR) py::arg(#NAME) = DEFAULT SEPARATOR
+                RADIATIONZONE_PARAMS
+#undef X
+                ,
+                "Sets up a zone with the given parameters. Next add target fields, compute the particle spectra and then the emission.")
+// members
+#define X(NAME, TYPE, DEFAULT, DOC, SEPARATOR) .def_readwrite(#NAME, &RadiationZone::NAME, DOC)
         RADIATIONZONE_PARAMS
-        #undef X
-        , "Sets up a zone with the given parameters. Next add target fields, compute the particle spectra and then the emission.")
-        // members
-        #define X(NAME, TYPE, DEFAULT, DOC, SEPARATOR) .def_readwrite(#NAME, &RadiationZone::NAME, DOC)
-        RADIATIONZONE_PARAMS
-        #undef X
+#undef X
         ;
     radzone.def_readonly("beta_bulk", &RadiationZone::beta_bulk, "Bulk beta = speed/(speed of light) of the zone");
     radzone.def_readonly("gamma_bulk", &RadiationZone::gamma_bulk, "Bulk Lorentz factor of the zone");
@@ -217,14 +207,14 @@ PYBIND11_MODULE(bhjet, m) {
     // characteristic energies
     radzone.def("get_electron_max_momentum", &RadiationZone::get_electron_max_momentum, "Get maximum electron momentum from comparing acceleration with cooling times [cm g / s]");
     radzone.def("get_electron_break_momentum", &RadiationZone::get_electron_break_momentum, "Get break electron momentum from comparing adiabatic with cyclosyn./Compton cooling times [cm g / s]");
-    
+
     // target fields
     radzone.def("get_target_black_body_temperature", &RadiationZone::get_target_black_body_temperature, "Get the temperature of the black body target with the given name [keV]");
     radzone.def("get_target_black_body_energy_density", &RadiationZone::get_target_black_body_energy_density, "Get the integrated energy density of the black body target with the given name [erg/cm³]");
     radzone.def("get_photon_target_energy_grid", GET_ARGS_VEC(RadiationZone, get_photon_target_energy_grid, double), "Get array with target photon energy grid [erg]");
     radzone.def("get_photon_target_energy_density_black_body", GET_NPARRAY_ARG(RadiationZone, get_photon_target_energy_density_black_body, double, name, std::string), "Get array with target photon energy density of the black body with the given name [erg/cm³]");
     radzone.def("get_photon_target_energy_density", GET_ARGS_VEC(RadiationZone, get_photon_target_energy_density, double), "Get array with electron momentum grid [eV/c]");
-    
+
     // observed radiation spectra
     radzone.def("get_observed_photon_energy_grid_electron_cyclosyn", GET_ARGS_VEC(RadiationZone, get_observed_photon_energy_grid_electron_cyclosyn, double), "Get array with energy grid of electron cyclosynchrotron luminosity/flux [erg]");
     radzone.def("get_observed_photon_energy_grid_electron_compton", GET_ARGS_VEC(RadiationZone, get_observed_photon_energy_grid_electron_compton, double), "Get array with energy grid of electron Compton luminosity/flux [erg]");
@@ -240,75 +230,70 @@ PYBIND11_MODULE(bhjet, m) {
     radzone.def("compton_calculation_necessary", &RadiationZone::compton_calculation_necessary, "True: Compton emission is calculated; False: Compton emission is not calculated.");
     radzone.def("get_computation_times", GET_ARGS_VEC(RadiationZone, get_computation_times, double), "Get array with computation times [ns]");
 
-
     py::class_<BHJet> bhjet(m, "BHJet");
     bhjet.def(py::init<
-            #define X(NAME, TYPE, DEFAULT, DOC, SEPARATOR) TYPE SEPARATOR
-            BHJET_PARAMS
-            #undef X
-        >(),
-        // py::arg defaults
-        #define X(NAME, TYPE, DEFAULT, DOC, SEPARATOR) py::arg(#NAME) = DEFAULT SEPARATOR
-        BHJET_PARAMS
-        #undef X
-        , "Sets up a jet with multiple RadiationZones with the given radiation parameters as well as \
+#define X(NAME, TYPE, DEFAULT, DOC, SEPARATOR) TYPE SEPARATOR
+                  BHJET_PARAMS
+#undef X
+                  >(),
+// py::arg defaults
+#define X(NAME, TYPE, DEFAULT, DOC, SEPARATOR) py::arg(#NAME) = DEFAULT SEPARATOR
+              BHJET_PARAMS
+#undef X
+              ,
+              "Sets up a jet with multiple RadiationZones with the given radiation parameters as well as \
             properties derived from a JetDynamics object. Next init the jet dynamics, add target fields, \
             compute the full jet emission.")
-        // members
-        #define X(NAME, TYPE, DEFAULT, DOC, SEPARATOR) .def_readwrite(#NAME, &BHJet::NAME, DOC)
+// members
+#define X(NAME, TYPE, DEFAULT, DOC, SEPARATOR) .def_readwrite(#NAME, &BHJet::NAME, DOC)
         BHJET_PARAMS
-        #undef X
+#undef X
         ;
     bhjet.def("init_jet_dynamics", &BHJet::init_jet_dynamics, "Assign a class of type JetDynamics \
-        or a derivative (e.g. BLJet) to be used for the dynamics and properties of the jet");
-    bhjet.def("add_target_constant_black_body", &BHJet::add_target_constant_black_body, 
-        py::arg("luminosity"), py::arg("temperature"), py::arg("energy_density"), py::arg("name"), 
-        "Add a target black body radiation field, at rest in the black hole frame indexed with a given name. \
-        Total luminosity [erg/s] is added to the total emission, temperature [keV] and energy_density [erg/cm³] \
-        are boosted to each RadiationZone.");
-    bhjet.def("add_target_constant_bulge", &BHJet::add_target_constant_bulge, 
-        py::arg("luminosity"), py::arg("temperature"), py::arg("radius"), py::arg("name"), 
-        "Add a target black body radiation field, at rest in the black hole frame indexed with a given name. \
-        Total luminosity [erg/s] is added to the total emission, temperature [keV] and radius (converted to a \
-        homogeneous energy_density) [erg/cm³]  are boosted to each RadiationZone.");
-    bhjet.def("add_target_cmb", &BHJet::add_target_cmb, 
-        "Add a target black body radiation field with the CMB properties called CMB, at rest in the black hole \
-        frame indexed with a given name.");
+              or a derivative (e.g. BLJet) to be used for the dynamics and properties of the jet");
+    bhjet.def("add_target_constant_black_body", &BHJet::add_target_constant_black_body,
+              py::arg("luminosity"), py::arg("temperature"), py::arg("energy_density"), py::arg("name"),
+              "Add a target black body radiation field, at rest in the black hole frame indexed with a given name. \
+              Total luminosity [erg/s] is added to the total emission, temperature [keV] and energy_density [erg/cm³] \
+              are boosted to each RadiationZone.");
+    bhjet.def("add_target_constant_bulge", &BHJet::add_target_constant_bulge,
+              py::arg("luminosity"), py::arg("temperature"), py::arg("radius"), py::arg("name"),
+              "Add a target black body radiation field, at rest in the black hole frame indexed with a given name. \
+              Total luminosity [erg/s] is added to the total emission, temperature [keV] and radius (converted to a \
+              homogeneous energy_density) [erg/cm³]  are boosted to each RadiationZone.");
+    bhjet.def("add_target_cmb", &BHJet::add_target_cmb,
+              "Add a target black body radiation field with the CMB properties called CMB, at rest in the black hole \
+              frame indexed with a given name.");
     bhjet.def("clear_targets", &BHJet::clear_targets, "Removes all target photon fields");
-        
-    bhjet.def("compute_full_jet", &BHJet::compute_full_jet, 
-        py::arg("photon_energy_grid")
-        // py::arg defaults
-        // #define X(NAME, TYPE, DEFAULT, SEPARATOR) py::arg(#NAME) = DEFAULT SEPARATOR
-        // BHJET_COMPUTE_FULL_PARAMS
-        // #undef X
-        , "Iterates over each RadiationZone, determines its properties and performs the emission modelling. \
-            Takes the photon_energy_grid to compute the emission spectra");
+
+    bhjet.def("compute_full_jet", &BHJet::compute_full_jet,
+              py::arg("photon_energy_grid"),
+              "Iterates over each RadiationZone, determines its properties and performs the emission modelling. \
+              Takes the photon_energy_grid to compute the emission spectra");
     // bhjet.def_readonly("radiation_zones", &BHJet::radiation_zones, "Array with the RadiationZone objects");
     bhjet.def_property_readonly(
         "radiation_zones",
-        [](BHJet &self) -> std::vector<RadiationZone>& {
+        [](BHJet &self) -> std::vector<RadiationZone> &
+        {
             return self.radiation_zones;
         },
         py::return_value_policy::reference_internal,
-         "Array with the RadiationZone objects"
-    );
+        "Array with the RadiationZone objects");
 
-    bhjet.def("get_observed_photon_energy_grid", GET_ARGS_VEC(BHJet, get_observed_photon_energy_grid, double), \
-        "Get array with observed photon energies [erg]");
-    bhjet.def("get_observed_photon_flux_total", GET_ARGS_VEC(BHJet, get_observed_photon_flux_total, double), \
-        "Get array with total observed photon flux [1/(cm²s)]");
+    bhjet.def("get_observed_photon_energy_grid", GET_ARGS_VEC(BHJet, get_observed_photon_energy_grid, double),
+              "Get array with observed photon energies [erg]");
+    bhjet.def("get_observed_photon_flux_total", GET_ARGS_VEC(BHJet, get_observed_photon_flux_total, double),
+              "Get array with total observed photon flux [1/(cm²s)]");
 
-    bhjet.def("get_observed_photon_integrated_flux_total", \
-        GET_NPARRAY_2ARG(BHJet, get_observed_photon_integrated_flux_total, double, z_min, double, z_max, double), \
-        "Get array with with total observed photon flux [1/(cm²s)] integrated between z_min [cm] and z_max [cm]");
-    bhjet.def("get_observed_photon_integrated_flux_electron_cyclosyn", \
-        GET_NPARRAY_2ARG(BHJet, get_observed_photon_integrated_flux_electron_cyclosyn, double, z_min, double, z_max, double), \
-        "Get array with with electron cyclosyn. observed photon flux [1/(cm²s)] integrated between z_min [cm] and z_max [cm]");
-    bhjet.def("get_observed_photon_integrated_flux_electron_compton", \
-        GET_NPARRAY_2ARG(BHJet, get_observed_photon_integrated_flux_electron_compton, double, z_min, double, z_max, double), \
-        "Get array with with electron compton observed photon flux [1/(cm²s)] integrated between z_min [cm] and z_max [cm]");
-    
+    bhjet.def("get_observed_photon_integrated_flux_total",
+              GET_NPARRAY_2ARG(BHJet, get_observed_photon_integrated_flux_total, double, z_min, double, z_max, double),
+              "Get array with with total observed photon flux [1/(cm²s)] integrated between z_min [cm] and z_max [cm]");
+    bhjet.def("get_observed_photon_integrated_flux_electron_cyclosyn",
+              GET_NPARRAY_2ARG(BHJet, get_observed_photon_integrated_flux_electron_cyclosyn, double, z_min, double, z_max, double),
+              "Get array with with electron cyclosyn. observed photon flux [1/(cm²s)] integrated between z_min [cm] and z_max [cm]");
+    bhjet.def("get_observed_photon_integrated_flux_electron_compton",
+              GET_NPARRAY_2ARG(BHJet, get_observed_photon_integrated_flux_electron_compton, double, z_min, double, z_max, double),
+              "Get array with with electron compton observed photon flux [1/(cm²s)] integrated between z_min [cm] and z_max [cm]");
+
     bhjet.def("get_computation_times", GET_ARGS_VEC(BHJet, get_computation_times, double), "Get array with computation times [ns]");
-
 }
