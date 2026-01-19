@@ -36,8 +36,8 @@ public:
     void compute_particles();
     // radiation targets per zone, for total luminosity track one for each in BHJet class
     void add_target_black_body(double temperature, double energy_density, std::string name);
-    void add_target_disk(double Mbh, double inner_radius, double outer_radius, double luminosity, double inclination);
-    
+    // void add_target_disk(double Mbh, double inner_radius, double outer_radius, double luminosity, double inclination);
+    // void add_target_field(std::vector<double> target_energy, std::vector<double> target_array);
     void compute_radiation();
     void compute_radiation(std::vector<double> obs_energy_grid);
 
@@ -181,7 +181,7 @@ public:
           electrons_bpl(kariba::Bknpower(0)), electrons_pl(kariba::Powerlaw(0)),
           spline_electrons(nullptr), spline_electrons_accel(nullptr),
           spline_electrons_derivative(nullptr), spline_electrons_derivative_accel(nullptr),
-          computation_times(3, 0.)
+          computation_times(3, 0.)//, additional_target_field_energy(), additional_target_field_energy_density()
     {
 
         gamma_bulk = pow(1 + bulk_momentum*bulk_momentum, 0.5);
@@ -204,7 +204,7 @@ public:
     std::vector<double> get_electron_gamma_numbery_density();
 
 
-
+    // std::vector<double> additional_target_field_energy, additional_target_field_energy_density;
     std::vector<double> get_photon_target_energy_grid();
     std::vector<double> get_photon_target_energy_density();
     std::vector<double> get_photon_target_energy_density_black_body(std::string name);

@@ -34,6 +34,16 @@ void RadiationZone::add_target_black_body(double temperature, double energy_dens
     target_vector_blackbody.emplace_back(temperature, energy_density, name);
 }
 
+// void RadiationZone::add_target_field(std::vector<double> target_energy, std::vector<double> target_array) {
+//     size_t N = target_array.size();
+//     additional_target_field_energy = std::vector<double>(N, 1e-100);
+//     additional_target_field_energy_density = std::vector<double>(N, 1e-100);
+//     add_emission_on_interpolated_grid(
+//         target_energy, target_array,
+//         additional_target_field_energy, additional_target_field_energy_density);
+
+// }
+
 
 void RadiationZone::compute_particles(){
     // reset computation times
@@ -314,6 +324,16 @@ void RadiationZone::compute_radiation(std::vector<double> obs_energy_grid) {
                 doppler_factor_bulk * target_vector_blackbody[i].temperature);
             // is here a doppler factor ^2 or gamma^2 needed? 
         }
+
+        // if(additional_target_field_energy_density.size()>0){
+        //     std::vector<double> target_extra(nsyn, 1e-100);
+        //     std::vector<double> syn_energy = Syncro.get_energy();
+        //     add_emission_on_interpolated_grid(
+        //         additional_target_field_energy, additional_target_field_energy_density, 
+        //         syn_energy, target_extra);
+        //     InvCompton.add_seed(Syncro.get_energy(), target_extra);
+        //     // is here a doppler factor ^2 or gamma^2 needed? 
+        // }
         target_radiation_energy_grid = InvCompton.get_seed_energ();
         target_radiation_energy_density = InvCompton.get_seed_urad();
 
