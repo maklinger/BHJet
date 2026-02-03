@@ -71,6 +71,17 @@ namespace bhjet
 
         std::vector<TargetFieldBlackBody> target_list_blackbody;
 
+        double get_target_black_body_temperature(std::string name);
+        double get_target_black_body_energy_density(std::string name);
+        double get_target_black_body_luminosity(std::string name);
+        void set_target_black_body_temperature(std::string name, double new_temperature);
+        void set_target_black_body_energy_density(std::string name, double new_energy_density);
+        void set_target_black_body_luminosity(std::string name, double new_luminosity);
+
+        std::vector<double> get_observed_photon_energy_grid_black_body(std::string name);
+        std::vector<double> get_observed_photon_flux_black_body(std::string name);
+
+
         // emission components
         std::vector<double>
             observed_photon_energy_grid,

@@ -182,7 +182,6 @@ namespace bhjet
               spline_electrons_derivative(nullptr), spline_electrons_derivative_accel(nullptr),
               computation_times(3, 0.) //, additional_target_field_energy(), additional_target_field_energy_density()
         {
-
             gamma_bulk = pow(1 + bulk_momentum * bulk_momentum, 0.5);
             beta_bulk = pow(1 - 1 / (gamma_bulk * gamma_bulk), 0.5);
             doppler_factor_bulk = 1. / (gamma_bulk * (1. - beta_bulk * std::cos(theta_obs * karcst::pi / 180.)));
@@ -208,6 +207,8 @@ namespace bhjet
         std::vector<double> get_photon_target_energy_density_black_body(std::string name);
         double get_target_black_body_temperature(std::string name);
         double get_target_black_body_energy_density(std::string name);
+        void set_target_black_body_temperature(std::string name, double new_temperature);
+        void set_target_black_body_energy_density(std::string name, double new_energy_density);
 
         std::vector<double>
             photon_energy_grid_electron_cyclosyn, photon_observed_luminosity_electron_cyclosyn,
@@ -232,8 +233,7 @@ namespace bhjet
         void sum_jet_only(size_t size, const std::vector<double> &input_en,
                           const std::vector<double> &input_lum, std::vector<double> &en,
                           std::vector<double> &lum);
-        double kariba_luminosity_to_number_flux(double lum_kariba);
-        double number_flux_to_milijansky(double number_flux);
+
         bool compton_calculation_necessary();
         /**
          * @brief function to compute ker_ic[][].

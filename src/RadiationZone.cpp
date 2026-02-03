@@ -243,6 +243,7 @@ namespace bhjet
 
         auto tstart = std::chrono::steady_clock::now();
         kariba::Cyclosyn Syncro(nsyn);
+        if(verbosity_level > 2) std::cout << "syn_min:" << syn_min << "Hz, syn_max:" << syn_max << "Hz, nsyn:" << nsyn << std::endl;
         // std::cout << "after" << std::endl;
         Syncro.set_frequency(syn_min, syn_max);
         // std::cout << "after freq" << std::endl;
@@ -314,7 +315,7 @@ namespace bhjet
             photon_energy_grid_electron_compton[i] = InvCompton.get_energy()[i];
         }
 
-        // std::cout << "com max " << com_max << "Hz " << std::endl;
+        // std::cout << "com min " << com_min << "Hz, com max " << com_max << "Hz " << std::endl;
         // std::cout << "doppler_factor_bulk " << doppler_factor_bulk << std::endl;
 
         // readout of the target fields needed to compute Compton cooling time
@@ -349,6 +350,7 @@ namespace bhjet
             // is here a doppler factor ^2 or gamma^2 needed?
         }
 
+        // std::cout << "before Compton switch" << std::endl;
         // if(additional_target_field_energy_density.size()>0){
         //     std::vector<double> target_extra(nsyn, 1e-100);
         //     std::vector<double> syn_energy = Syncro.get_energy();
@@ -366,7 +368,7 @@ namespace bhjet
 
             InvCompton.compton_spectrum(gmin, gmax, spline_electrons, spline_electrons_accel);
 
-            // std::cout << "sum" << std::endl;
+            // std::cout << "compton sum" << std::endl;
             if (include_counterjet)
             {
                 sum_jet_and_counterjet(ncom, InvCompton.get_energy_obs(), InvCompton.get_nphot_obs(),
@@ -378,7 +380,10 @@ namespace bhjet
                              photon_energy_grid_electron_compton, photon_observed_luminosity_electron_compton);
             }
 
-            // std::cout << "add com" << std::endl;
+            // std::cout << "add com " << photon_energy_grid_electron_compton.size() << "," <<
+                //  photon_observed_luminosity_electron_compton.size() << "," <<
+                //  photon_energy_grid_total.size() << "," <<
+                //  photon_observed_luminosity_total.size() << "," << std::endl;
             add_emission_on_interpolated_grid(
                 photon_energy_grid_electron_compton, photon_observed_luminosity_electron_compton,
                 photon_energy_grid_total, photon_observed_luminosity_total);
@@ -505,6 +510,29 @@ namespace bhjet
         throw std::out_of_range("black body called " + name + " not found!");
     }
 
+    void RadiationZone::set_target_black_body_temperature(std::string name, double new_temperature)
+    {
+        for (size_t i = 0; i < target_vector_blackbody.size(); i++)
+        {
+            if (name == target_vector_blackbody[i].name)
+            {
+                target_vector_blackbody[i].temperature = new_temperature;
+            }
+        }
+        throw std::out_of_range("black body called " + name + " not found!");
+    }
+    void RadiationZone::set_target_black_body_energy_density(std::string name, double new_energy_density)
+    {
+        for (size_t i = 0; i < target_vector_blackbody.size(); i++)
+        {
+            if (name == target_vector_blackbody[i].name)
+            {
+                target_vector_blackbody[i].energy_density = new_energy_density;
+            }
+        }
+        throw std::out_of_range("black body called " + name + " not found!");
+    }
+
     std::vector<double> RadiationZone::get_observed_photon_energy_grid_electron_cyclosyn()
     {
         return photon_energy_grid_electron_cyclosyn;
@@ -518,7 +546,7 @@ namespace bhjet
         std::vector<double> flux(photon_observed_luminosity_electron_cyclosyn.size(), 1e-100);
         for (size_t i = 0; i < flux.size(); i++)
         {
-            flux[i] = kariba_luminosity_to_number_flux(photon_observed_luminosity_electron_cyclosyn[i]);
+            flux[i] = kariba_luminosity_to_number_flux(photon_observed_luminosity_electron_cyclosyn[i], redshift, distance);
         }
         return flux;
     }
@@ -536,7 +564,7 @@ namespace bhjet
         std::vector<double> flux(photon_observed_luminosity_electron_compton.size(), 1e-100);
         for (size_t i = 0; i < flux.size(); i++)
         {
-            flux[i] = kariba_luminosity_to_number_flux(photon_observed_luminosity_electron_compton[i]);
+            flux[i] = kariba_luminosity_to_number_flux(photon_observed_luminosity_electron_compton[i], redshift, distance);
         }
         return flux;
     }
@@ -554,23 +582,9 @@ namespace bhjet
         std::vector<double> flux(photon_observed_luminosity_total.size(), 1e-100);
         for (size_t i = 0; i < flux.size(); i++)
         {
-            flux[i] = kariba_luminosity_to_number_flux(photon_observed_luminosity_total[i]);
+            flux[i] = kariba_luminosity_to_number_flux(photon_observed_luminosity_total[i], redshift, distance);
         }
         return flux;
-    }
-
-    // kariba libraries give fluxes EdN/dtdnu [erg/(sHz)]
-    // convert via EdN/dtdnu / h * (1+z) / (4*pi * dL^2) in [1/(cm²s)]
-    double RadiationZone::kariba_luminosity_to_number_flux(double lum_kariba)
-    {
-        return lum_kariba * (1.0 + redshift) / (4.0 * karcst::pi * pow(distance * karcst::kpc, 2.0) * karcst::herg);
-    }
-
-    // kariba libraries give fluxes EdN/dtdnu [erg/(sHz)]
-    // returns via EdN/dtdnu * (1+z) / (4*pi * dL^2) * 1e-26 in [mJy = 1e-26 erg/(cm² s Hz)]
-    double RadiationZone::number_flux_to_milijansky(double number_flux)
-    {
-        return number_flux * karcst::herg * karcst::mjy;
     }
 
     // This function takes the observed arrays of the Cyclosyn and Compton classes

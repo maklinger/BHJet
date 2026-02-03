@@ -31,4 +31,27 @@ namespace bhjet
         gsl_spline_free(input_spline), gsl_interp_accel_free(acc);
     }
 
+    // kariba libraries give fluxes EdN/dtdnu [erg/(sHz)]
+    // convert via EdN/dtdnu / h * (1+z) / (4*pi * dL^2) in [1/(cm²s)]
+    double kariba_luminosity_to_number_flux(double lum_kariba, double redshift, double distance)
+    {
+        return lum_kariba * (1.0 + redshift) / (4.0 * karcst::pi * pow(distance * karcst::kpc, 2.0) * karcst::herg);
+    }
+    // same function for an array
+    std::vector<double> kariba_luminosity_to_number_flux(std::vector<double> lum_kariba, double redshift, double distance)
+    {
+        for (size_t i = 0; i < lum_kariba.size(); i++)
+        {
+            lum_kariba[i] *= (1.0 + redshift) / (4.0 * karcst::pi * pow(distance * karcst::kpc, 2.0) * karcst::herg);
+        }
+
+        return lum_kariba;
+    }
+
+    // kariba libraries give fluxes EdN/dtdnu [erg/(sHz)]
+    // returns via EdN/dtdnu * (1+z) / (4*pi * dL^2) * 1e-26 in [mJy = 1e-26 erg/(cm² s Hz)]
+    double number_flux_to_milijansky(double number_flux)
+    {
+        return number_flux * karcst::herg * karcst::mjy;
+    }
 } // bhjet

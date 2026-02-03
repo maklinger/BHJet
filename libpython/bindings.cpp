@@ -295,5 +295,16 @@ PYBIND11_MODULE(bhjet, m)
               GET_NPARRAY_2ARG(BHJet, get_observed_photon_integrated_flux_electron_compton, double, z_min, double, z_max, double),
               "Get array with with electron compton observed photon flux [1/(cm²s)] integrated between z_min [cm] and z_max [cm]");
 
+
+    bhjet.def("get_target_black_body_temperature", &BHJet::get_target_black_body_temperature, "Get the temperature of the black body target with the given name [keV]");
+    bhjet.def("get_target_black_body_energy_density", &BHJet::get_target_black_body_energy_density, "Get the integrated energy density of the black body target with the given name [erg/cm³]");
+    bhjet.def("get_target_black_body_luminosity", &BHJet::get_target_black_body_luminosity, "Get the luminosity of the black body target with the given name [erg/s]");
+    bhjet.def("set_target_black_body_temperature", &BHJet::set_target_black_body_temperature, "Set the temperature of the black body target with the given name [keV]");
+    bhjet.def("set_target_black_body_energy_density", &BHJet::set_target_black_body_energy_density, "Set the integrated energy density of the black body target with the given name [erg/cm³]");
+    bhjet.def("set_target_black_body_luminosity", &BHJet::set_target_black_body_luminosity, "Set the luminosity of the black body target with the given name [erg/s]");
+    bhjet.def("get_observed_photon_energy_grid_black_body", GET_NPARRAY_ARG(BHJet, get_observed_photon_energy_grid_black_body, double, name, std::string),
+              "Get array with observed photon energies for the black body with a given name [erg]");
+    bhjet.def("get_observed_photon_flux_black_body", GET_NPARRAY_ARG(BHJet, get_observed_photon_flux_black_body, double, name, std::string),
+              "Get array with total observed photon flux for the black body with a given name [1/(cm²s)]");
     bhjet.def("get_computation_times", GET_ARGS_VEC(BHJet, get_computation_times, double), "Get array with computation times [ns]");
 }

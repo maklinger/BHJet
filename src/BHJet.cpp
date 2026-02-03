@@ -111,8 +111,10 @@ namespace bhjet
                 jet_dynamics->get_index_injected_electrons_grid()[i],
                 jet_dynamics->get_index_injected_protons_grid()[i],
                 include_counterjet, force_compton, compton_switch,
-                compton_threshold, verbosity_level);
-
+                compton_threshold, profile_time, verbosity_level);
+            
+            if (verbosity_level > 2)
+                std::cout << "Adding targets in zone " << i << std::endl;
             for (size_t b = 0; b < target_list_blackbody.size(); b++)
             {
                 radiation_zones[i].add_target_black_body(
@@ -132,6 +134,17 @@ namespace bhjet
 
             if (profile_time)
                 computation_times[i + 1] = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now() - tstart).count();
+        }
+        // black bodies
+        for (size_t b = 0; b < target_list_blackbody.size(); b++)
+        {
+            kariba::BBody BlackBody;
+            BlackBody.set_temp_kev(target_list_blackbody[b].temperature);
+            BlackBody.set_lum(target_list_blackbody[b].luminosity);
+            BlackBody.bb_spectrum();
+            add_emission_on_interpolated_grid(
+                BlackBody.get_energy_obs(), kariba_luminosity_to_number_flux(BlackBody.get_nphot_obs(), redshift, distance),
+                observed_photon_energy_grid, observed_photon_flux_total);
         }
     }
 
@@ -199,6 +212,113 @@ namespace bhjet
     std::vector<double> BHJet::get_observed_photon_flux_total()
     {
         return observed_photon_flux_total;
+    }
+    std::vector<double> BHJet::get_observed_photon_energy_grid_black_body(std::string name)
+    {
+        for (size_t b = 0; b < target_list_blackbody.size(); b++)
+        {
+            if (name == target_list_blackbody[b].name)
+            {
+                kariba::BBody BlackBody;
+                BlackBody.set_temp_kev(target_list_blackbody[b].temperature);
+                BlackBody.set_lum(target_list_blackbody[b].luminosity);
+                BlackBody.bb_spectrum();
+                return BlackBody.get_energy_obs();
+            }
+        }
+        throw std::out_of_range("black body called " + name + " not found!");
+    }
+    std::vector<double> BHJet::get_observed_photon_flux_black_body(std::string name)
+    {
+        for (size_t b = 0; b < target_list_blackbody.size(); b++)
+        {
+            if (name == target_list_blackbody[b].name)
+            {
+                kariba::BBody BlackBody;
+                BlackBody.set_temp_kev(target_list_blackbody[b].temperature);
+                BlackBody.set_lum(target_list_blackbody[b].luminosity);
+                BlackBody.bb_spectrum();
+                return kariba_luminosity_to_number_flux(BlackBody.get_nphot_obs(), redshift, distance);
+            }
+        }
+        throw std::out_of_range("black body called " + name + " not found!");
+    }
+
+    double BHJet::get_target_black_body_temperature(std::string name)
+    {
+        for (size_t i = 0; i < target_list_blackbody.size(); i++)
+        {
+            if (name == target_list_blackbody[i].name)
+            {
+                return target_list_blackbody[i].temperature;
+            }
+        }
+        throw std::out_of_range("black body called " + name + " not found!");
+    }
+    double BHJet::get_target_black_body_energy_density(std::string name)
+    {
+        for (size_t i = 0; i < target_list_blackbody.size(); i++)
+        {
+            if (name == target_list_blackbody[i].name)
+            {
+                return target_list_blackbody[i].energy_density;
+            }
+        }
+        throw std::out_of_range("black body called " + name + " not found!");
+    }
+
+    double BHJet::get_target_black_body_luminosity(std::string name)
+    {
+        for (size_t i = 0; i < target_list_blackbody.size(); i++)
+        {
+            if (name == target_list_blackbody[i].name)
+            {
+                return target_list_blackbody[i].luminosity;
+            }
+        }
+        throw std::out_of_range("black body called " + name + " not found!");
+    }
+    void BHJet::set_target_black_body_temperature(std::string name, double new_temperature)
+    {
+        bool success = false;
+        for (size_t i = 0; i < target_list_blackbody.size(); i++)
+        {
+            if (name == target_list_blackbody[i].name)
+            {
+                target_list_blackbody[i].temperature = new_temperature;
+                success = true;
+            }
+        }
+        if (!success)
+            throw std::out_of_range("black body called " + name + " not found!");
+    }
+    void BHJet::set_target_black_body_energy_density(std::string name, double new_energy_density)
+    {
+        bool success = false;
+        for (size_t i = 0; i < target_list_blackbody.size(); i++)
+        {
+            if (name == target_list_blackbody[i].name)
+            {
+                target_list_blackbody[i].energy_density = new_energy_density;
+                success = true;
+            }
+        }
+        if (!success)
+            throw std::out_of_range("black body called " + name + " not found!");
+    }
+    void BHJet::set_target_black_body_luminosity(std::string name, double new_luminosity)
+    {
+        bool success = false;
+        for (size_t i = 0; i < target_list_blackbody.size(); i++)
+        {
+            if (name == target_list_blackbody[i].name)
+            {
+                target_list_blackbody[i].luminosity = new_luminosity;
+                success = true;
+            }
+        }
+        if (!success)
+            throw std::out_of_range("black body called " + name + " not found!");
     }
 
     std::vector<double> BHJet::get_computation_times()
