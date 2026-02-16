@@ -124,7 +124,7 @@ namespace bhjet
         // step one: calculate proton number density from initial equipartition
         // assumptions
         nozzle_ener.sig0 = (1. + nozzle_ener.sig_acc) * jet_dyn.gamf / jet_dyn.gam0 - 1.;
-        if (nozzle_ener.pbeta == 0)
+        if (calc_pair_content_from_plasma_beta == false)
         {
             nozzle_ener.eta = 1.;
             equip =

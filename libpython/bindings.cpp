@@ -60,7 +60,6 @@ using namespace bhjet;
     X(z_max_calculation, double, BLJet::DEFAULT_Z_MAX_CALCULATION, "Distance from black hole where the calulation stops [rg]", SEP_COMMA)                                                                             \
     X(sigma_final, double, BLJet::DEFAULT_SIGMA_FINAL, "Magnetisation at z_end_of_acceleration", SEP_COMMA)                                                                                                           \
     X(gamma_final, double, BLJet::DEFAULT_GAMMA_FINAL, "Bulk Lorentz factor at z_end_of_acceleration", SEP_COMMA)                                                                                                     \
-    X(plasma_beta_jet_base, double, BLJet::DEFAULT_PLASMA_BETA_JET_BASE, "Plasma beta value at z_jet_launching (the jet base)", SEP_COMMA)                                                                            \
     X(electron_temperature_jet_base, double, BLJet::DEFAULT_ELECTRON_TEMPERATURE_JET_BASE, "Electron temperature value at z_jet_launching (the jet base) [keV]", SEP_COMMA)                                           \
     X(gamma_acceleration_exponent, double, BLJet::DEFAULT_GAMMA_ACCELERATION_EXPONENT, "Exponent alpha of jet acceleration profile, gamma_bulk propto z^alpha", SEP_COMMA)                                            \
     X(gamma_deceleration_exponent, double, BLJet::DEFAULT_GAMMA_DECELERATION_EXPONENT, "  ", SEP_COMMA)                                                                                                               \
@@ -73,6 +72,8 @@ using namespace bhjet;
     X(factor_max_energy_protons, double, RadiationZone::DEFAULT_FACTOR_MAX_ENERGY_PROTONS, "Scaling factor for proton acceleration rate, translating to an effective scaling of the maximum energy", SEP_COMMA)       \
     X(index_injected_electrons, double, RadiationZone::DEFAULT_INDEX_INJECTED_ELECTRONS, "Injected electron spectral index (dlogN/dlogE), ie. before cooling", SEP_COMMA)                                             \
     X(index_injected_protons, double, RadiationZone::DEFAULT_INDEX_INJECTED_PROTONS, "Injected proton spectral index (dlogN/dlogE), ie. before cooling", SEP_COMMA)                                                   \
+    X(calc_pair_content_from_plasma_beta, bool, BLJet::DEFAULT_CALC_PAIR_CONTENT_FROM_PLASMA_BETA, "True: use the plasma beta variable to estimate the pair content (n_p/n_e) at the jet base; False: Assume same number density for electrons and protons and ignore plasma_beta_jet_base", SEP_COMMA)                                                                            \
+    X(plasma_beta_jet_base, double, BLJet::DEFAULT_PLASMA_BETA_JET_BASE, "Plasma beta value at z_jet_launching (the jet base)", SEP_COMMA)                                                                            \
     X(n_zones, size_t, BLJet::DEFAULT_N_ZONES, "Number of zones used to discretize the jet", SEP_COMMA)                                                                                                               \
     X(verbosity_level, size_t, JetDynamics::DEFAULT_VERBOSITY_LEVEL, "Regulates print output of the code. 0: No output; 1: Only important warnings; 2: More output; 3: Debugging output", )
 

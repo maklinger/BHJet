@@ -52,11 +52,12 @@ namespace bhjet
         static constexpr double DEFAULT_Z_MAX_CALCULATION = 1e6;
         static constexpr double DEFAULT_SIGMA_FINAL = 1;
         static constexpr double DEFAULT_GAMMA_FINAL = 15;
-        static constexpr double DEFAULT_PLASMA_BETA_JET_BASE = 1;
         static constexpr double DEFAULT_ELECTRON_TEMPERATURE_JET_BASE = 1e3;
         static constexpr double DEFAULT_GAMMA_ACCELERATION_EXPONENT = 0.5;
         static constexpr double DEFAULT_GAMMA_DECELERATION_EXPONENT = 0.0;
         static constexpr double DEFAULT_OPENING_ANGLE_CONSTANT = 0.15;
+        static constexpr bool DEFAULT_CALC_PAIR_CONTENT_FROM_PLASMA_BETA = false;
+        static constexpr double DEFAULT_PLASMA_BETA_JET_BASE = 1;
 
         // Member variables
         double mass_bh = DEFAULT_MASS_BH;
@@ -68,7 +69,6 @@ namespace bhjet
         double z_max_calculation = DEFAULT_Z_MAX_CALCULATION;
         double sigma_final = DEFAULT_SIGMA_FINAL;
         double gamma_final = DEFAULT_GAMMA_FINAL;
-        double plasma_beta_jet_base = DEFAULT_PLASMA_BETA_JET_BASE;
         double electron_temperature_jet_base = DEFAULT_ELECTRON_TEMPERATURE_JET_BASE;
         double gamma_acceleration_exponent = DEFAULT_GAMMA_ACCELERATION_EXPONENT;
         double gamma_deceleration_exponent = DEFAULT_GAMMA_DECELERATION_EXPONENT;
@@ -81,6 +81,8 @@ namespace bhjet
         double factor_max_energy_protons = RadiationZone::DEFAULT_FACTOR_MAX_ENERGY_PROTONS;
         double index_injected_electrons = RadiationZone::DEFAULT_INDEX_INJECTED_ELECTRONS;
         double index_injected_protons = RadiationZone::DEFAULT_INDEX_INJECTED_PROTONS;
+        bool calc_pair_content_from_plasma_beta = DEFAULT_CALC_PAIR_CONTENT_FROM_PLASMA_BETA;
+        double plasma_beta_jet_base = DEFAULT_PLASMA_BETA_JET_BASE;
 
         // internal variables
         double eddington_luminosity, r_g, zmin;
@@ -102,7 +104,6 @@ namespace bhjet
             double z_max_calculation_ = DEFAULT_Z_MAX_CALCULATION,
             double sigma_final_ = DEFAULT_SIGMA_FINAL,
             double gamma_final_ = DEFAULT_GAMMA_FINAL,
-            double plasma_beta_jet_base_ = DEFAULT_PLASMA_BETA_JET_BASE,
             double electron_temperature_jet_base_ = DEFAULT_ELECTRON_TEMPERATURE_JET_BASE,
             double gamma_acceleration_exponent_ = DEFAULT_GAMMA_ACCELERATION_EXPONENT,
             double gamma_deceleration_exponent_ = DEFAULT_GAMMA_DECELERATION_EXPONENT,
@@ -115,6 +116,8 @@ namespace bhjet
             double factor_max_energy_protons_ = RadiationZone::DEFAULT_FACTOR_MAX_ENERGY_PROTONS,
             double index_injected_electrons_ = RadiationZone::DEFAULT_INDEX_INJECTED_ELECTRONS,
             double index_injected_protons_ = RadiationZone::DEFAULT_INDEX_INJECTED_PROTONS,
+            bool calc_pair_content_from_plasma_beta_ = DEFAULT_CALC_PAIR_CONTENT_FROM_PLASMA_BETA,
+            double plasma_beta_jet_base_ = DEFAULT_PLASMA_BETA_JET_BASE,
             size_t n_zones_ = JetDynamics::DEFAULT_N_ZONES,
             size_t verbosity_level_ = JetDynamics::DEFAULT_VERBOSITY_LEVEL)
             : JetDynamics(n_zones_, verbosity_level_),
@@ -124,7 +127,6 @@ namespace bhjet
               z_end_of_acceleration(z_end_of_acceleration_),
               z_dissipation(z_dissipation_), z_max_calculation(z_max_calculation_),
               sigma_final(sigma_final_), gamma_final(gamma_final_),
-              plasma_beta_jet_base(plasma_beta_jet_base_),
               electron_temperature_jet_base(electron_temperature_jet_base_),
               gamma_acceleration_exponent(gamma_acceleration_exponent_),
               gamma_deceleration_exponent(gamma_deceleration_exponent_),
@@ -134,7 +136,9 @@ namespace bhjet
               factor_break_electrons(factor_break_electrons_), factor_break_protons(factor_break_protons_),
               factor_max_energy_electrons(factor_max_energy_electrons_),
               factor_max_energy_protons(factor_max_energy_protons_),
-              index_injected_electrons(index_injected_electrons_), index_injected_protons(index_injected_protons_)
+              index_injected_electrons(index_injected_electrons_), index_injected_protons(index_injected_protons_),
+              calc_pair_content_from_plasma_beta(calc_pair_content_from_plasma_beta_),
+              plasma_beta_jet_base(plasma_beta_jet_base_)
         {
         }
         ~BLJet() override = default;
