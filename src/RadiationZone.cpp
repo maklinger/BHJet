@@ -80,7 +80,7 @@ namespace bhjet
         radiation_energy_density = 0;
         for (size_t i = 0; i < target_vector_blackbody.size(); i++)
         {
-            // is here a doppler factor ^2 or gamma^2? Dermer 1995
+            // use here a doppler factor ^2 instead of gamma^2 to account for anisotropy (roughly), see Dermer 1995
             radiation_energy_density += std::pow(doppler_factor_bulk, 2) * target_vector_blackbody[i].energy_density;
         }
 
