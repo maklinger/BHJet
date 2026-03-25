@@ -43,3 +43,4 @@ pytest_cache/
 
 # test folder
 test/
+examples/ultranest_test/

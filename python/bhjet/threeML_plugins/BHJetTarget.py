@@ -7,18 +7,16 @@ class BHJetTarget(Function1D):
     Base class for BHJet targets (parameter containers).
     """
 
-    def _setup(self):
-        self._target_name = None
-
     # -------------------------
     # Name handling
     # -------------------------
-    @property
-    def target_name(self):
-        return self._target_name
+    # @property
+    # def target_name(self):
+    #     return self._target_name
 
     def _set_name(self, name):
-        self._target_name = name
+        self._name = name
+        # self.name = name
 
     # -------------------------
     # Interface (must override)

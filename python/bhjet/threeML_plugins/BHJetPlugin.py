@@ -11,7 +11,7 @@ keV2erg = 1.60218e-9
 eV2erg = 1.60218e-12
 
 
-class BHJetBB1Plugin(Function1D, metaclass=FunctionMeta):
+class BHJetPlugin(Function1D, metaclass=FunctionMeta):
     r"""
     description :
         A simple syn/IC model for a relativistic jet
@@ -192,6 +192,7 @@ class BHJetBB1Plugin(Function1D, metaclass=FunctionMeta):
         self.bhjet.init_jet_dynamics(self.bljet)
         self.bhjet.clear_targets()
 
+        self.targets = {}
         # chache 
         self.cached_params = None
 
@@ -207,23 +208,29 @@ class BHJetBB1Plugin(Function1D, metaclass=FunctionMeta):
                 i += 1
             name = f"{base}_{i}"
 
-        self.link_external_function(target, name)
-
         target._set_name(name)
         target.add_to_bhjet(self.bhjet)
+
+        self._add_child(target)
+        self.targets[name] = target
+
 
         return target
 
     def remove_target(self, name):
+        if name not in self.targets:
+            print(f"target with name {name} not found in list of targets!")
+        else:
+            target = self.targets[name]
 
-        target = self.external_functions[name]
-
-        target.remove_from_bhjet(self.bhjet)
-        self.unlink_external_function(name)
+            target.remove_from_bhjet(self.bhjet)
+            self.targets.pop(name)
+            # not sure if it makes a difference, but we don't need to delete here?
+            self._remove_child(name, delete=False)
 
     def clear_targets(self):
 
-        for name in list(self.external_functions.keys()):
+        for name in list(self.targets.keys()):
             self.remove_target(name)
 
 
@@ -327,14 +334,18 @@ class BHJetBB1Plugin(Function1D, metaclass=FunctionMeta):
             redshift
         ]
         # include target parameters
-        for target in self.external_functions.values():
+        for target in self.targets.values():
             for p in target.parameters.values():
                 current_params.append(p.value)
 
         current_params = np.array(current_params)
 
         if (
+            # first call = no param. valsues cached
             self.cached_params is None
+            # executed & cached, target added/deleted -> different number of params. cached
+            or len(self.cached_params) != len(current_params)
+            # did params actually change significanctly compard to last call?
             or not np.allclose(self.cached_params, current_params, rtol=self.cache_rtol, atol=0)
         ):
                 
@@ -365,7 +376,7 @@ class BHJetBB1Plugin(Function1D, metaclass=FunctionMeta):
             self.bhjet.redshift = redshift
 
 
-            for target in self.external_functions.values():
+            for target in self.targets.values():
                 target.apply_to_bhjet(self.bhjet)
             
             self.bhjet.compute_full_jet(photon_energy_grid=self.Egrid_keV*keV2erg)
