@@ -265,6 +265,8 @@ PYBIND11_MODULE(bhjet, m)
     bhjet.def("add_target_cmb", &BHJet::add_target_cmb,
               "Add a target black body radiation field with the CMB properties called CMB, at rest in the black hole \
               frame indexed with a given name.");
+              
+    bhjet.def("remove_target_black_body", &BHJet::remove_target_black_body, "Removes a target photon field with a given name.");
     bhjet.def("clear_targets", &BHJet::clear_targets, "Removes all target photon fields");
 
     bhjet.def("compute_full_jet", &BHJet::compute_full_jet,

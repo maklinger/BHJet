@@ -23,7 +23,7 @@ namespace bhjet
             std::cout << "BHJet: adding black body: " << name << std::endl;
         target_list_blackbody.emplace_back(luminosity, temperature, energy_density, name);
     }
-
+    
     void BHJet::add_target_constant_bulge(double luminosity, double temperature, double radius, std::string name)
     {
         if (verbosity_level > 1)
@@ -56,6 +56,41 @@ namespace bhjet
         }
     }
 
+    void BHJet::remove_target_black_body(const std::string& name)
+    {
+        if (verbosity_level > 1)
+            std::cout << "BHJet: removing target: " << name << std::endl;
+
+        auto old_size = target_list_blackbody.size();
+
+        target_list_blackbody.erase(
+            std::remove_if(
+                target_list_blackbody.begin(),
+                target_list_blackbody.end(),
+                [&name](const TargetFieldBlackBody& t)
+                {
+                    return t.name == name;
+                }
+            ),
+            target_list_blackbody.end()
+        );
+
+        if (verbosity_level > 1)
+        {
+            if (target_list_blackbody.size() == old_size)
+            {
+                std::cout << "BHJet: target not found: " << name << std::endl;
+            }
+            else
+            {
+                if (verbosity_level > 1) {
+                    std::cout << "BHJet: removed "
+                            << (old_size - target_list_blackbody.size())
+                            << " target(s)" << std::endl;
+                }
+            }
+        }
+    }
     void BHJet::clear_targets()
     {
         if (verbosity_level > 1)

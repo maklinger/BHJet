@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <algorithm>
 #include "RadiationZone.hpp"
 #include "JetDynamics.hpp"
 #include "BLJet.hpp"
@@ -29,6 +30,7 @@ namespace bhjet
         void add_target_cmb();
         // add here add_target_BLR, add_target_dust_torus
         // void add_target_xyz(parameters, std::string name);
+        void remove_target_black_body(const std::string& name);
         void clear_targets();
         void compute_full_jet(std::vector<double> photon_energy_grid);
 
