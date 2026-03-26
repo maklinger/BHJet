@@ -46,6 +46,7 @@ class BandLimitedAbsorption(Function1D, metaclass=FunctionMeta):
         self._link_name = f"band_limited_{identifier}"
         self.link_external_function(function, self._link_name)
         self._linked_function = function
+        self._add_child(function)
 
     def get_linked_function(self):
         return self._linked_function
