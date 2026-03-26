@@ -81,11 +81,11 @@ namespace bhjet
         double dlgz2 = std::log10(zmax/(zdiss*pow(10, dlgz/2)))/static_cast<double>(N2);
         
         reinit_grid_arrays();
-        std::cout<< "Nzones=" << n_zones << ", N1=" << N1 << std::endl;
+        // std::cout<< "Nzones=" << n_zones << ", N1=" << N1 << std::endl;
 
         for (size_t i = 0; i < n_zones; i++)
         {
-            std::cout<< "zone " << i << std::endl;
+            // std::cout<< "zone " << i << std::endl;
             // calculate the size of the next zone (formerly "jetgrid")
             // fills z_min_grid and z_height_grid
             // calc_grid_next_zone(i, cut, zcut);
@@ -147,7 +147,7 @@ namespace bhjet
             }
             gby_vel_mag[i] = std::sqrt(std::pow(gby_vel_mag[i], 2.) - 1.);
         }
-        std::cout << "set up spped spline up to " << gbx_vel_mag[n_bins_speed-1] << std::endl;
+        // std::cout << "set up spped spline up to " << gbx_vel_mag[n_bins_speed-1] << std::endl;
         gsl_spline_init(spline_speed, gbx_vel_mag.data(), gby_vel_mag.data(), n_bins_speed);
     }
 
@@ -230,9 +230,9 @@ namespace bhjet
         double mj, theta, theta_acc, n_acc, b_acc, gb, r_acc;
         double gb0 = jet_dyn.gam0 * jet_dyn.beta0;
         double gbf = std::sqrt(std::pow(jet_dyn.gamf, 2.) - 1.);
-        std::cout << "z_min_grid[i]= " << z_min_grid[i] << std::endl;
-        std::cout << "z_center_grid[i]= " << z_center_grid[i] << std::endl;
-        std::cout << "z_height_grid[i]= " << z_height_grid[i] << std::endl;
+        // std::cout << "z_min_grid[i]= " << z_min_grid[i] << std::endl;
+        // std::cout << "z_center_grid[i]= " << z_center_grid[i] << std::endl;
+        // std::cout << "z_height_grid[i]= " << z_height_grid[i] << std::endl;
         if (z_center_grid[i] < jet_dyn.h0)
         {
             gb = gb0;

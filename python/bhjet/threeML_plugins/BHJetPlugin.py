@@ -144,9 +144,9 @@ class BHJetPlugin(Function1D, metaclass=FunctionMeta):
         super().__init__()
 
 
-    def _setup(self, Emin_eV=1e-6, Emax_eV=1e12, n_zones=100, verbosity_level=0, include_counterjet=True, cache_rtol=1e-4):
+    def _setup(self, Emin_eV=1e-6, Emax_eV=1e12, dlgz=0.3, verbosity_level=0, include_counterjet=True, cache_rtol=1e-4):
         self.include_counterjet = include_counterjet
-        self.n_zones = n_zones
+        self.dlgz = dlgz
         self.verbosity_level = verbosity_level
         self.cache_rtol = cache_rtol
 
@@ -179,7 +179,8 @@ class BHJetPlugin(Function1D, metaclass=FunctionMeta):
             index_injected_protons=2, 
             calc_pair_content_from_plasma_beta=False,
             plasma_beta_jet_base=0.,
-            n_zones=self.n_zones,
+            # n_zones=self.n_zones,
+            dlgz=self.dlgz,
             verbosity_level=self.verbosity_level
         )
         self.bhjet = BHJet(
