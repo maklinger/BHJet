@@ -1,3 +1,4 @@
+import collections 
 import numpy as np
 import astropy.units as u
 from astromodels.functions.function import (
@@ -393,3 +394,30 @@ class BHJetPlugin(Function1D, metaclass=FunctionMeta):
                 np.log(self.Egrid_keV),
                 np.log(self.FEgrid_cm2s / self.Egrid_keV +1e-100),
                 left=-1e100, right=-1e100))
+
+
+    @property
+    def parameters(self):
+        """
+        Return BHJetPlugin's own parameters PLUS the parameters of all
+        attached target-field plugins, with the target name as prefix.
+
+        This is what CompositeFunction will see when you combine
+        BHJetPlugin with other models, so target parameters remain
+        visible and uniquely named.
+        """
+        params = collections.OrderedDict()
+
+        # 1. Own parameters from the YAML function definition
+        for k, v in self._parameters.items():
+            params[k] = v
+
+        # 2. Target parameters, prefixed by target name
+        #    (e.g. "BB_0_lg_temperature", "BLR_1_lg_luminosity", ...)
+        if hasattr(self, "targets"):
+            for t_name, target in self.targets.items():
+                for pk, p in target.parameters.items():
+                    prefixed_name = f"{t_name}_{pk}"
+                    params[prefixed_name] = p
+
+        return params

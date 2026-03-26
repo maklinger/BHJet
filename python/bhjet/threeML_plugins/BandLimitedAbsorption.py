@@ -1,7 +1,7 @@
+import collections
 import numpy as np
 import astropy.units as astropy_units
 from astromodels import Function1D, FunctionMeta
-
 
 class BandLimitedAbsorption(Function1D, metaclass=FunctionMeta):
     r"""
@@ -57,3 +57,27 @@ class BandLimitedAbsorption(Function1D, metaclass=FunctionMeta):
         if np.any(mask):
             result[mask] = self._linked_function(x[mask])
         return result
+
+    @property
+    def parameters(self):
+        """
+        Return own parameters (e_min, e_max) PLUS the parameters
+        of the linked absorption function (e.g. NH).
+        This is what CompositeFunction will see.
+        """
+        params = collections.OrderedDict()
+
+        # 1. Own parameters from the YAML definition
+        for k, v in self._parameters.items():
+            params[k] = v
+
+        # 2. Linked function's parameters, uniquely prefixed
+        if hasattr(self, "_linked_function") and self._linked_function is not None:
+            # If no link name yet, fall back to a generic prefix
+            base_prefix = getattr(self, "_link_name", "linked")
+
+            for k, v in self._linked_function.parameters.items():
+                prefixed_name = f"{base_prefix}_{k}"
+                params[prefixed_name] = v
+
+        return params
