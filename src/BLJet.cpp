@@ -19,12 +19,6 @@ namespace bhjet
         if (spline_speed)
             gsl_spline_free(spline_speed);
 
-        if (verbosity_level > 2)
-            std::cout << "allocating spline memory" << std::endl;
-        spline_speed_accel = gsl_interp_accel_alloc();
-        spline_speed = gsl_spline_alloc(gsl_interp_steffen, n_bins_speed);
-
-        reinit_grid_arrays();
 
         // init basic internal params
         eddington_luminosity = 1.25e38 * mass_bh;
@@ -63,16 +57,51 @@ namespace bhjet
         // fill the other values of nozzle_ener (formerly "equipartition")
         calc_nozzle_energetics_equipartition();
 
-        // build the grid
-        // reset grid parameters
-        size_t cut = 0;
-        double zcut = 1.e3 * r_g;
+        // grid building
+        // double dlgz = 0.1;
+        double zmin = jet_dyn.min;
+        double zmax = jet_dyn.max;
+        double zdiss = z_dissipation*r_g;
+
+        if (zdiss < zmin*pow(10, dlgz*1.5)) {
+            zdiss = zmin*pow(10, dlgz/2);
+            if (verbosity_level > 1)
+                std::cout << "z_dissipation<z_jet_launching, set z_dissipation=z_jet_launching*10^(dlgz/2)" << std::endl;
+            
+        } else if (zdiss > zmax*pow(10, -dlgz*1.5)) {
+            zdiss = zmax*pow(10, -dlgz/2);
+            if (verbosity_level > 1)
+                std::cout << "z_dissipation>z_max_calculation, set z_dissipation=z_max_calculation*10^(-dlgz/2)" << std::endl;
+        }
+
+        n_zones= static_cast<size_t>(std::log10(zmax/zmin)/dlgz);
+        size_t N1 = static_cast<size_t>(std::log10(zdiss*pow(10, -dlgz/2)/zmin)/dlgz);
+        double dlgz1 = std::log10(zdiss*pow(10, -dlgz/2)/zmin)/static_cast<double>(N1);
+        size_t N2 = n_zones - N1 - 1;
+        double dlgz2 = std::log10(zmax/(zdiss*pow(10, dlgz/2)))/static_cast<double>(N2);
+        
+        reinit_grid_arrays();
+        std::cout<< "Nzones=" << n_zones << ", N1=" << N1 << std::endl;
+
         for (size_t i = 0; i < n_zones; i++)
         {
+            std::cout<< "zone " << i << std::endl;
             // calculate the size of the next zone (formerly "jetgrid")
             // fills z_min_grid and z_height_grid
-            calc_grid_next_zone(i, cut, zcut);
-            z_center_grid[i] = z_min_grid[i] + z_height_grid[i] / 2;
+            // calc_grid_next_zone(i, cut, zcut);
+            if(i<N1) {
+                z_min_grid[i] = zmin*pow(10, dlgz1 * i);
+                z_center_grid[i] = zmin*pow(10, dlgz1 * (i+0.5));
+                z_height_grid[i] = zmin*(pow(10, dlgz1 * (i+1)) - pow(10, dlgz1 * i));
+            } else if(i==N1){
+                z_min_grid[i] = zdiss*pow(10, -dlgz/2);
+                z_center_grid[i] = zdiss;
+                z_height_grid[i] = zdiss*(pow(10, dlgz/2) - pow(10, -dlgz/2));
+            } else {
+                z_min_grid[i] = zdiss*pow(10, dlgz/2 + dlgz2 * (i-N1-1));
+                z_center_grid[i] = zdiss*pow(10, dlgz/2 +  dlgz2 * (i-N1-1+0.5));
+                z_height_grid[i] = zdiss*(pow(10, dlgz/2 + dlgz2 * (i-N1-1+1)) - pow(10, dlgz/2 + dlgz2 * (i-N1-1)));
+            }
 
             // calculate the parameters of the cell (formerly "bljetpars")
             calc_zone_properties(i);
@@ -85,14 +114,21 @@ namespace bhjet
     {
         if (verbosity_level > 1)
             std::cout << "BLJet::calc_velocity_profile_magnetized_jet" << std::endl;
+        double dlgz_speed = 0.01;
+        size_t n_bins_speed = static_cast<size_t>(std::log10(3*jet_dyn.max/jet_dyn.min)/dlgz_speed) + 1;
+        // step = (std::log10(10*jet_dyn.max) - std::log10(jet_dyn.min)) / static_cast<double>(n_bins_speed - 3);
+
+
+        if (verbosity_level > 2)
+            std::cout << "allocating spline memory" << std::endl;
+        spline_speed_accel = gsl_interp_accel_alloc();
+        spline_speed = gsl_spline_alloc(gsl_interp_steffen, n_bins_speed);
+
         std::vector<double> gbx_vel_mag(n_bins_speed, 0.0);
         std::vector<double> gby_vel_mag(n_bins_speed, 0.0);
-        double step;
-
-        step = (std::log10(jet_dyn.max) + 1. - std::log10(jet_dyn.min)) / static_cast<double>(n_bins_speed - 3);
         for (size_t i = 0; i < n_bins_speed; i++)
         {
-            gbx_vel_mag[i] = std::pow(10., std::log10(jet_dyn.min) + static_cast<double>(i) * step);
+            gbx_vel_mag[i] = jet_dyn.min * std::pow(10., static_cast<double>(i) * dlgz_speed);
             if (gbx_vel_mag[i] < jet_dyn.h0)
             {
                 gby_vel_mag[i] = jet_dyn.gam0;
@@ -111,7 +147,7 @@ namespace bhjet
             }
             gby_vel_mag[i] = std::sqrt(std::pow(gby_vel_mag[i], 2.) - 1.);
         }
-
+        std::cout << "set up spped spline up to " << gbx_vel_mag[n_bins_speed-1] << std::endl;
         gsl_spline_init(spline_speed, gbx_vel_mag.data(), gby_vel_mag.data(), n_bins_speed);
     }
 
@@ -194,19 +230,21 @@ namespace bhjet
         double mj, theta, theta_acc, n_acc, b_acc, gb, r_acc;
         double gb0 = jet_dyn.gam0 * jet_dyn.beta0;
         double gbf = std::sqrt(std::pow(jet_dyn.gamf, 2.) - 1.);
-
-        if (z_min_grid[i] < jet_dyn.h0)
+        std::cout << "z_min_grid[i]= " << z_min_grid[i] << std::endl;
+        std::cout << "z_center_grid[i]= " << z_center_grid[i] << std::endl;
+        std::cout << "z_height_grid[i]= " << z_height_grid[i] << std::endl;
+        if (z_center_grid[i] < jet_dyn.h0)
         {
             gb = gb0;
         }
-        else if (z_min_grid[i] < jet_dyn.acc)
+        else if (z_center_grid[i] < jet_dyn.acc)
         {
-            gb = gsl_spline_eval(spline_speed, z_min_grid[i], spline_speed_accel);
+            gb = gsl_spline_eval(spline_speed, z_center_grid[i], spline_speed_accel);
         }
         else
         {
             gb = gbf;
-            gb = gsl_spline_eval(spline_speed, z_min_grid[i], spline_speed_accel);
+            gb = gsl_spline_eval(spline_speed, z_center_grid[i], spline_speed_accel);
         }
 
         mj = gb / gb0;
@@ -216,7 +254,7 @@ namespace bhjet
         beta_gamma_grid[i] = beta_grid[i] * gamma_grid[i];
 
         theta = opening_angle_constant / gamma_grid[i];
-        radius_grid[i] = jet_dyn.r0 + std::max(z_min_grid[i] - jet_dyn.h0, 0.) * tan(theta);
+        radius_grid[i] = jet_dyn.r0 + std::max(z_center_grid[i] - jet_dyn.h0, 0.) * tan(theta);
         theta_acc = opening_angle_constant / jet_dyn.gamf;
         r_acc = jet_dyn.r0 + (jet_dyn.acc - jet_dyn.h0) * tan(theta_acc);
         n_acc = nozzle_ener.lepdens * std::pow(jet_dyn.r0 / r_acc, 2.) * (gb0 / gbf);
@@ -231,7 +269,7 @@ namespace bhjet
         // particles (Lucchini et al. 2018) This should not introduce any errors as
         // long as the average Lorentz factor of the electrons is below ~a few 10^2
         // and/or the pair content of the jet is limited
-        if (z_min_grid[i] < std::max(jet_dyn.h0, jet_dyn.acc))
+        if (z_center_grid[i] < std::max(jet_dyn.h0, jet_dyn.acc))
         {
             double w = 4. / 3. * nozzle_ener.av_gamma * electron_density_grid[i] * karcst::emgm * std::pow(karcst::cee, 2.);
             double sigma = (jet_dyn.gam0 / gamma_grid[i]) * (1. + nozzle_ener.sig0) - 1.;
@@ -244,11 +282,11 @@ namespace bhjet
             double sigma = (jet_dyn.gam0 / gamma_grid[i]) * (1. + nozzle_ener.sig0) - 1.;
             b_acc = std::sqrt(sigma * 4. * karcst::pi *
                               (n_acc / nozzle_ener.eta * karcst::pmgm * std::pow(karcst::cee, 2.) + w));
-            magnetic_field_grid[i] = b_acc * (jet_dyn.acc / z_min_grid[i]);
+            magnetic_field_grid[i] = b_acc * (jet_dyn.acc / z_center_grid[i]);
         }
         // temperature_shift_grid[i] = 1.;
 
-        if (z_min_grid[i] < z_dissipation * r_g)
+        if (z_center_grid[i] < z_dissipation * r_g)
         {
             fraction_nonthermal_electrons_grid[i] = 0.0;
             fraction_nonthermal_protons_grid[i] = 0.0;

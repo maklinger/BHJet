@@ -58,6 +58,8 @@ namespace bhjet
         static constexpr double DEFAULT_OPENING_ANGLE_CONSTANT = 0.15;
         static constexpr bool DEFAULT_CALC_PAIR_CONTENT_FROM_PLASMA_BETA = false;
         static constexpr double DEFAULT_PLASMA_BETA_JET_BASE = 1;
+        static constexpr double DEFAULT_DLGZ = 0.1;
+
 
         // Member variables
         double mass_bh = DEFAULT_MASS_BH;
@@ -83,12 +85,13 @@ namespace bhjet
         double index_injected_protons = RadiationZone::DEFAULT_INDEX_INJECTED_PROTONS;
         bool calc_pair_content_from_plasma_beta = DEFAULT_CALC_PAIR_CONTENT_FROM_PLASMA_BETA;
         double plasma_beta_jet_base = DEFAULT_PLASMA_BETA_JET_BASE;
+        double dlgz = DEFAULT_DLGZ;
 
         // internal variables
         double eddington_luminosity, r_g, zmin;
 
         // hardcoded values
-        size_t n_bins_speed = 54;
+        // size_t n_bins_speed = 54;
         // double jet_opening_constant = 0.15;
 
         // ----------------------------
@@ -118,9 +121,9 @@ namespace bhjet
             double index_injected_protons_ = RadiationZone::DEFAULT_INDEX_INJECTED_PROTONS,
             bool calc_pair_content_from_plasma_beta_ = DEFAULT_CALC_PAIR_CONTENT_FROM_PLASMA_BETA,
             double plasma_beta_jet_base_ = DEFAULT_PLASMA_BETA_JET_BASE,
-            size_t n_zones_ = JetDynamics::DEFAULT_N_ZONES,
+            double dlgz_ = DEFAULT_DLGZ,
             size_t verbosity_level_ = JetDynamics::DEFAULT_VERBOSITY_LEVEL)
-            : JetDynamics(n_zones_, verbosity_level_),
+            : JetDynamics(JetDynamics::DEFAULT_N_ZONES, verbosity_level_),
               mass_bh(mass_bh_),
               jet_power_eddington(jet_power_eddington_),
               z_jet_launching(z_jet_launching_), r_initial(r_initial_),
@@ -138,7 +141,8 @@ namespace bhjet
               factor_max_energy_protons(factor_max_energy_protons_),
               index_injected_electrons(index_injected_electrons_), index_injected_protons(index_injected_protons_),
               calc_pair_content_from_plasma_beta(calc_pair_content_from_plasma_beta_),
-              plasma_beta_jet_base(plasma_beta_jet_base_)
+              plasma_beta_jet_base(plasma_beta_jet_base_),
+              dlgz(dlgz_)
         {
         }
         ~BLJet() override = default;
