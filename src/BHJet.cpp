@@ -104,12 +104,15 @@ namespace bhjet
         if (verbosity_level > 1)
             std::cout << "Computing full jet (dynamics + radiation)" << std::endl;
         auto tstart = std::chrono::steady_clock::now();
-        computation_times = std::vector<double>(jet_dynamics->n_zones + 1, 0.0);
 
         // compute jet dynamics
         jet_dynamics->compute_jet_dynamics();
+        // after compute_jet_dynamics() to update n_zones first
+        computation_times = std::vector<double>(jet_dynamics->n_zones + 1, 0.0);
+
         if (profile_time)
             computation_times[0] = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now() - tstart).count();
+
 
         // init zones and compute radiation
         observed_photon_energy_grid = photon_energy_grid;
@@ -118,7 +121,7 @@ namespace bhjet
         radiation_zones = std::vector<RadiationZone>(jet_dynamics->n_zones);
         bool force_compton = false;
         bool compton_switch = true;
-        double compton_threshold = 1e-2;
+        // double compton_threshold = 1e-5;
         for (size_t i = 0; i < jet_dynamics->n_zones; i++)
         {
             tstart = std::chrono::steady_clock::now();

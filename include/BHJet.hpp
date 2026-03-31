@@ -47,6 +47,7 @@ namespace bhjet
         double distance = RadiationZone::DEFAULT_DISTANCE;
         double redshift = RadiationZone::DEFAULT_REDSHIFT;
         bool include_counterjet = RadiationZone::DEFAULT_INCLUDE_COUNTERJET;
+        double compton_threshold = RadiationZone::DEFAULT_COMPTON_THRESHOLD;
         bool profile_time = DEFAULT_PROFILE_TIME;
         size_t verbosity_level = DEFAULT_VERBOSITY_LEVEL;
 
@@ -58,10 +59,12 @@ namespace bhjet
             double distance_ = RadiationZone::DEFAULT_DISTANCE,
             double redshift_ = RadiationZone::DEFAULT_REDSHIFT,
             bool include_counterjet_ = RadiationZone::DEFAULT_INCLUDE_COUNTERJET,
+            double compton_threshold_ = RadiationZone::DEFAULT_COMPTON_THRESHOLD,
             bool profile_time_ = DEFAULT_PROFILE_TIME,
             size_t verbosity_level_ = DEFAULT_VERBOSITY_LEVEL)
             : theta_obs(theta_obs_), distance(distance_), redshift(redshift_),
-              include_counterjet(include_counterjet_), profile_time(profile_time_),
+              include_counterjet(include_counterjet_), compton_threshold(compton_threshold_),
+              profile_time(profile_time_),
               verbosity_level(verbosity_level_), target_list_blackbody(),
               computation_times(JetDynamics::DEFAULT_N_ZONES, 0.0)
         {

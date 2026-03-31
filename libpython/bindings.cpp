@@ -42,7 +42,7 @@ using namespace bhjet;
     X(include_counterjet, bool, RadiationZone::DEFAULT_INCLUDE_COUNTERJET, "True: Includes the emission of the counterjet; False: Includes only one jet", SEP_COMMA)                                                                             \
     X(force_compton_calculation, bool, RadiationZone::DEFAULT_FORCE_COMPTON_CALCULATION, "True: Forces the Compton emission to be computed or not based on compton_switch; False: Uses internal criteria and ignores compton_switch", SEP_COMMA) \
     X(compton_switch, bool, RadiationZone::DEFAULT_COMPTON_SWITCH, "True: Forces the Compton emission to be computed; False: Skips Compton emission computation", SEP_COMMA)                                                                     \
-    X(compton_threshold, double, RadiationZone::DEFAULT_COMPTON_THRESHOLD, "Internal rough threshold for Compton emission computation: L_syn/L_com > compton_threshold ? Do calculation. Otheriwse skip.", SEP_COMMA)                            \
+    X(compton_threshold, double, RadiationZone::DEFAULT_COMPTON_THRESHOLD, "Internal rough threshold for Compton emission computation: L_com/L_syn > compton_threshold ? Do calculation. Otheriwse skip.", SEP_COMMA)                            \
     X(profile_time, bool, RadiationZone::DEFAULT_PROFILE_TIME, "True: measures computation time of multiple emission processes; False: Does nothing", SEP_COMMA)                                                                                 \
     X(verbosity_level, size_t, RadiationZone::DEFAULT_VERBOSITY_LEVEL, "Regulates print output of the code. 0: No output; 1: Only important warnings; 2: More output; 3: Debugging output", ) // leave the last one empty
 
@@ -82,6 +82,7 @@ using namespace bhjet;
     X(distance, double, RadiationZone::DEFAULT_DISTANCE, "Distance to source [kpc]", SEP_COMMA)                                                                      \
     X(redshift, double, RadiationZone::DEFAULT_REDSHIFT, "Redshift of source", SEP_COMMA)                                                                            \
     X(include_counterjet, bool, RadiationZone::DEFAULT_INCLUDE_COUNTERJET, "True: Includes the emission of the counterjet; False: Includes only one jet", SEP_COMMA) \
+    X(compton_threshold, double, RadiationZone::DEFAULT_COMPTON_THRESHOLD, "Internal rough threshold for Compton emission computation: L_com/L_syn > compton_threshold ? Do calculation. Otheriwse skip.", SEP_COMMA) \
     X(profile_time, bool, BHJet::DEFAULT_PROFILE_TIME, "True: measures computation time of each zone; False: Does nothing", SEP_COMMA)                               \
     X(verbosity_level, size_t, BHJet::DEFAULT_VERBOSITY_LEVEL, "Regulates print output of the code. 0: No output; 1: Only important warnings; 2: More output; 3: Debugging output", )
 

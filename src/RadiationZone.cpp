@@ -344,10 +344,9 @@ namespace bhjet
         // std::cout << "set bb seed" << std::endl;
         for (size_t i = 0; i < target_vector_blackbody.size(); i++)
         {
-            InvCompton.bb_seed_kev(Syncro.get_energy(),
-                                   std::pow(doppler_factor_bulk, 2) * target_vector_blackbody[i].energy_density,
+            InvCompton.bb_seed_kev(std::pow(doppler_factor_bulk, 2) * target_vector_blackbody[i].energy_density,
                                    doppler_factor_bulk * target_vector_blackbody[i].temperature);
-            // is here a doppler factor ^2 or gamma^2 needed?
+            // use here a doppler factor ^2 to roughly include anisotropy
         }
 
         // std::cout << "before Compton switch" << std::endl;
@@ -360,12 +359,16 @@ namespace bhjet
         //     InvCompton.add_seed(Syncro.get_energy(), target_extra);
         //     // is here a doppler factor ^2 or gamma^2 needed?
         // }
-        target_radiation_energy_grid = InvCompton.get_seed_energ();
-        target_radiation_energy_density = InvCompton.get_seed_urad();
+        target_radiation_energy_grid = InvCompton.get_target_energy();
+        target_radiation_energy_density = InvCompton.get_target_diff_spec();
+        for (size_t i = 0; i < target_radiation_energy_grid.size(); i++){
+            // convert to energy density
+            target_radiation_energy_density[i] *= std::pow(target_radiation_energy_grid[i], 2);
+        }
 
         if (compton_calculation_necessary())
         {
-
+            // this is the comp. expensive call
             InvCompton.compton_spectrum(gmin, gmax, spline_electrons, spline_electrons_accel);
 
             // std::cout << "compton sum" << std::endl;
@@ -445,14 +448,7 @@ namespace bhjet
     }
     std::vector<double> RadiationZone::get_photon_target_energy_density()
     {
-        std::vector<double> result(target_radiation_energy_density.size(), 1e-100);
-        std::vector<double> energy = get_photon_target_energy_grid();
-        for (size_t i = 0; i < result.size(); i++)
-        {
-            result[i] = target_radiation_energy_density[i] * std::pow(energy[i], 2);
-        }
-
-        return result;
+        return target_radiation_energy_density;
     }
     std::vector<double> RadiationZone::get_photon_target_energy_density_black_body(std::string name)
     {
@@ -741,7 +737,7 @@ namespace bhjet
         double dlogE = std::log(target_radiation_energy_grid[1] / target_radiation_energy_grid[0]);
         for (size_t i = 0; i < target_radiation_energy_density.size(); i++)
         {
-            U_rad += target_radiation_energy_density[i] * std::pow(target_radiation_energy_grid[i], 2) * dlogE;
+            U_rad += target_radiation_energy_density[i] * dlogE;
         }
 
         double pdot_rad = (4. * karcst::sigtom * karcst::cee * U_rad) /
@@ -782,7 +778,7 @@ namespace bhjet
             for (size_t j = 0; j < target_radiation_energy_grid.size(); j++)
             {
                 alpha = target_radiation_energy_grid[j];
-                integral += dlogEph * fac_comp * Fic(gamma, alpha) * target_radiation_energy_density[j] * karcst::emerg / alpha / momentum[i] * karcst::emgm * std::pow(karcst::cee, -1) / gamma; // need target density here...
+                integral += dlogEph * fac_comp * Fic(gamma, alpha) * target_radiation_energy_density[j]* std::pow(target_radiation_energy_grid[j], -2) * karcst::emerg / alpha / momentum[i] * karcst::emgm * std::pow(karcst::cee, -1) / gamma; // need target density here...
             }
 
             t_com[i] = fac_gamma2p / integral;
@@ -869,28 +865,29 @@ namespace bhjet
         else
         {
             double Lumnorm, Ub, Usyn, Lsyn, Lcom;
+            // this is a rough estimate comparing the power in syn. to the power in IC:
+            // P_syn/IC ~ V * n_e * sigma_T * c * < beta^2 gamma^2> * u_B/target
+            // with u_target ~ P_syn * R/c / V + doppler^2 * u'_rad
+            // and u_B = B^2/8pi
+            // then P_com/P_syn ~ n_e * sigma_T * R * <gamma^2> + doppler^2 * u'_rad / u_B
             double average_gamma_squared =
                 (fraction_nonthermal_electrons == 0) ? electrons_thermal.av_gammasq() : (fraction_nonthermal_electrons < 0.5) ? electrons_mixed.av_gammasq()
                                                                                     : (fraction_nonthermal_electrons < 1.)    ? electrons_bpl.av_gammasq()
                                                                                     : (fraction_nonthermal_electrons == 1)    ? electrons_pl.av_gammasq()
                                                                                                                               : throw std::out_of_range("fraction_nonthermal_electrons has to be <=1!");
+            Ub = std::pow(magnetic_field, 2.) / (8. * karcst::pi);
+            double P_com_P_syn = electron_number_density * karcst::sigtom * radius * average_gamma_squared;
+            P_com_P_syn += std::pow(doppler_factor_bulk, 2.) * radiation_energy_density / Ub;
+
 
             Lumnorm = karcst::pi * std::pow(radius, 2.) * height * std::pow(doppler_factor_bulk, 4.) *
                       electron_number_density * karcst::sigtom * karcst::cee * average_gamma_squared;
-            Ub = std::pow(magnetic_field, 2.) / (8. * karcst::pi);
-            Lsyn = Lumnorm * Ub;
-            Usyn = Lsyn / (karcst::pi * std::pow(radius, 2.) * karcst::cee * std::pow(doppler_factor_bulk, 4.));
-            Lcom = Lumnorm * (Usyn + radiation_energy_density);
-
-            bool test1 = (Lcom / Lsyn > compton_threshold);
-            // bool test2 = (Lcom >= Nj * 1e-8); // don't know the jet power here in this class
-            // bool test3 = (Lcom >= 1e-8 * average_gamma_squared * karcst::emerg * electron_number_density);
-            // std::cout << "test3=" << test3 << std::endl;
+            
             if (verbosity_level > 2)
             {
-                std::cout << "Lsyn=" << Lsyn << "Lcom=" << Lcom << ", compton?=" << (test1 == true) << std::endl;
+                std::cout << "P_com / P_syn=" << P_com_P_syn << ", compton?=" << (P_com_P_syn > compton_threshold) << std::endl;
             }
-            return (test1 == true);
+            return (P_com_P_syn > compton_threshold);
         }
     }
 
