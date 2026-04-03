@@ -498,7 +498,6 @@ void MLJet::calc_zone_properties(size_t i){
                         jet_mass_loading_parameters.sig_acc / 
                         sigma_loading(z_dissipation_cm, z_dissipation_cm);
 		
-        /// @todo the heat parameter is not used so far, I need to pass it in the input
         if (heating_fraction_ > 0.0 && heating_fraction_ < 1.0) { 
             ///a fraction "heating" goes to h
             sigma_grid[i] *= (1. - tanh2 * heating_fraction_);
@@ -510,7 +509,6 @@ void MLJet::calc_zone_properties(size_t i){
                     specific_enthalpy_loading(z_center_grid[i], z_dissipation_cm) * 
                             jet_mass_loading_parameters.hdiss / 
                             specific_enthalpy_loading(z_dissipation_cm, z_dissipation_cm),
-                    // zone.helec, /// @todo in previous version I was using the helec of the previous segment
                     specific_enthalpy_grid[i - 1],
                     jet_mass_loading_parameters.h_0_specific_enthalpy
                 });

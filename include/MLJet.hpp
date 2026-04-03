@@ -18,7 +18,6 @@
 namespace mljet
 {
 
-    /// @todo check that I use all the parameters
     //Structure with parameters of jet energetics for mass-loading model
     struct JetMassLoadingParameters{
         ///average Lorentz factor of electrons
@@ -85,7 +84,6 @@ namespace mljet
     /// min jet launching point in cm
     double zmin;
 
-    /// @todo check that I use all the parameters
     struct MLJetConstructorParameters
     {
         double mass_bh = bhjet::BLJet::DEFAULT_MASS_BH;
@@ -209,7 +207,6 @@ namespace mljet
 
     void print_MLJet_kinematics(std::ostream& os = std::cout) const ;
 
-    /// @todo check that I use all the parameters
     private:
         double mass_bh;
         double jet_power_eddington;
