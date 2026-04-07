@@ -6,7 +6,7 @@
 
 namespace karcst = kariba::constants;
 
-namespace mljet
+namespace massloadedjet
 {
 
 
@@ -19,7 +19,7 @@ double jet_mass_density(double nprotons, double nelectrons)
 	return nprotons * karcst::pmgm + nelectrons * karcst::emgm;
 }
 
-double MLJet::specific_enthalpy_simple(double ge_av, double gp_av)
+double MassLoadedJet::specific_enthalpy_simple(double ge_av, double gp_av)
 {
     return ( Ge * (ge_av - 1.) + Gp * (gp_av - 1.) * karcst::pmgm / (karcst::emgm * eta_e_) ) / 
             (1. + karcst::pmgm / karcst::emgm / eta_e_);
@@ -29,7 +29,7 @@ double MLJet::specific_enthalpy_simple(double ge_av, double gp_av)
 /// @param g bulk Lorentz factor of the jet
 /// @param r radius of the jet segment in cm
 /// @return number density of the jet in cm^-3
-double MLJet::number_density_jet(double g, double r)
+double MassLoadedJet::number_density_jet(double g, double r)
 {
 	double beta_j;
 	beta_j = (g <= 5.) ? 
@@ -40,10 +40,10 @@ double MLJet::number_density_jet(double g, double r)
 }
 
 
-void MLJet::reinit_grid_arrays_for_mass_loading()
+void MassLoadedJet::reinit_grid_arrays_for_mass_loading()
 {
     if (verbosity_level > 1)
-        std::cout << "MLJet::reinit_grid_arrays_for_mass_loading" << std::endl;
+        std::cout << "MassLoadedJet::reinit_grid_arrays_for_mass_loading" << std::endl;
     
     mu_grid = std::vector<double>(n_zones, 0.0);
     specific_enthalpy_grid = std::vector<double>(n_zones, 0.0);
@@ -103,7 +103,7 @@ double average_gamma(double pspec, double gmin, double gmax)
 /// @param z the jet segment distance along the jet axis
 /// @file MLJet.cpp
 /// @exception std::runtime_error if the approximation fails @todo check if needs to be changed
-void MLJet::approximate_max_particle_energy(double &ge_av, double &gp_av, double z)
+void MassLoadedJet::approximate_max_particle_energy(double &ge_av, double &gp_av, double z)
 {
 	/*I approximately find the max energy of accelerated electrons (and protons).
 	For the electrons I neglect any photon field and for protons, I only account for escape*/
@@ -148,7 +148,7 @@ void MLJet::approximate_max_particle_energy(double &ge_av, double &gp_av, double
 /// dissipation region is not positive
 /// @exception std::runtime_error if the approximation of the 
 /// maximum particle energy fails due to average_gamma()
-void MLJet::calc_mass_loading_jet()
+void MassLoadedJet::calc_mass_loading_jet()
 {
 	double dyn_fac = 0.0;
 	double rho0 = 0.0;
@@ -175,7 +175,7 @@ void MLJet::calc_mass_loading_jet()
 
     if (jet_mass_loading_parameters.sig_acc < 0.0) {
         throw std::runtime_error(
-            "MLJet::calc_mass_loading_jet: computed negative sig_acc = "
+            "MassLoadedJet::calc_mass_loading_jet: computed negative sig_acc = "
             + std::to_string(jet_mass_loading_parameters.sig_acc) + "\n" +
             "\tIncrease the initial magnetisation above: " + std::to_string(jet_mass_loading_parameters.sig0) + "\n" +
             "\t and/or decrease η below: " + std::to_string(jet_mass_loading_parameters.eta) + "\n" +
@@ -205,7 +205,7 @@ void MLJet::calc_mass_loading_jet()
             gamma_proton_average_dissipation_,z_dissipation_cm);
     } catch (const std::exception &e) {
         throw std::runtime_error(
-            std::string("MLJet::calc_mass_loading_jet: approximate_max_particle_energy failed: ")
+            std::string("MassLoadedJet::calc_mass_loading_jet: approximate_max_particle_energy failed: ")
             + e.what()
         );
     }
@@ -225,14 +225,14 @@ void MLJet::calc_mass_loading_jet()
 
 
 
-/// @brief the main method to compute the jet dynamics for MLJet
+/// @brief the main method to compute the jet dynamics for MassLoadedJet
 /// @details it will initiali all the structrures and arrays, and then call
 /// the calc_mass_loading_jet() method to compute the jet dynamics basic quantities
 /// Finally, it will call the calc_zone_properties() method for every jet segment
-void MLJet::compute_jet_dynamics()
+void MassLoadedJet::compute_jet_dynamics()
 {
     if (verbosity_level > 1)
-        std::cout << "Computing MLJet dynamics" << std::endl;
+        std::cout << "Computing MassLoadedJet dynamics" << std::endl;
 
     // clean up existing gsl interpolation
     if (verbosity_level > 2)
@@ -277,7 +277,7 @@ void MLJet::compute_jet_dynamics()
         calc_mass_loading_jet();
     } catch (const std::exception &e) {
         throw std::runtime_error(
-            std::string("MLJet::compute_jet_dynamics: failed to compute mass loading jet: ")
+            std::string("MassLoadedJet::compute_jet_dynamics: failed to compute mass loading jet: ")
             + e.what()
         );
     }
@@ -348,7 +348,7 @@ void MLJet::compute_jet_dynamics()
 /// @brief number density of the jet in cm^-3
 /// @param i index of the zone/jet segment
 /// @return number density of the jet in cm^-3
-double MLJet::number_density_jet(size_t i)
+double MassLoadedJet::number_density_jet(size_t i)
 {
 	return jet_mass_loading_parameters.lepdens * jet_dyn.gam0 * jet_dyn.beta0 / 
             beta_gamma_grid[i] * std::pow(radius_grid[i] / jet_dyn.r0, -2);
@@ -437,7 +437,7 @@ double mu_loading(double z, double zdiss)
 /// @file MLJet.cpp
 /// @details the parametrization comes from Chatterjee et al 2019. 
 /// It used to be the loadingjetpars() function
-void MLJet::calc_zone_properties(size_t i){
+void MassLoadedJet::calc_zone_properties(size_t i){
 // (double z,jet_dynpars &dyn,jet_enpars &en,particle_pars &prtcls,zone_pars &zone,double &t,
 // 	int infosw,double loading_factor_,double heat,std::string outputConfiguration){
 	
@@ -653,7 +653,7 @@ void MLJet::calc_zone_properties(size_t i){
 }
 
 
-void MLJet::print_MLJet_kinematics(std::ostream& os) const
+void MassLoadedJet::print_MLJet_kinematics(std::ostream& os) const
 {
  
     const auto& p = jet_mass_loading_parameters;

@@ -15,7 +15,7 @@
 #include <gsl/gsl_spline.h>
 #include <gsl/gsl_interp.h>
 
-namespace mljet
+namespace massloadedjet
 {
 
     //Structure with parameters of jet energetics for mass-loading model
@@ -61,7 +61,7 @@ namespace mljet
     };
 
 
-    class MLJet : public bhjet::JetDynamics
+    class MassLoadedJet : public bhjet::JetDynamics
     {
     public:
 
@@ -122,8 +122,8 @@ namespace mljet
         size_t verbosity_level = JetDynamics::DEFAULT_VERBOSITY_LEVEL;
     };
 
-    explicit MLJet(const MLJetConstructorParameters& p)
-    // explicit MLJet(const MLJetConstructorParameters& p = MLJetConstructorParameters{})
+    explicit MassLoadedJet(const MLJetConstructorParameters& p)
+    // explicit MassLoadedJet(const MLJetConstructorParameters& p = MLJetConstructorParameters{})
         : JetDynamics(JetDynamics::DEFAULT_N_ZONES, p.verbosity_level),
         mass_bh(p.mass_bh),
         jet_power_eddington(p.jet_power_eddington),
@@ -157,11 +157,11 @@ namespace mljet
         loading_factor_(p.loading_factor)
     {
     }
-    MLJet()
-    : MLJet(MLJetConstructorParameters{})
+    MassLoadedJet()
+    : MassLoadedJet(MLJetConstructorParameters{})
     {
     }
-    ~MLJet() override = default;
+    ~MassLoadedJet() override = default;
 
     gsl_spline *spline_speed = nullptr;
     gsl_interp_accel *spline_speed_accel = nullptr;
@@ -192,7 +192,7 @@ namespace mljet
     /// @param[inout] ge_av average gamma of the electrons
     /// @param[inout] gp_av average gamma of the protons
     /// @param z the jet segment distance along the jet axis
-    /// @file MLJet.cpp
+    /// @file MassLoadedJet.cpp
     /// @exception std::runtime_error if the approximation fails @todo check if needs to be changed
     void approximate_max_particle_energy(double &ge_av, double &gp_av, double z);
 
@@ -202,7 +202,7 @@ namespace mljet
     /// the mass loading jet for every jet segment
     void calc_zone_properties(size_t i);
 
-    /// @brief the main method to compute the jet dynamics for MLJet
+    /// @brief the main method to compute the jet dynamics for MassLoadedJet
     void compute_jet_dynamics() override;
 
     void print_MLJet_kinematics(std::ostream& os = std::cout) const ;
