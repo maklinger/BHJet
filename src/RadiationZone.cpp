@@ -32,25 +32,34 @@ namespace bhjet
             gsl_interp_accel_free(spline_electrons_derivative_accel);
     }
 
-    void RadiationZone::add_target_black_body(double temperature, double energy_density, std::string name)
+    void RadiationZone::add_target_photon_field(
+        std::vector<double> energies, std::vector<double> energy_densities, 
+        std::string name)
     {
         if (verbosity_level > 2)
-            std::cout << "adding black body" << name << " with T="
-                      << temperature << "keV and u_rad=" << energy_density << "erg/cm³" << std::endl;
-        target_vector_blackbody.emplace_back(temperature, energy_density, name);
+            std::cout << "adding target: " << name << std::endl;
+        target_component_names.emplace_back(name);
+        target_component_radiation_energy_density.emplace_back(energy_densities);
+        target_component_radiation_energy_grid.emplace_back(energies);
     }
 
-    // void RadiationZone::add_target_field(std::vector<double> target_energy, std::vector<double> target_array) {
-    //     size_t N = target_array.size();
-    //     additional_target_field_energy = std::vector<double>(N, 1e-100);
-    //     additional_target_field_energy_density = std::vector<double>(N, 1e-100);
-    //     add_emission_on_interpolated_grid(
-    //         target_energy, target_array,
-    //         additional_target_field_energy, additional_target_field_energy_density);
+    void RadiationZone::remove_target_photon_field(std::string name)
+    {
+        if (verbosity_level > 1)
+            std::cout << "RadiationZone: removing target photon field: " << name << std::endl;
 
-    // }
+        for (size_t i=0;  i<target_component_names.size(); i++){
+            if(target_component_names[i] == name) {
+                target_component_names.erase(target_component_names.begin() + i);
+                target_component_radiation_energy_density.erase(target_component_radiation_energy_density.begin() + i);
+                target_component_radiation_energy_grid.erase(target_component_radiation_energy_grid.begin() + i);
+                if (verbosity_level > 1)
+                    std::cout << "RadiationZone: removed target photon field "<< i << ": " << name << std::endl;
+            }
+        }
+    }
 
-    void RadiationZone::compute_particles()
+    void RadiationZone::compute_particles(bool reset_photon_targets)
     {
         // reset computation times
         for (size_t i = 0; i < 3; i++)
@@ -76,12 +85,21 @@ namespace bhjet
         spline_electrons_derivative_accel = gsl_interp_accel_alloc();
         spline_electrons_derivative = gsl_spline_alloc(gsl_interp_steffen, n_bins_e);
 
-        // calculate Urad from targets
+        // calculate Urad from targets, could also extend this to KN cooling
         radiation_energy_density = 0;
-        for (size_t i = 0; i < target_vector_blackbody.size(); i++)
+        for (size_t i = 0; i < target_component_names.size(); i++)
         {
+
+            double dlogE = std::log(
+                target_component_radiation_energy_grid[i][1] / 
+                target_component_radiation_energy_grid[i][0]);
+
+            for (size_t e = 0; e < target_component_radiation_energy_grid[i].size(); e++)
+            {
+                radiation_energy_density += target_component_radiation_energy_density[i][e] * dlogE;
+            }
             // use here a doppler factor ^2 instead of gamma^2 to account for anisotropy (roughly), see Dermer 1995
-            radiation_energy_density += std::pow(doppler_factor_bulk, 2) * target_vector_blackbody[i].energy_density;
+            // radiation_energy_density += std::pow(doppler_factor_bulk, 2) * target_vector_blackbody[i].energy_density;
         }
 
         if (fraction_nonthermal_electrons == 0.)
@@ -227,15 +245,24 @@ namespace bhjet
 
         syn_max = 50. * std::pow(gmax, 2.) * karcst::charg * magnetic_field /
                   (2. * karcst::pi * karcst::emgm * karcst::cee);
-        // copmare if black body is higher
-        if (target_vector_blackbody.size() > 0)
+        // compare if external targets extend to higher energies
+        if (target_component_names.size() > 0)
         {
-            for (size_t i = 0; i < target_vector_blackbody.size(); i++)
+            for (size_t i = 0; i < target_component_names.size(); i++)
             {
-                syn_max = std::max(syn_max, 10 * target_vector_blackbody[i].temperature / karcst::herg);
+                // this simply assumes that the energy grids are not extensively larger than 
+                // the spectra's relevant flux ranges
+                size_t Nbins_i = target_component_radiation_energy_grid[i].size();
+                if (target_component_radiation_energy_grid[i][Nbins_i-1] > syn_max * karcst::herg) {
+                    syn_max = target_component_radiation_energy_grid[i][Nbins_i-1] / karcst::herg;
+                }
+                if(verbosity_level > 2) {
+                    std::cout << "syn_max:" << syn_max << "Hz, target_component_radiation_energy_grid[i][Nbins_i-1]:" << 
+                    target_component_radiation_energy_grid[i][Nbins_i-1] << "erg = " << 
+                    target_component_radiation_energy_grid[i][Nbins_i-1]/ karcst::herg << "Hz " << std::endl;
+                }
             }
         }
-        // add disk here
 
         size_t nsyn = (size_t)(std::log10(syn_max) - std::log10(syn_min)) * syn_res;
         photon_energy_grid_electron_cyclosyn = std::vector<double>(nsyn, 1e-100);
@@ -279,6 +306,14 @@ namespace bhjet
         add_emission_on_interpolated_grid(
             photon_energy_grid_electron_cyclosyn, photon_observed_luminosity_electron_cyclosyn,
             photon_energy_grid_total, photon_observed_luminosity_total);
+
+        std::vector<double> syn_energy_density(nsyn, 1e-100);
+        for (size_t i = 0; i < nsyn; i++){
+            syn_energy_density[i] = pow(Syncro.get_energy()[i], 2.) * Syncro.get_nphot()[i]/
+                       (karcst::cee * karcst::herg * Syncro.get_energy()[i] * karcst::pi * radius * radius);
+        }
+        remove_target_photon_field("cyclosynchrotron");
+        add_target_photon_field(Syncro.get_energy(), syn_energy_density, "cyclosynchrotron");
 
         // scattered photon energy grid
         // find max of absorbed synch spectrum
@@ -339,13 +374,17 @@ namespace bhjet
 
         // std::cout << "set syn seed" << std::endl;
         // Cyclosynchrotron photons are always considered in the scattering
-        InvCompton.cyclosyn_seed(Syncro.get_energy(), Syncro.get_nphot());
+        // InvCompton.cyclosyn_seed(Syncro.get_energy(), Syncro.get_nphot());
+        InvCompton.set_target_energy_array(Syncro.get_energy());
 
         // std::cout << "set bb seed" << std::endl;
-        for (size_t i = 0; i < target_vector_blackbody.size(); i++)
+        for (size_t i = 0; i < target_component_names.size(); i++)
         {
-            InvCompton.bb_seed_kev(std::pow(doppler_factor_bulk, 2) * target_vector_blackbody[i].energy_density,
-                                   doppler_factor_bulk * target_vector_blackbody[i].temperature);
+            InvCompton.add_target_energy_density(
+                target_component_radiation_energy_grid[i], 
+                target_component_radiation_energy_density[i]);
+            // InvCompton.bb_seed_kev(std::pow(doppler_factor_bulk, 2) * target_vector_blackbody[i].energy_density,
+            //                        doppler_factor_bulk * target_vector_blackbody[i].temperature);
             // use here a doppler factor ^2 to roughly include anisotropy
         }
 
@@ -359,11 +398,11 @@ namespace bhjet
         //     InvCompton.add_seed(Syncro.get_energy(), target_extra);
         //     // is here a doppler factor ^2 or gamma^2 needed?
         // }
-        target_radiation_energy_grid = InvCompton.get_target_energy();
-        target_radiation_energy_density = InvCompton.get_target_diff_spec();
-        for (size_t i = 0; i < target_radiation_energy_grid.size(); i++){
+        total_target_radiation_energy_grid = InvCompton.get_target_energy();
+        total_target_radiation_energy_density = std::vector<double>(total_target_radiation_energy_grid.size());
+        for (size_t i = 0; i < total_target_radiation_energy_grid.size(); i++){
             // convert to energy density
-            target_radiation_energy_density[i] *= std::pow(target_radiation_energy_grid[i], 2);
+            total_target_radiation_energy_density[i] = InvCompton.get_target_diff_spec()[i] * std::pow(total_target_radiation_energy_grid[i], 2);
         }
 
         if (compton_calculation_necessary())
@@ -371,7 +410,7 @@ namespace bhjet
             // this is the comp. expensive call
             InvCompton.compton_spectrum(gmin, gmax, spline_electrons, spline_electrons_accel);
 
-            // std::cout << "compton sum" << std::endl;
+            if (verbosity_level>2) std::cout << "compton sum" << std::endl;
             if (include_counterjet)
             {
                 sum_jet_and_counterjet(ncom, InvCompton.get_energy_obs(), InvCompton.get_nphot_obs(),
@@ -384,9 +423,9 @@ namespace bhjet
             }
 
             // std::cout << "add com " << photon_energy_grid_electron_compton.size() << "," <<
-                //  photon_observed_luminosity_electron_compton.size() << "," <<
-                //  photon_energy_grid_total.size() << "," <<
-                //  photon_observed_luminosity_total.size() << "," << std::endl;
+            //      photon_observed_luminosity_electron_compton.size() << "," <<
+            //      photon_energy_grid_total.size() << "," <<
+            //      photon_observed_luminosity_total.size() << "," << std::endl;
             add_emission_on_interpolated_grid(
                 photon_energy_grid_electron_compton, photon_observed_luminosity_electron_compton,
                 photon_energy_grid_total, photon_observed_luminosity_total);
@@ -442,92 +481,51 @@ namespace bhjet
         return vec;
     }
 
-    std::vector<double> RadiationZone::get_photon_target_energy_grid()
+    std::vector<double> RadiationZone::get_total_photon_target_energy()
     {
-        return target_radiation_energy_grid;
+        return total_target_radiation_energy_grid;
     }
-    std::vector<double> RadiationZone::get_photon_target_energy_density()
+    std::vector<double> RadiationZone::get_total_photon_target_energy_density()
     {
-        return target_radiation_energy_density;
-    }
-    std::vector<double> RadiationZone::get_photon_target_energy_density_black_body(std::string name)
-    {
-        bool bb_in_list = false;
-        std::vector<double> result(get_photon_target_energy_grid().size(), 1e-100);
-        for (size_t i = 0; i < target_vector_blackbody.size(); i++)
-        {
-            if (name == target_vector_blackbody[i].name)
-            {
-                bb_in_list = true;
-
-                // is here a doppler factor ^2 or gamma^2? Dermer 1995
-                double kTbb = doppler_factor_bulk * target_vector_blackbody[i].temperature * karcst::kboltz_kev2erg;
-                double Ubb = std::pow(doppler_factor_bulk, 2) * target_vector_blackbody[i].energy_density;
-                std::vector<double> energy = get_photon_target_energy_grid();
-                for (size_t k = 0; k < result.size(); k++)
-                {
-                    result[k] += std::pow(energy[k], 2) * Ubb * 2. * std::pow(energy[k] / karcst::herg, 2.) /
-                                 (karcst::herg * std::pow(karcst::cee, 2.) * karcst::sbconst *
-                                  std::pow(kTbb / karcst::kboltz, 4) *
-                                  (std::exp(energy[k] / (kTbb)) - 1.));
-                }
-            }
-        }
-        if (bb_in_list)
-        {
-            return result;
-        }
-        else
-        {
-            throw std::out_of_range("black body called " + name + " not found!");
-        }
+        return total_target_radiation_energy_density;
     }
 
-    double RadiationZone::get_target_black_body_temperature(std::string name)
+
+    std::vector<double> RadiationZone::get_photon_target_energy_density(std::string name)
     {
-        for (size_t i = 0; i < target_vector_blackbody.size(); i++)
+        bool target_in_list = false;
+        for (size_t i = 0; i < target_component_names.size(); i++)
         {
-            if (name == target_vector_blackbody[i].name)
+            if (name == target_component_names[i])
             {
-                return target_vector_blackbody[i].temperature;
+                target_in_list = true;
+                return target_component_radiation_energy_density[i];
             }
         }
-        throw std::out_of_range("black body called " + name + " not found!");
+        if (!target_in_list)
+        {
+            throw std::out_of_range("photon target field called " + name + " not found!");
+        }
+        return std::vector<double>();
     }
-    double RadiationZone::get_target_black_body_energy_density(std::string name)
+    std::vector<double> RadiationZone::get_photon_target_energy(std::string name)
     {
-        for (size_t i = 0; i < target_vector_blackbody.size(); i++)
+        bool target_in_list = false;
+        for (size_t i = 0; i < target_component_names.size(); i++)
         {
-            if (name == target_vector_blackbody[i].name)
+            if (name == target_component_names[i])
             {
-                return target_vector_blackbody[i].energy_density;
+                target_in_list = true;
+                return target_component_radiation_energy_grid[i];
             }
         }
-        throw std::out_of_range("black body called " + name + " not found!");
+        if (!target_in_list)
+        {
+            throw std::out_of_range("photon target field called " + name + " not found!");
+        }
+        return std::vector<double>();
     }
 
-    void RadiationZone::set_target_black_body_temperature(std::string name, double new_temperature)
-    {
-        for (size_t i = 0; i < target_vector_blackbody.size(); i++)
-        {
-            if (name == target_vector_blackbody[i].name)
-            {
-                target_vector_blackbody[i].temperature = new_temperature;
-            }
-        }
-        throw std::out_of_range("black body called " + name + " not found!");
-    }
-    void RadiationZone::set_target_black_body_energy_density(std::string name, double new_energy_density)
-    {
-        for (size_t i = 0; i < target_vector_blackbody.size(); i++)
-        {
-            if (name == target_vector_blackbody[i].name)
-            {
-                target_vector_blackbody[i].energy_density = new_energy_density;
-            }
-        }
-        throw std::out_of_range("black body called " + name + " not found!");
-    }
 
     std::vector<double> RadiationZone::get_observed_photon_energy_grid_electron_cyclosyn()
     {
@@ -725,19 +723,19 @@ namespace bhjet
         double gamma = 1;
         double U_rad = 1e-100;
 
-        if (target_radiation_energy_grid.size() < 2 ||
-            target_radiation_energy_density.size() !=
-                target_radiation_energy_grid.size())
+        if (total_target_radiation_energy_grid.size() < 2 ||
+            total_target_radiation_energy_density.size() !=
+                total_target_radiation_energy_grid.size())
         {
-            std::cout << "Invalid target radiation field in RadiationZone, egridsize=" << target_radiation_energy_grid.size() << ", densitygridsize=" << target_radiation_energy_density.size() << std::endl;
+            std::cout << "Invalid target radiation field in RadiationZone, egridsize=" << total_target_radiation_energy_grid.size() << ", densitygridsize=" << total_target_radiation_energy_density.size() << std::endl;
             throw std::runtime_error(
                 "Invalid target radiation field in RadiationZone (Compton not calculated?)");
         }
 
-        double dlogE = std::log(target_radiation_energy_grid[1] / target_radiation_energy_grid[0]);
-        for (size_t i = 0; i < target_radiation_energy_density.size(); i++)
+        double dlogE = std::log(total_target_radiation_energy_grid[1] / total_target_radiation_energy_grid[0]);
+        for (size_t i = 0; i < total_target_radiation_energy_density.size(); i++)
         {
-            U_rad += target_radiation_energy_density[i] * dlogE;
+            U_rad += total_target_radiation_energy_density[i] * dlogE;
         }
 
         double pdot_rad = (4. * karcst::sigtom * karcst::cee * U_rad) /
@@ -755,30 +753,32 @@ namespace bhjet
 
     std::vector<double> RadiationZone::get_timescale_electron_compton(std::vector<double> momentum)
     {
-        double fac_gamma2p, gamma, alpha, integral;
+        double fac_gamma2p, gamma, alpha, integral, betagamma, dn_dalpha;
 
-        if (target_radiation_energy_grid.size() < 2 ||
-            target_radiation_energy_density.size() !=
-                target_radiation_energy_grid.size())
+        if (total_target_radiation_energy_grid.size() < 2 ||
+            total_target_radiation_energy_density.size() !=
+                total_target_radiation_energy_grid.size())
         {
-            std::cout << "Invalid target radiation field in RadiationZone, egridsize=" << target_radiation_energy_grid.size() << ", densitygridsize=" << target_radiation_energy_density.size() << std::endl;
+            std::cout << "Invalid target radiation field in RadiationZone, egridsize=" << total_target_radiation_energy_grid.size() << ", densitygridsize=" << total_target_radiation_energy_density.size() << std::endl;
             throw std::runtime_error(
                 "Invalid target radiation field in RadiationZone (Compton not calculated?)");
         }
 
-        double dlogEph = std::log(target_radiation_energy_grid[1] / target_radiation_energy_grid[0]);
+        double dlogEph = std::log(total_target_radiation_energy_grid[1] / total_target_radiation_energy_grid[0]);
         double fac_comp = 0.5 * karcst::pi * std::pow(karcst::re0, 2) * karcst::cee;
         std::vector<double> t_com(momentum.size(), 1e100);
         for (size_t i = 0; i < momentum.size(); i++)
         {
             // dp = gamma/p dgamma -> t = p/(dp/dt) = p^2/gamma / (dgamma/dt)
             gamma = std::pow(1 + std::pow(momentum[i] / karcst::emgm / karcst::cee, 2), 0.5);
-            fac_gamma2p = std::pow(momentum[i], 2) / gamma;
+            fac_gamma2p = std::pow(momentum[i] / karcst::emgm / karcst::cee, 2) / gamma;
             integral = 0;
-            for (size_t j = 0; j < target_radiation_energy_grid.size(); j++)
+            for (size_t j = 0; j < total_target_radiation_energy_grid.size(); j++)
             {
-                alpha = target_radiation_energy_grid[j];
-                integral += dlogEph * fac_comp * Fic(gamma, alpha) * target_radiation_energy_density[j]* std::pow(target_radiation_energy_grid[j], -2) * karcst::emerg / alpha / momentum[i] * karcst::emgm * std::pow(karcst::cee, -1) / gamma; // need target density here...
+                alpha = total_target_radiation_energy_grid[j]/karcst::emerg;
+                betagamma = momentum[i] / (karcst::emgm * karcst::cee);
+                dn_dalpha = karcst::emerg * total_target_radiation_energy_density[j]* std::pow(total_target_radiation_energy_grid[j], -2);// need target density here...
+                integral += dlogEph * fac_comp * Fic(gamma, alpha) * dn_dalpha / alpha / betagamma / gamma; 
             }
 
             t_com[i] = fac_gamma2p / integral;

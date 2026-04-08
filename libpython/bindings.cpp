@@ -6,7 +6,10 @@
 #include "BLJet.hpp"
 #include "RadiationZone.hpp"
 #include "BHJet.hpp"
+#include "TargetPhotonField.hpp"
+#include "TargetBlackBody.hpp"
 #include "utils.hpp"
+#include "default_values.hpp"
 
 namespace py = pybind11;
 using namespace bhjet;
@@ -86,6 +89,24 @@ using namespace bhjet;
     X(profile_time, bool, BHJet::DEFAULT_PROFILE_TIME, "True: measures computation time of each zone; False: Does nothing", SEP_COMMA)                               \
     X(verbosity_level, size_t, BHJet::DEFAULT_VERBOSITY_LEVEL, "Regulates print output of the code. 0: No output; 1: Only important warnings; 2: More output; 3: Debugging output", )
 
+
+#define TARGET_PHOTON_FIELD_PARAMS  \
+    X_NODEF(name, std::string, SEP_COMMA) \
+    X(distance, double, defaults::DISTANCE, SEP_COMMA) \
+    X(redshift, double, defaults::REDSHIFT, SEP_COMMA) \
+    X(add_to_total_flux, bool, TargetPhotonField::DEFAULT_ADD_TO_TOTAL_FLUX, SEP_COMMA) \
+    X(verbosity_level, size_t, TargetPhotonField::DEFAULT_VERBOSITY_LEVEL, )
+
+#define TARGET_BLACK_BODY_PARAMS                                \
+    X_NODEF(name, std::string, "Name, has to be unique", SEP_COMMA) \
+    X(distance, double, defaults::DISTANCE, "Distance to source [kpc]", SEP_COMMA ) \
+    X(redshift, double, defaults::REDSHIFT, "Redshift of source", SEP_COMMA) \
+    X(luminosity, double, TargetBlackBody::DEFAULT_LUMINOSTIY, "Total luminosity of black body [erg/s]", SEP_COMMA) \
+    X(temperature, double, TargetBlackBody::DEFAULT_TEMPERATURE, "Temperature of black body [keV]", SEP_COMMA) \
+    X(energy_density, double, TargetBlackBody::DEFAULT_ENERGY_DENSITY, "Total energy density of black body [erg/cm³]", SEP_COMMA) \
+    X(add_to_total_flux, bool, TargetPhotonField::DEFAULT_ADD_TO_TOTAL_FLUX, "True: add the flux to the total model flux, False: only take into account as a target.", SEP_COMMA) \
+    X(verbosity_level, size_t, TargetPhotonField::DEFAULT_VERBOSITY_LEVEL, "Regulates print output of the code. 0: No output; 1: Only important warnings; 2: More output; 3: Debugging output", )
+
 // function to convert the returned std::vector<type> from c++ function "function"
 // into a numpy array
 #define GET_ARGS_VEC(classtype, function, type) \
@@ -96,6 +117,7 @@ using namespace bhjet;
     [](classtype &self, std::vector<double> argname) {                  \
         auto vec = self.function(argname);                 \
         return py::array_t<type>(vec.size(), vec.data()); }, py::arg("argname")
+
 
 #define GET_NPARRAY_ARG(classtype, function, type, argname, argtype) \
     [](classtype &self, argtype argname) {                  \
@@ -169,6 +191,48 @@ PYBIND11_MODULE(bhjet, m)
     bljet.def_readonly("eddington_luminosity", &BLJet::eddington_luminosity, "Eddington Luminosity [erg/s]");
     bljet.def("compute_jet_dynamics", &BLJet::compute_jet_dynamics, "Computes the physical quantities along the jet");
 
+
+    py::class_<TargetPhotonField, std::shared_ptr<TargetPhotonField>> target(m, "TargetPhotonField");
+    target.def("get_observed_energy", GET_ARGS_VEC(TargetPhotonField, get_observed_energy, double), "Returns the energy grid of the target photons [erg].");
+    target.def("get_observed_energy_flux", GET_ARGS_VEC(TargetPhotonField, get_observed_energy_flux, double), "Returns the energy flux on the energy grid of the target photons [erg/(cm²s)].");
+
+
+    py::class_<TargetBlackBody, TargetPhotonField, std::shared_ptr<TargetBlackBody>> target_bb(m, "TargetBlackBody");
+    target_bb.def(py::init<
+#define X(NAME, TYPE, DEFAULT, DOC, SEPARATOR)       TYPE SEPARATOR
+#define X_NODEF(NAME, TYPE, DOC, SEPARATOR)          TYPE SEPARATOR
+        TARGET_BLACK_BODY_PARAMS
+#undef X
+#undef X_NODEF
+                    >(),
+    // py::arg defaults
+#define X(NAME, TYPE, DEFAULT, DOC, SEPARATOR)   py::arg(#NAME) = DEFAULT SEPARATOR
+#define X_NODEF(NAME, TYPE, DOC, SEPARATOR)          py::arg(#NAME) SEPARATOR
+        TARGET_BLACK_BODY_PARAMS
+#undef X
+#undef X_NODEF
+    )
+    // members
+#define X(NAME, TYPE, DEFAULT, DOC, SEPARATOR)   .def_readwrite(#NAME, &TargetBlackBody::NAME)
+#define X_NODEF(NAME, TYPE, DOC, SEPARATOR)          .def_readwrite(#NAME, &TargetBlackBody::NAME)
+        TARGET_BLACK_BODY_PARAMS
+#undef X
+#undef X_NODEF
+    ;
+    target_bb.def("update_observed_flux", &TargetBlackBody::update_observed_flux, "Recalculate the oberved flux arrays.");
+    target_bb.def("get_target_energy_grid_and_density",
+        [](TargetBlackBody &self, double z, double bulk_momentum, double theta_obs, double min_energy, double max_energy) {
+            auto [a1, a2] = self.get_target_energy_grid_and_density(z, bulk_momentum, theta_obs, min_energy, max_energy);
+            return py::make_tuple(
+                py::array_t<double>(a1.size(), a1.data()),
+                py::array_t<double>(a2.size(), a2.data())
+            );
+        },
+        py::arg("z"), py::arg("bulk_momentum"), py::arg("theta_obs"), py::arg("min_energy"), py::arg("max_energy"),
+        "Returns a tuple of the comoving energy grid [erg] with the corresponding energy density points [erg/cm³]"
+    );
+
+
     py::class_<RadiationZone> radzone(m, "RadiationZone");
     // constructor
     radzone.def(py::init<
@@ -190,9 +254,9 @@ PYBIND11_MODULE(bhjet, m)
     radzone.def_readonly("beta_bulk", &RadiationZone::beta_bulk, "Bulk beta = speed/(speed of light) of the zone");
     radzone.def_readonly("gamma_bulk", &RadiationZone::gamma_bulk, "Bulk Lorentz factor of the zone");
     radzone.def_readonly("doppler_factor_bulk", &RadiationZone::doppler_factor_bulk, "Bulk Doppler factor of the zone");
-    radzone.def("add_target_black_body", &RadiationZone::add_target_black_body, py::arg("temperature"), py::arg("energy_density"), py::arg("name"), "Takes as arguments the temperature [keV] and energy density [erg/cm³] of a target black body radiation field. Run before compute_particles() and compute_radiation().");
-    // radzone.def("add_target_field", &RadiationZone::add_target_field);
-    radzone.def("compute_particles", &RadiationZone::compute_particles, "Computes the steady-state particle spectra (electrons). Run before compute_radiation().");
+    radzone.def("add_target_photon_field", &RadiationZone::add_target_photon_field, py::arg("energies"), py::arg("energy_densities"), py::arg("name"), "Takes as arguments the energies [erg] and energy densities [erg/cm³] of a target radiation field. Run before compute_particles() and compute_radiation().");
+    radzone.def("remove_target_photon_field", &RadiationZone::remove_target_photon_field, py::arg("name"), "Removes the target photon field with name.");
+    radzone.def("compute_particles", &RadiationZone::compute_particles, py::arg("reset_photon_targets")=true, "Computes the steady-state particle spectra (electrons). Run before compute_radiation().");
     radzone.def("compute_radiation", py::overload_cast<>(&RadiationZone::compute_radiation), "Computes the radiation from the particles (photons). Uses the default energy grid.");
     radzone.def("compute_radiation", py::overload_cast<const std::vector<double>>(&RadiationZone::compute_radiation), "Computes the radiation from the particles (photons). Takes as an argument the observed energy grid [erg].");
     // densities
@@ -211,11 +275,10 @@ PYBIND11_MODULE(bhjet, m)
     radzone.def("get_electron_break_momentum", &RadiationZone::get_electron_break_momentum, "Get break electron momentum from comparing adiabatic with cyclosyn./Compton cooling times [cm g / s]");
 
     // target fields
-    radzone.def("get_target_black_body_temperature", &RadiationZone::get_target_black_body_temperature, "Get the temperature of the black body target with the given name [keV]");
-    radzone.def("get_target_black_body_energy_density", &RadiationZone::get_target_black_body_energy_density, "Get the integrated energy density of the black body target with the given name [erg/cm³]");
-    radzone.def("get_photon_target_energy_grid", GET_ARGS_VEC(RadiationZone, get_photon_target_energy_grid, double), "Get array with target photon energy grid [erg]");
-    radzone.def("get_photon_target_energy_density_black_body", GET_NPARRAY_ARG(RadiationZone, get_photon_target_energy_density_black_body, double, name, std::string), "Get array with target photon energy density of the black body with the given name [erg/cm³]");
-    radzone.def("get_photon_target_energy_density", GET_ARGS_VEC(RadiationZone, get_photon_target_energy_density, double), "Get array with electron momentum grid [eV/c]");
+    radzone.def("get_total_photon_target_energy", GET_ARGS_VEC(RadiationZone, get_total_photon_target_energy, double), "Get array with target photon energy grid [erg]");
+    radzone.def("get_total_photon_target_energy_density", GET_ARGS_VEC(RadiationZone, get_total_photon_target_energy_density, double), "Get array with total photon target field [erg/cm³]");
+    radzone.def("get_photon_target_energy", GET_NPARRAY_ARG(RadiationZone, get_photon_target_energy, double, name, std::string), "Get array with target photon energy grid of a component with name [erg]");
+    radzone.def("get_photon_target_energy_density", GET_NPARRAY_ARG(RadiationZone, get_photon_target_energy_density, double, name, std::string), "Get array with total photon target field of a component with name [erg/cm³]");
 
     // observed radiation spectra
     radzone.def("get_observed_photon_energy_grid_electron_cyclosyn", GET_ARGS_VEC(RadiationZone, get_observed_photon_energy_grid_electron_cyclosyn, double), "Get array with energy grid of electron cyclosynchrotron luminosity/flux [erg]");
@@ -253,22 +316,24 @@ PYBIND11_MODULE(bhjet, m)
         ;
     bhjet.def("init_jet_dynamics", &BHJet::init_jet_dynamics, "Assign a class of type JetDynamics \
               or a derivative (e.g. BLJet) to be used for the dynamics and properties of the jet");
-    bhjet.def("add_target_constant_black_body", &BHJet::add_target_constant_black_body,
-              py::arg("luminosity"), py::arg("temperature"), py::arg("energy_density"), py::arg("name"),
-              "Add a target black body radiation field, at rest in the black hole frame indexed with a given name. \
-              Total luminosity [erg/s] is added to the total emission, temperature [keV] and energy_density [erg/cm³] \
-              are boosted to each RadiationZone.");
-    bhjet.def("add_target_constant_bulge", &BHJet::add_target_constant_bulge,
-              py::arg("luminosity"), py::arg("temperature"), py::arg("radius"), py::arg("name"),
-              "Add a target black body radiation field, at rest in the black hole frame indexed with a given name. \
-              Total luminosity [erg/s] is added to the total emission, temperature [keV] and radius (converted to a \
-              homogeneous energy_density) [erg/cm³]  are boosted to each RadiationZone.");
-    bhjet.def("add_target_cmb", &BHJet::add_target_cmb,
-              "Add a target black body radiation field with the CMB properties called CMB, at rest in the black hole \
-              frame indexed with a given name.");
+    // bhjet.def("add_target_constant_black_body", &BHJet::add_target_constant_black_body,
+    //           py::arg("luminosity"), py::arg("temperature"), py::arg("energy_density"), py::arg("name"),
+    //           "Add a target black body radiation field, at rest in the black hole frame indexed with a given name. \
+    //           Total luminosity [erg/s] is added to the total emission, temperature [keV] and energy_density [erg/cm³] \
+    //           are boosted to each RadiationZone.");
+    // bhjet.def("add_target_constant_bulge", &BHJet::add_target_constant_bulge,
+    //           py::arg("luminosity"), py::arg("temperature"), py::arg("radius"), py::arg("name"),
+    //           "Add a target black body radiation field, at rest in the black hole frame indexed with a given name. \
+    //           Total luminosity [erg/s] is added to the total emission, temperature [keV] and radius (converted to a \
+    //           homogeneous energy_density) [erg/cm³]  are boosted to each RadiationZone.");
+    // bhjet.def("add_target_cmb", &BHJet::add_target_cmb,
+    //           "Add a target black body radiation field with the CMB properties called CMB, at rest in the black hole \
+    //           frame indexed with a given name.");
               
-    bhjet.def("remove_target_black_body", &BHJet::remove_target_black_body, "Removes a target photon field with a given name.");
-    bhjet.def("clear_targets", &BHJet::clear_targets, "Removes all target photon fields");
+    // bhjet.def("remove_target_black_body", &BHJet::remove_target_black_body, "Removes a target photon field with a given name.");
+    bhjet.def("add_target_photon_field", &BHJet::add_target_photon_field, "Add a target photon field.");
+    bhjet.def("remove_target_photon_field", &BHJet::remove_target_photon_field, "Removes a target photon field.");
+    bhjet.def("clear_target_photon_fields", &BHJet::clear_target_photon_fields, "Removes all target photon fields");
 
     bhjet.def("compute_full_jet", &BHJet::compute_full_jet,
               py::arg("photon_energy_grid"),
@@ -300,15 +365,15 @@ PYBIND11_MODULE(bhjet, m)
               "Get array with with electron compton observed photon flux [1/(cm²s)] integrated between z_min [cm] and z_max [cm]");
 
 
-    bhjet.def("get_target_black_body_temperature", &BHJet::get_target_black_body_temperature, "Get the temperature of the black body target with the given name [keV]");
-    bhjet.def("get_target_black_body_energy_density", &BHJet::get_target_black_body_energy_density, "Get the integrated energy density of the black body target with the given name [erg/cm³]");
-    bhjet.def("get_target_black_body_luminosity", &BHJet::get_target_black_body_luminosity, "Get the luminosity of the black body target with the given name [erg/s]");
-    bhjet.def("set_target_black_body_temperature", &BHJet::set_target_black_body_temperature, "Set the temperature of the black body target with the given name [keV]");
-    bhjet.def("set_target_black_body_energy_density", &BHJet::set_target_black_body_energy_density, "Set the integrated energy density of the black body target with the given name [erg/cm³]");
-    bhjet.def("set_target_black_body_luminosity", &BHJet::set_target_black_body_luminosity, "Set the luminosity of the black body target with the given name [erg/s]");
-    bhjet.def("get_observed_photon_energy_grid_black_body", GET_NPARRAY_ARG(BHJet, get_observed_photon_energy_grid_black_body, double, name, std::string),
-              "Get array with observed photon energies for the black body with a given name [erg]");
-    bhjet.def("get_observed_photon_flux_black_body", GET_NPARRAY_ARG(BHJet, get_observed_photon_flux_black_body, double, name, std::string),
-              "Get array with total observed photon flux for the black body with a given name [1/(cm²s)]");
+    // bhjet.def("get_target_black_body_temperature", &BHJet::get_target_black_body_temperature, "Get the temperature of the black body target with the given name [keV]");
+    // bhjet.def("get_target_black_body_energy_density", &BHJet::get_target_black_body_energy_density, "Get the integrated energy density of the black body target with the given name [erg/cm³]");
+    // bhjet.def("get_target_black_body_luminosity", &BHJet::get_target_black_body_luminosity, "Get the luminosity of the black body target with the given name [erg/s]");
+    // bhjet.def("set_target_black_body_temperature", &BHJet::set_target_black_body_temperature, "Set the temperature of the black body target with the given name [keV]");
+    // bhjet.def("set_target_black_body_energy_density", &BHJet::set_target_black_body_energy_density, "Set the integrated energy density of the black body target with the given name [erg/cm³]");
+    // bhjet.def("set_target_black_body_luminosity", &BHJet::set_target_black_body_luminosity, "Set the luminosity of the black body target with the given name [erg/s]");
+    // bhjet.def("get_observed_photon_energy_grid_black_body", GET_NPARRAY_ARG(BHJet, get_observed_photon_energy_grid_black_body, double, name, std::string),
+    //           "Get array with observed photon energies for the black body with a given name [erg]");
+    // bhjet.def("get_observed_photon_flux_black_body", GET_NPARRAY_ARG(BHJet, get_observed_photon_flux_black_body, double, name, std::string),
+    //           "Get array with total observed photon flux for the black body with a given name [1/(cm²s)]");
     bhjet.def("get_computation_times", GET_ARGS_VEC(BHJet, get_computation_times, double), "Get array with computation times [ns]");
 }

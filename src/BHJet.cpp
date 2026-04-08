@@ -16,87 +16,33 @@ namespace bhjet
             std::cout << "Initialising jet dynamics object" << std::endl;
         jet_dynamics = jet_dynamics_;
     }
-
-    void BHJet::add_target_constant_black_body(double luminosity, double temperature, double energy_density, std::string name)
+    void BHJet::add_target_photon_field(std::shared_ptr<TargetPhotonField> target)
     {
         if (verbosity_level > 1)
-            std::cout << "BHJet: adding black body: " << name << std::endl;
-        target_list_blackbody.emplace_back(luminosity, temperature, energy_density, name);
+            std::cout << "BHJet: adding target photon field: " << target->name << std::endl;
+        target_list.push_back(target);
+    }
+
+    void BHJet::remove_target_photon_field(std::shared_ptr<TargetPhotonField> target)
+    {
+        if (verbosity_level > 1)
+            std::cout << "BHJet: removing target photon field: " << target->name << std::endl;
+
+        for (size_t i=0;  i<target_list.size(); i++){
+            if(target_list[i]->name == target->name) {
+                target_list.erase(target_list.begin() + i);
+                std::cout << "BHJet: removed target photon field "<< i << ": " << target->name << std::endl;
+            }
+        }
+    }
+
+    void BHJet::clear_target_photon_fields()
+    {
+        if (verbosity_level > 1)
+            std::cout << "BHJet: clearing all target photon fields " << std::endl;
+        target_list = std::vector<std::shared_ptr<TargetPhotonField>>();
     }
     
-    void BHJet::add_target_constant_bulge(double luminosity, double temperature, double radius, std::string name)
-    {
-        if (verbosity_level > 1)
-            std::cout << "BHJet: adding black body bulge: " << name << std::endl;
-        double energy_density = luminosity / (4. * karcst::pi * std::pow(radius * karcst::kpc, 2.) * karcst::cee);
-        target_list_blackbody.emplace_back(luminosity, temperature, energy_density, name);
-    }
-
-    void BHJet::add_target_cmb()
-    {
-        if (verbosity_level > 1)
-            std::cout << "BHJet: adding CMB" << std::endl;
-        bool cmb_already_there = false;
-        for (size_t i = 0; i < target_list_blackbody.size(); i++)
-        {
-            if (target_list_blackbody[i].name == "CMB")
-                cmb_already_there = true;
-        }
-        if (cmb_already_there)
-        {
-            std::cout << "CMB has been already added!";
-        }
-        else
-        {
-            double temperature = 6e-7 * (1 + redshift);                         // keV
-            double erg2eV = 6.242e+11;                                          // 1erg in eV
-            double energy_density = 0.26 / erg2eV * std::pow(1 + redshift, 4.); // erg/cm³
-            double luminosity = 0.;
-            target_list_blackbody.emplace_back(luminosity, temperature, energy_density, "CMB");
-        }
-    }
-
-    void BHJet::remove_target_black_body(const std::string& name)
-    {
-        if (verbosity_level > 1)
-            std::cout << "BHJet: removing target: " << name << std::endl;
-
-        auto old_size = target_list_blackbody.size();
-
-        target_list_blackbody.erase(
-            std::remove_if(
-                target_list_blackbody.begin(),
-                target_list_blackbody.end(),
-                [&name](const TargetFieldBlackBody& t)
-                {
-                    return t.name == name;
-                }
-            ),
-            target_list_blackbody.end()
-        );
-
-        if (verbosity_level > 1)
-        {
-            if (target_list_blackbody.size() == old_size)
-            {
-                std::cout << "BHJet: target not found: " << name << std::endl;
-            }
-            else
-            {
-                if (verbosity_level > 1) {
-                    std::cout << "BHJet: removed "
-                            << (old_size - target_list_blackbody.size())
-                            << " target(s)" << std::endl;
-                }
-            }
-        }
-    }
-    void BHJet::clear_targets()
-    {
-        if (verbosity_level > 1)
-            std::cout << "BHJet: clearing target fields " << std::endl;
-        target_list_blackbody = std::vector<TargetFieldBlackBody>();
-    }
 
     void BHJet::compute_full_jet(
         std::vector<double> photon_energy_grid)
@@ -153,12 +99,13 @@ namespace bhjet
             
             if (verbosity_level > 2)
                 std::cout << "Adding targets in zone " << i << std::endl;
-            for (size_t b = 0; b < target_list_blackbody.size(); b++)
+            for (size_t b = 0; b < target_list.size(); b++)
             {
-                radiation_zones[i].add_target_black_body(
-                    target_list_blackbody[b].temperature,
-                    target_list_blackbody[b].energy_density,
-                    target_list_blackbody[b].name);
+                auto [energies, energy_densities] = target_list[b]->get_target_energy_grid_and_density(
+                    jet_dynamics->get_z_center_grid()[i], jet_dynamics->get_beta_gamma_grid()[i], theta_obs,
+                    observed_photon_energy_grid[0], observed_photon_energy_grid[observed_photon_energy_grid.size()-1]
+                );
+                radiation_zones[i].add_target_photon_field(energies, energy_densities, target_list[b]->name);
             }
 
             radiation_zones[i].compute_particles();
@@ -174,15 +121,14 @@ namespace bhjet
                 computation_times[i + 1] = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now() - tstart).count();
         }
         // black bodies
-        for (size_t b = 0; b < target_list_blackbody.size(); b++)
+        for (size_t b = 0; b < target_list.size(); b++)
         {
-            kariba::BBody BlackBody;
-            BlackBody.set_temp_kev(target_list_blackbody[b].temperature);
-            BlackBody.set_lum(target_list_blackbody[b].luminosity);
-            BlackBody.bb_spectrum();
-            add_emission_on_interpolated_grid(
-                BlackBody.get_energy_obs(), kariba_luminosity_to_number_flux(BlackBody.get_nphot_obs(), redshift, distance),
-                observed_photon_energy_grid, observed_photon_flux_total);
+            if(target_list[b]->add_to_total_flux){
+                target_list[b]->update_observed_flux();
+                add_emission_on_interpolated_grid(
+                    target_list[b]->get_observed_energy(), target_list[b]->get_observed_number_flux(),
+                    observed_photon_energy_grid, observed_photon_flux_total);
+            }
         }
     }
 
@@ -251,113 +197,29 @@ namespace bhjet
     {
         return observed_photon_flux_total;
     }
-    std::vector<double> BHJet::get_observed_photon_energy_grid_black_body(std::string name)
+    std::vector<double> BHJet::get_observed_target_photon_energy(std::string name)
     {
-        for (size_t b = 0; b < target_list_blackbody.size(); b++)
+        for (size_t b = 0; b < target_list.size(); b++)
         {
-            if (name == target_list_blackbody[b].name)
+            if (name == target_list[b]->name)
             {
-                kariba::BBody BlackBody;
-                BlackBody.set_temp_kev(target_list_blackbody[b].temperature);
-                BlackBody.set_lum(target_list_blackbody[b].luminosity);
-                BlackBody.bb_spectrum();
-                return BlackBody.get_energy_obs();
+                return target_list[b]->get_observed_energy();
             }
         }
-        throw std::out_of_range("black body called " + name + " not found!");
+        throw std::out_of_range("target photon field called " + name + " not found!");
     }
-    std::vector<double> BHJet::get_observed_photon_flux_black_body(std::string name)
+    std::vector<double> BHJet::get_observed_target_photon_flux(std::string name)
     {
-        for (size_t b = 0; b < target_list_blackbody.size(); b++)
+        for (size_t b = 0; b < target_list.size(); b++)
         {
-            if (name == target_list_blackbody[b].name)
+            if (name == target_list[b]->name)
             {
-                kariba::BBody BlackBody;
-                BlackBody.set_temp_kev(target_list_blackbody[b].temperature);
-                BlackBody.set_lum(target_list_blackbody[b].luminosity);
-                BlackBody.bb_spectrum();
-                return kariba_luminosity_to_number_flux(BlackBody.get_nphot_obs(), redshift, distance);
+                return target_list[b]->get_observed_energy_flux();
             }
         }
-        throw std::out_of_range("black body called " + name + " not found!");
+        throw std::out_of_range("target photon field called " + name + " not found!");
     }
 
-    double BHJet::get_target_black_body_temperature(std::string name)
-    {
-        for (size_t i = 0; i < target_list_blackbody.size(); i++)
-        {
-            if (name == target_list_blackbody[i].name)
-            {
-                return target_list_blackbody[i].temperature;
-            }
-        }
-        throw std::out_of_range("black body called " + name + " not found!");
-    }
-    double BHJet::get_target_black_body_energy_density(std::string name)
-    {
-        for (size_t i = 0; i < target_list_blackbody.size(); i++)
-        {
-            if (name == target_list_blackbody[i].name)
-            {
-                return target_list_blackbody[i].energy_density;
-            }
-        }
-        throw std::out_of_range("black body called " + name + " not found!");
-    }
-
-    double BHJet::get_target_black_body_luminosity(std::string name)
-    {
-        for (size_t i = 0; i < target_list_blackbody.size(); i++)
-        {
-            if (name == target_list_blackbody[i].name)
-            {
-                return target_list_blackbody[i].luminosity;
-            }
-        }
-        throw std::out_of_range("black body called " + name + " not found!");
-    }
-    void BHJet::set_target_black_body_temperature(std::string name, double new_temperature)
-    {
-        bool success = false;
-        for (size_t i = 0; i < target_list_blackbody.size(); i++)
-        {
-            if (name == target_list_blackbody[i].name)
-            {
-                target_list_blackbody[i].temperature = new_temperature;
-                success = true;
-            }
-        }
-        if (!success)
-            throw std::out_of_range("black body called " + name + " not found!");
-    }
-    void BHJet::set_target_black_body_energy_density(std::string name, double new_energy_density)
-    {
-        bool success = false;
-        for (size_t i = 0; i < target_list_blackbody.size(); i++)
-        {
-            if (name == target_list_blackbody[i].name)
-            {
-                target_list_blackbody[i].energy_density = new_energy_density;
-                success = true;
-            }
-        }
-        if (!success)
-            throw std::out_of_range("black body called " + name + " not found!");
-    }
-    void BHJet::set_target_black_body_luminosity(std::string name, double new_luminosity)
-    {
-        bool success = false;
-        for (size_t i = 0; i < target_list_blackbody.size(); i++)
-        {
-            if (name == target_list_blackbody[i].name)
-            {
-                target_list_blackbody[i].luminosity = new_luminosity;
-                success = true;
-            }
-        }
-        if (!success)
-            throw std::out_of_range("black body called " + name + " not found!");
-    }
 
     std::vector<double> BHJet::get_computation_times()
     {

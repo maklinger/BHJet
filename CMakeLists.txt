@@ -43,6 +43,8 @@ set(SRC_FILES
     src/BLJet.cpp
     src/JetDynamics.cpp
     src/RadiationZone.cpp
+    src/TargetBlackBody.cpp
+    src/TargetPhotonField.cpp
     src/utils.cpp
     src/MLJet.cpp
 )

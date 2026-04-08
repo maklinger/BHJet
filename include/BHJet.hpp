@@ -5,33 +5,32 @@
 #include <algorithm>
 #include "RadiationZone.hpp"
 #include "JetDynamics.hpp"
-#include "BLJet.hpp"
+#include "TargetPhotonField.hpp"
+// #include "BLJet.hpp"
 #include "utils.hpp"
 
 namespace bhjet
 {
 
-    struct TargetFieldBlackBody
-    {
-        double luminosity, temperature, energy_density;
-        std::string name;
-        TargetFieldBlackBody(double l, double t, double u, std::string n)
-            : luminosity(l), temperature(t), energy_density(u), name(n) {}
-    };
+    // struct TargetFieldBlackBody
+    // {
+    //     double luminosity, temperature, energy_density;
+    //     std::string name;
+    //     TargetFieldBlackBody(double l, double t, double u, std::string n)
+    //         : luminosity(l), temperature(t), energy_density(u), name(n) {}
+    // };
 
     class BHJet
     {
     public:
         ~BHJet() = default;
+        
+        std::vector<std::shared_ptr<TargetPhotonField>> target_list;
+        void add_target_photon_field(std::shared_ptr<TargetPhotonField> target);
+        void remove_target_photon_field(std::shared_ptr<TargetPhotonField> target);
+        void clear_target_photon_fields();
 
         void init_jet_dynamics(std::shared_ptr<JetDynamics> jet_dynamics_);
-        void add_target_constant_black_body(double luminosity, double temperature, double energy_density, std::string name);
-        void add_target_constant_bulge(double luminosity, double temperature, double radius, std::string name);
-        void add_target_cmb();
-        // add here add_target_BLR, add_target_dust_torus
-        // void add_target_xyz(parameters, std::string name);
-        void remove_target_black_body(const std::string& name);
-        void clear_targets();
         void compute_full_jet(std::vector<double> photon_energy_grid);
 
         // parameters
@@ -43,13 +42,9 @@ namespace bhjet
         // ----------------------------
         // Member variables
         // ----------------------------
-        double theta_obs = RadiationZone::DEFAULT_THETA_OBS;
-        double distance = RadiationZone::DEFAULT_DISTANCE;
-        double redshift = RadiationZone::DEFAULT_REDSHIFT;
-        bool include_counterjet = RadiationZone::DEFAULT_INCLUDE_COUNTERJET;
-        double compton_threshold = RadiationZone::DEFAULT_COMPTON_THRESHOLD;
-        bool profile_time = DEFAULT_PROFILE_TIME;
-        size_t verbosity_level = DEFAULT_VERBOSITY_LEVEL;
+        double theta_obs, distance, redshift, compton_threshold;
+        bool include_counterjet, profile_time;
+        size_t verbosity_level;
 
         // ----------------------------
         // Constructor with defaults
@@ -65,7 +60,7 @@ namespace bhjet
             : theta_obs(theta_obs_), distance(distance_), redshift(redshift_),
               include_counterjet(include_counterjet_), compton_threshold(compton_threshold_),
               profile_time(profile_time_),
-              verbosity_level(verbosity_level_), target_list_blackbody(),
+              verbosity_level(verbosity_level_), target_list(),
               computation_times(JetDynamics::DEFAULT_N_ZONES, 0.0)
         {
         }
@@ -74,18 +69,9 @@ namespace bhjet
 
         std::vector<RadiationZone> radiation_zones;
 
-        std::vector<TargetFieldBlackBody> target_list_blackbody;
 
-        double get_target_black_body_temperature(std::string name);
-        double get_target_black_body_energy_density(std::string name);
-        double get_target_black_body_luminosity(std::string name);
-        void set_target_black_body_temperature(std::string name, double new_temperature);
-        void set_target_black_body_energy_density(std::string name, double new_energy_density);
-        void set_target_black_body_luminosity(std::string name, double new_luminosity);
-
-        std::vector<double> get_observed_photon_energy_grid_black_body(std::string name);
-        std::vector<double> get_observed_photon_flux_black_body(std::string name);
-
+        std::vector<double> get_observed_target_photon_energy(std::string name);
+        std::vector<double> get_observed_target_photon_flux(std::string name);
 
         // emission components
         std::vector<double>

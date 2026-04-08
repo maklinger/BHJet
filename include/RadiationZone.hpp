@@ -9,6 +9,7 @@
 #include "kariba/Bknpower.hpp"
 #include "kariba/BBody.hpp"
 #include "kariba/ShSDisk.hpp"
+#include "TargetPhotonField.hpp"
 #include "kariba/constants.hpp"
 
 namespace karcst = kariba::constants;
@@ -16,28 +17,42 @@ namespace karcst = kariba::constants;
 namespace bhjet
 {
 
-    struct TargetBlackBody
-    {
-        double temperature, energy_density;
-        std::string name;
-        TargetBlackBody(double t, double u, std::string n)
-            : temperature(t), energy_density(u), name(n) {}
-    };
-    struct TargetDisk
-    {
-        double mass_bh, inner_radius, outer_radius, luminosity, inclination;
-    };
+    // struct TargetBlackBody
+    // {
+    //     double temperature, energy_density;
+    //     std::string name;
+    //     TargetBlackBody(double t, double u, std::string n)
+    //         : temperature(t), energy_density(u), name(n) {}
+    // };
+    // struct TargetDisk
+    // {
+    //     double mass_bh, inner_radius, outer_radius, luminosity, inclination;
+    // };
 
     class RadiationZone
     {
     public:
         ~RadiationZone();
 
-        void compute_particles();
+        std::vector<std::string> target_component_names;
+        std::vector<std::vector<double>> 
+            target_component_radiation_energy_density, 
+            target_component_radiation_energy_grid;
+        // total integral (for Thomson cooling)
+        double radiation_energy_density;
+        // total vectors for convenience on same grid
+        std::vector<double> total_target_radiation_energy_density, total_target_radiation_energy_grid;
+
+
+        void add_target_photon_field(std::vector<double> energies, std::vector<double> energy_densities, std::string name);
+        void remove_target_photon_field(std::string name);
         // radiation targets per zone, for total luminosity track one for each in BHJet class
-        void add_target_black_body(double temperature, double energy_density, std::string name);
+        // void add_target_black_body(double temperature, double energy_density, std::string name);
         // void add_target_disk(double Mbh, double inner_radius, double outer_radius, double luminosity, double inclination);
         // void add_target_field(std::vector<double> target_energy, std::vector<double> target_array);
+        
+        void compute_particles(bool reset_photon_targets=true);
+        
         void compute_radiation();
         void compute_radiation(std::vector<double> obs_energy_grid);
 
@@ -75,26 +90,20 @@ namespace bhjet
         // ----------------------------
         // Member variables
         // ----------------------------
-        double magnetic_field = DEFAULT_MAGNETIC_FIELD;
-        double radius = DEFAULT_RADIUS;
-        double height = DEFAULT_HEIGHT;
-        std::string geometry = DEFAULT_GEOMETRY;
-        double bulk_momentum = DEFAULT_BULK_MOMENTUM;
-        double theta_obs = DEFAULT_THETA_OBS;
-        double distance = DEFAULT_DISTANCE;
-        double redshift = DEFAULT_REDSHIFT;
-        double electron_number_density = DEFAULT_ELECTRON_NUMBER_DENSITY;
-        double proton_number_density = DEFAULT_PROTON_NUMBER_DENSITY;
-        double electron_temperature = DEFAULT_ELECTRON_TEMPERATURE;
-        double proton_temperature = DEFAULT_PROTON_TEMPERATURE;
-        double fraction_nonthermal_electrons = DEFAULT_FRACTION_NONTHERMAL_ELECTRONS;
-        double fraction_nonthermal_protons = DEFAULT_FRACTION_NONTHERMAL_PROTONS;
-        double factor_break_electrons = DEFAULT_FACTOR_BREAK_ELECTRONS;
-        double factor_break_protons = DEFAULT_FACTOR_BREAK_PROTONS;
-        double factor_max_energy_electrons = DEFAULT_FACTOR_MAX_ENERGY_ELECTRONS;
-        double factor_max_energy_protons = DEFAULT_FACTOR_MAX_ENERGY_PROTONS;
-        double index_injected_electrons = DEFAULT_INDEX_INJECTED_ELECTRONS;
-        double index_injected_protons = DEFAULT_INDEX_INJECTED_PROTONS;
+        double magnetic_field,
+            radius,
+            height,
+            bulk_momentum,
+            theta_obs,
+            distance,
+            redshift,
+            electron_number_density, proton_number_density,
+            electron_temperature, proton_temperature,
+            fraction_nonthermal_electrons, fraction_nonthermal_protons,
+            factor_break_electrons, factor_break_protons,
+            factor_max_energy_electrons, factor_max_energy_protons,
+            index_injected_electrons, index_injected_protons;
+        std::string geometry;
         bool include_counterjet = DEFAULT_INCLUDE_COUNTERJET;
         bool force_compton_calculation = DEFAULT_FORCE_COMPTON_CALCULATION;
         bool compton_switch = DEFAULT_COMPTON_SWITCH;
@@ -121,10 +130,9 @@ namespace bhjet
 
         double doppler_factor_bulk, beta_bulk, gamma_bulk;
 
-        double radiation_energy_density;
-        std::vector<double> target_radiation_energy_density, target_radiation_energy_grid;
-        std::vector<TargetBlackBody> target_vector_blackbody;
-        std::vector<TargetDisk> target_vector_disk;
+        // std::vector<TargetBlackBody> target_vector_blackbody;
+        // std::vector<TargetDisk> target_vector_disk;
+        // std::vector<TargetPhotonField> target_vector_photons;
 
         std::vector<double> computation_times;
 
@@ -175,7 +183,8 @@ namespace bhjet
               profile_time(profile_time_),
               verbosity_level(verbosity_level_),
               n_bins_e(100), n_bins_p(100), radiation_energy_density(0.),
-              target_vector_blackbody(), target_vector_disk(),
+              target_component_names(), target_component_radiation_energy_grid(), 
+              target_component_radiation_energy_density(),
               electrons_thermal(kariba::Thermal(0)), electrons_mixed(kariba::Mixed(0)),
               electrons_bpl(kariba::Bknpower(0)), electrons_pl(kariba::Powerlaw(0)),
               spline_electrons(nullptr), spline_electrons_accel(nullptr),
@@ -202,13 +211,15 @@ namespace bhjet
         std::vector<double> get_electron_gamma_numbery_density();
 
         // std::vector<double> additional_target_field_energy, additional_target_field_energy_density;
-        std::vector<double> get_photon_target_energy_grid();
-        std::vector<double> get_photon_target_energy_density();
-        std::vector<double> get_photon_target_energy_density_black_body(std::string name);
-        double get_target_black_body_temperature(std::string name);
-        double get_target_black_body_energy_density(std::string name);
-        void set_target_black_body_temperature(std::string name, double new_temperature);
-        void set_target_black_body_energy_density(std::string name, double new_energy_density);
+        std::vector<double> get_total_photon_target_energy();
+        std::vector<double> get_total_photon_target_energy_density();
+        std::vector<double> get_photon_target_energy(std::string name);
+        std::vector<double> get_photon_target_energy_density(std::string name);
+        // std::vector<double> get_photon_target_energy_density_black_body(std::string name);
+        // double get_target_black_body_temperature(std::string name);
+        // double get_target_black_body_energy_density(std::string name);
+        // void set_target_black_body_temperature(std::string name, double new_temperature);
+        // void set_target_black_body_energy_density(std::string name, double new_energy_density);
 
         std::vector<double>
             photon_energy_grid_electron_cyclosyn, photon_observed_luminosity_electron_cyclosyn,
