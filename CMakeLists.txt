@@ -79,23 +79,23 @@ install(TARGETS bhjet DESTINATION python)
 
 
 # --- Test executable ---
-add_executable(test_mljet
-    test/test.cpp
-    ${SRC_FILES}
-)
+# add_executable(test_mljet
+#     test/test.cpp
+#     ${SRC_FILES}
+# )
 
-target_include_directories(test_mljet PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
-)
+# target_include_directories(test_mljet PRIVATE
+#     ${CMAKE_CURRENT_SOURCE_DIR}/include
+# )
 
-target_link_libraries(test_mljet PRIVATE
-    kariba_lib
-    GSL::gsl
-    GSL::gslcblas
-)
+# target_link_libraries(test_mljet PRIVATE
+#     kariba_lib
+#     GSL::gsl
+#     GSL::gslcblas
+# )
 
-target_compile_options(test_mljet PRIVATE -Wall -Wextra -Wpedantic)
+# target_compile_options(test_mljet PRIVATE -Wall -Wextra -Wpedantic)
 
-if(UNIX)
-    target_link_libraries(test_mljet PRIVATE m)
-endif()
+# if(UNIX)
+#     target_link_libraries(test_mljet PRIVATE m)
+# endif()
