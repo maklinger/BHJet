@@ -10,29 +10,18 @@ class BHJetTarget(Function1D):
     # -------------------------
     # Name handling
     # -------------------------
-    # @property
-    # def target_name(self):
-    #     return self._target_name
 
-    def _set_name(self, name):
-        self._name = name
-        # self.name = name
+    def _set_target_name(self, name):
+        self.target_name = name
 
     # -------------------------
     # Interface (must override)
     # -------------------------
-    def add_to_bhjet(self, bhjet):
+    def get_bhjet_target(self):
         raise NotImplementedError()
 
-    def remove_from_bhjet(self, bhjet):
+    def update_internal_parameters(self):
         raise NotImplementedError()
 
-    def apply_to_bhjet(self, bhjet):
-        raise NotImplementedError()
-
-    # -------------------------
-    # Dummy evaluate
-    # -------------------------
     def evaluate(self, x, *args):
-        # never used, but required by astromodels
-        return np.zeros_like(x)
+        raise NotImplementedError()

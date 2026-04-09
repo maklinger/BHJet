@@ -145,7 +145,12 @@ class BHJetPlugin(Function1D, metaclass=FunctionMeta):
         super().__init__()
 
 
-    def _setup(self, Emin_eV=1e-6, Emax_eV=1e12, dlgz=0.3, verbosity_level=0, include_counterjet=True, cache_rtol=1e-4):
+    def _setup(
+            self, Emin_eV=1e-6, Emax_eV=1e12, dlgz=0.3, 
+            compton_threshold=1e-5,
+            verbosity_level=0, include_counterjet=True, 
+            cache_rtol=1e-4):
+        self.compton_threshold = compton_threshold
         self.include_counterjet = include_counterjet
         self.dlgz = dlgz
         self.verbosity_level = verbosity_level
@@ -188,11 +193,12 @@ class BHJetPlugin(Function1D, metaclass=FunctionMeta):
             theta_obs=15, # degree
             distance=16e3, # kpc 
             redshift=0.00428,
-            include_counterjet=self.include_counterjet, 
+            include_counterjet=self.include_counterjet,
+            compton_threshold=self.compton_threshold, 
             # profile_time=True,
             verbosity_level=self.verbosity_level)
         self.bhjet.init_jet_dynamics(self.bljet)
-        self.bhjet.clear_targets()
+        self.bhjet.clear_target_photon_fields()
 
         self.targets = {}
         # chache 
@@ -210,12 +216,13 @@ class BHJetPlugin(Function1D, metaclass=FunctionMeta):
                 i += 1
             name = f"{base}_{i}"
 
-        target._set_name(name)
-        target.add_to_bhjet(self.bhjet)
+        target._set_target_name(name)
 
-        self._add_child(target)
+        # remove existing version (only once per target)
+        self.bhjet.remove_target_photon_field(target.get_bhjet_target())
+        self.bhjet.add_target_photon_field(target.get_bhjet_target())
+
         self.targets[name] = target
-
 
         return target
 
@@ -225,10 +232,8 @@ class BHJetPlugin(Function1D, metaclass=FunctionMeta):
         else:
             target = self.targets[name]
 
-            target.remove_from_bhjet(self.bhjet)
+            self.bhjet.remove_target_photon_field(target.get_bhjet_target())
             self.targets.pop(name)
-            # not sure if it makes a difference, but we don't need to delete here?
-            self._remove_child(name, delete=False)
 
     def clear_targets(self):
 
@@ -379,7 +384,7 @@ class BHJetPlugin(Function1D, metaclass=FunctionMeta):
 
 
             for target in self.targets.values():
-                target.apply_to_bhjet(self.bhjet)
+                target.update_internal_parameters()
             
             self.bhjet.compute_full_jet(photon_energy_grid=self.Egrid_keV*keV2erg)
             self.FEgrid_cm2s = self.bhjet.get_observed_photon_flux_total()
@@ -395,29 +400,3 @@ class BHJetPlugin(Function1D, metaclass=FunctionMeta):
                 np.log(self.FEgrid_cm2s / self.Egrid_keV +1e-100),
                 left=-1e100, right=-1e100))
 
-
-    @property
-    def parameters(self):
-        """
-        Return BHJetPlugin's own parameters PLUS the parameters of all
-        attached target-field plugins, with the target name as prefix.
-
-        This is what CompositeFunction will see when you combine
-        BHJetPlugin with other models, so target parameters remain
-        visible and uniquely named.
-        """
-        params = collections.OrderedDict()
-
-        # 1. Own parameters from the YAML function definition
-        for k, v in self._parameters.items():
-            params[k] = v
-
-        # 2. Target parameters, prefixed by target name
-        #    (e.g. "BB_0_lg_temperature", "BLR_1_lg_luminosity", ...)
-        if hasattr(self, "targets"):
-            for t_name, target in self.targets.items():
-                for pk, p in target.parameters.items():
-                    prefixed_name = f"{t_name}_{pk}"
-                    params[prefixed_name] = p
-
-        return params
