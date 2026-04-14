@@ -1,83 +1,106 @@
-import collections
+"""
+Factory for creating band-limited wrappers around astromodels absorption models.
+
+Absorption models are typically only defined over a finite energy range. Outside
+that range they may return unphysical values (e.g. very small but non-zero
+transmission). This module provides a factory function that wraps any
+astromodels Function1D absorption model and clamps its output to 1.0 (i.e. no
+absorption) outside a user-defined energy range [e_min, e_max].
+
+Usage
+-----
+    from BandLimitedAbsorption import make_band_limited
+    from astromodels import ZDust
+
+    BandLimitedZDust = make_band_limited(ZDust, e_min=1e-6, e_max=1.5e-2)
+    f = BandLimitedZDust(e_bmv=1.0, rv=3.1)
+    f(5e-4)  # evaluated normally, within range
+    f(1.0)   # returns 1.0, outside range
+
+The returned class is a proper astromodels Function1D subclass and is fully
+compatible with 3ML: it can be used in spectral models, fitted, and
+saved/loaded. All parameters of the original model are preserved.
+
+The energy bounds e_min and e_max are plain instance attributes (not
+astromodels parameters) and are set at class creation time. They can be
+updated on an instance at any time:
+
+    f._e_min = 1e-5  # keV
+    f._e_max = 2e-2  # keV
+"""
+
 import numpy as np
-import astropy.units as astropy_units
-from astromodels import Function1D, FunctionMeta
+from astromodels import Function1D
 
-class BandLimitedAbsorption(Function1D, metaclass=FunctionMeta):
-    r"""
-    description :
-        Wraps any multiplicative absorption model and restricts it to an
-        energy band [e_min, e_max]. Returns 1 (no absorption) outside the band.
-        e_min and e_max are fixed instrument properties, not fit parameters.
-        The underlying absorption model is linked via link_external_function,
-        so its parameters remain visible and fittable in the global model.
-        An optional label can be passed at construction to disambiguate
-        multiple instances in the 3ML fitting interface.
 
-    latex: not available
+def make_band_limited(absorption_cls, e_min=0.1, e_max=100.0):
+    """
+    Create a band-limited version of an astromodels absorption model.
 
-    parameters :
-        e_min :
-            desc : lower energy bound below which absorption is set to 1
-            initial value : 0.1
-            min : 0
-            fix : yes
-        e_max :
-            desc : upper energy bound above which absorption is set to 1
-            initial value : 100.0
-            min : 0
-            fix : yes
+    The returned class behaves identically to ``absorption_cls`` within
+    [e_min, e_max], and returns 1.0 (no absorption) outside that range.
+
+    Parameters
+    ----------
+    absorption_cls : type
+        Any astromodels Function1D absorption class (e.g. ZDust, TbAbs).
+    e_min : float, optional
+        Lower energy bound in keV. Absorption is set to 1.0 below this value.
+        Default is 0.1 keV.
+    e_max : float, optional
+        Upper energy bound in keV. Absorption is set to 1.0 above this value.
+        Default is 100.0 keV.
+
+    Returns
+    -------
+    type
+        A new astromodels Function1D subclass named
+        ``BandLimited{absorption_cls.__name__}`` with the same parameters
+        as the original model. The bounds e_min and e_max are stored as
+        ``_e_min`` and ``_e_max`` (in keV) on each instance and can be
+        updated after construction.
+
+    Examples
+    --------
+    >>> from astromodels import ZDust
+    >>> BandLimitedZDust = make_band_limited(ZDust, e_min=1e-6, e_max=1.5e-2)  # keV
+    >>> f = BandLimitedZDust(e_bmv=1.0, rv=3.1)
+    >>> f(5e-4)   # within range: normal ZDust evaluation
+    >>> f(1.0)    # outside range: returns 1.0
     """
 
+    # Instantiate once to introspect parameter names
+    _tmp = absorption_cls()
+    param_names = list(_tmp._parameters.keys())
+
+    # Build evaluate() dynamically with the exact parameter signature that
+    # FunctionMeta requires — *args does not satisfy its validation
+    sig = ", ".join(["x"] + param_names)
+    src = f"""
+def evaluate(self, {sig}):
+    result = absorption_cls.evaluate(self, {sig})
+    return np.where((x >= self._e_min) & (x <= self._e_max), result, 1.0)
+"""
+    globs = {"np": np, "absorption_cls": absorption_cls}
+    exec(src, globs)
+
+    def _setup(self):
+        super(BandLimited, self)._setup()
+        self._e_min = e_min  # keV
+        self._e_max = e_max  # keV
+
     def _set_units(self, x_unit, y_unit):
-        self.e_min.unit = x_unit
-        self.e_max.unit = x_unit
+        super(BandLimited, self)._set_units(x_unit, y_unit)
 
-    def set_linked_function(self, function, label=None):
-        """
-        :param function: the absorption model to link
-        :param label: optional name used in the 3ML interface as
-                      'band_limited_{label}'. Defaults to function.name.
-        """
-        if hasattr(self, "_link_name") and self._link_name is not None:
-            self.unlink_external_function(self._link_name)
+    BandLimited = type(
+        f"BandLimited{absorption_cls.__name__}",
+        (absorption_cls,),
+        {
+            "__doc__": absorption_cls.__doc__,
+            "_setup": _setup,
+            "_set_units": _set_units,
+            "evaluate": globs["evaluate"],
+        },
+    )
 
-        identifier = label if label is not None else function.name
-        self._link_name = f"band_limited_{identifier}"
-        self.link_external_function(function, self._link_name)
-        self._linked_function = function
-        self._add_child(function)
-
-    def get_linked_function(self):
-        return self._linked_function
-
-    def evaluate(self, x, e_min, e_max):
-        mask = (x >= e_min) & (x <= e_max)
-        result = np.ones_like(x, dtype=float)
-        if np.any(mask):
-            result[mask] = self._linked_function(x[mask])
-        return result
-
-    @property
-    def parameters(self):
-        """
-        Return own parameters (e_min, e_max) PLUS the parameters
-        of the linked absorption function (e.g. NH).
-        This is what CompositeFunction will see.
-        """
-        params = collections.OrderedDict()
-
-        # 1. Own parameters from the YAML definition
-        for k, v in self._parameters.items():
-            params[k] = v
-
-        # 2. Linked function's parameters, uniquely prefixed
-        if hasattr(self, "_linked_function") and self._linked_function is not None:
-            # If no link name yet, fall back to a generic prefix
-            base_prefix = getattr(self, "_link_name", "linked")
-
-            for k, v in self._linked_function.parameters.items():
-                prefixed_name = f"{base_prefix}_{k}"
-                params[prefixed_name] = v
-
-        return params
+    return BandLimited
