@@ -16,10 +16,17 @@ micromamba activate bhjet_env
 
 and install inside the environment with pip:
 
-<!-- ```shell
-pip install git+https://github.com/antonpannekoek/BHJet
-``` -->
+```shell
+pip install git+https://github.com/antonpannekoek/BHJet.git@modularUpdate
+```
 In order to modify the code, it is also possible to clone the repository to a location, and in that folder compile/install it using:
 ```shell
-pip install -e .
+git clone https://github.com/antonpannekoek/BHJet.git bhjet
+cd bhjet
+pip install .
 ```
+In order to reinstall, just do:
+```shell
+pip install .
+```
+again.
