@@ -30,7 +30,7 @@ std::pair<std::vector<double>, std::vector<double>> TargetBlackBody::get_target_
         energy_grid[i] = min_energy * pow(10., i * dlg10E);
         energy_density_grid[i] = (
             pow(energy_grid[i] , 2.) * 
-            2. * energy_density * pow(energy_grid[i] / karcst::herg, 2.)
+            2. * Ubb * pow(energy_grid[i] / karcst::herg, 2.)
         ) / (
             karcst::herg * pow(karcst::cee, 2.) * karcst::sbconst *
             pow(kTbb_erg / karcst::kboltz, 4) * (exp(energy_grid[i] / kTbb_erg) - 1.)
