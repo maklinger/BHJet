@@ -31,6 +31,7 @@ namespace bhjet
         void clear_target_photon_fields();
 
         void init_jet_dynamics(std::shared_ptr<JetDynamics> jet_dynamics_);
+        std::shared_ptr<JetDynamics> get_jet_dynamics();
         void compute_full_jet(std::vector<double> photon_energy_grid);
 
         // parameters

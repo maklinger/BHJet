@@ -316,6 +316,7 @@ PYBIND11_MODULE(bhjet, m)
         ;
     bhjet.def("init_jet_dynamics", &BHJet::init_jet_dynamics, "Assign a class of type JetDynamics \
               or a derivative (e.g. BLJet) to be used for the dynamics and properties of the jet");
+    bhjet.def("get_jet_dynamics", &BHJet::get_jet_dynamics, "Returns the JetDynamics pointer");
     // bhjet.def("add_target_constant_black_body", &BHJet::add_target_constant_black_body,
     //           py::arg("luminosity"), py::arg("temperature"), py::arg("energy_density"), py::arg("name"),
     //           "Add a target black body radiation field, at rest in the black hole frame indexed with a given name. \

@@ -16,6 +16,10 @@ namespace bhjet
             std::cout << "Initialising jet dynamics object" << std::endl;
         jet_dynamics = jet_dynamics_;
     }
+    std::shared_ptr<JetDynamics> BHJet::get_jet_dynamics()
+    {
+        return jet_dynamics;
+    }
     void BHJet::add_target_photon_field(std::shared_ptr<TargetPhotonField> target)
     {
         if (verbosity_level > 1)
