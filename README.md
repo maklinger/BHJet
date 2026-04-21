@@ -23,6 +23,7 @@ In order to modify the code, it is also possible to clone the repository to a lo
 ```shell
 git clone https://github.com/antonpannekoek/BHJet.git bhjet
 cd bhjet
+git switch modularUpdate
 pip install .
 ```
 In order to reinstall, just do:
