@@ -1,5 +1,15 @@
 This is the restructured BHJet version
 
+## To-do's
+- [ ] cut-off in kariba + here (Ruby?)
+- [ ] shock: temperature jump (Ruby?)
+- [ ] f_pl scaling (Ruby?)
+- [ ] adding agnjet jet dynamics (Ruby?)
+- [ ] double check Compton switch (Marc/Ruby?)
+- [ ] disk + AGN target fields (Ruby?)
+- [ ] hadronic interactions (Ruby/Dimitris)
+- [ ] integrate MLjet (Dimitris?)
+
 ## Installation
 We suggest to use a micromamba environment (which works similar to conda/miniconda/mamba - just exchange micromamba with e.g. conda in the commands).
 make a new environment like:
