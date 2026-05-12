@@ -30,13 +30,10 @@ class BHJetExplorer:
 
     Parameters
     ----------
-    theta_obs : float
-        Viewing angle [deg].
-    distance_kpc : float
-        Distance [kpc].
-    redshift : float
     include_counterjet : bool
     compton_threshold : float
+    dlgz : float
+        Log-spacing of the jet zone grid.
     verbosity_level : int
     Emin_eV, Emax_eV : float
         Energy range for the output grid.
@@ -51,6 +48,7 @@ class BHJetExplorer:
         redshift=0.00428,
         include_counterjet=True,
         compton_threshold=1e-5,
+        dlgz=0.3,
         verbosity_level=0,
         Emin_eV=1e-6,
         Emax_eV=1e12,
@@ -59,6 +57,7 @@ class BHJetExplorer:
         self._verbosity = verbosity_level
         self._include_counterjet = include_counterjet
         self._compton_threshold = compton_threshold
+        self._dlgz = dlgz
 
         # ── energy grid ──────────────────────────────────────────────────────
         self.E_eV  = np.logspace(np.log10(Emin_eV), np.log10(Emax_eV), n_energy)
@@ -66,9 +65,9 @@ class BHJetExplorer:
 
         # ── default initial parameter values ─────────────────────────────────
         self._defaults = dict(
-            theta_obs                         = theta_obs,
-            lg_distance                       = np.log10(distance_kpc),
-            redshift                          = redshift,
+            theta_obs                         = 17,
+            lg_distance                       = 4,
+            redshift                          = 1e-3,
             lg_mass_bh                        = 9.0,
             lg_jet_power_eddington            = -5.0,
             lg_z_jet_launching                = 0.3,
@@ -134,6 +133,7 @@ class BHJetExplorer:
             factor_max_energy_protons          = 10**d["lg_factor_max_energy_protons"],
             index_injected_electrons           = d["index_injected_electrons"],
             index_injected_protons             = d["index_injected_protons"],
+            dlgz                               = self._dlgz,
             verbosity_level                    = self._verbosity,
         )
         self.bhjet = BHJet(
