@@ -208,7 +208,7 @@ namespace bhjet
         std::vector<double> get_electron_momentum_grid();
         std::vector<double> get_electron_gamma_grid();
         std::vector<double> get_electron_momentum_number_density();
-        std::vector<double> get_electron_gamma_numbery_density();
+        std::vector<double> get_electron_gamma_number_density();
 
         // std::vector<double> additional_target_field_energy, additional_target_field_energy_density;
         std::vector<double> get_total_photon_target_energy();

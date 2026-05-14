@@ -466,7 +466,7 @@ namespace bhjet
         }
         return vec;
     }
-    std::vector<double> RadiationZone::get_electron_gamma_numbery_density()
+    std::vector<double> RadiationZone::get_electron_gamma_number_density()
     {
         std::vector<double> gamma = get_electron_gamma_grid();
         std::vector<double> vec =

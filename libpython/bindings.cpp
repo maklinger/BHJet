@@ -261,7 +261,7 @@ PYBIND11_MODULE(bhjet, m)
     radzone.def("compute_radiation", py::overload_cast<const std::vector<double>>(&RadiationZone::compute_radiation), "Computes the radiation from the particles (photons). Takes as an argument the observed energy grid [erg].");
     // densities
     radzone.def("get_electron_momentum_number_density", GET_ARGS_VEC(RadiationZone, get_electron_momentum_number_density, double), "Get array with comoving electron momentum number density grid dN/dlnp [1/cm³]");
-    radzone.def("get_electron_gamma_numbery_density", GET_ARGS_VEC(RadiationZone, get_electron_gamma_numbery_density, double), "Get array with comoving electron energy number density grid dN/dlnE [1/cm³]");
+    radzone.def("get_electron_gamma_number_density", GET_ARGS_VEC(RadiationZone, get_electron_gamma_number_density, double), "Get array with comoving electron energy number density grid dN/dlnE [1/cm³]");
     radzone.def("get_electron_momentum_grid", GET_ARGS_VEC(RadiationZone, get_electron_momentum_grid, double), "Get array with comoving electron momentum grid [cm g / s]");
     radzone.def("get_electron_gamma_grid", GET_ARGS_VEC(RadiationZone, get_electron_gamma_grid, double), "Get array with comoving electron Lorentz factor grid");
     // time scales
