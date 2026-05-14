@@ -109,7 +109,7 @@ class BHJetExplorer:
             lg_bb_luminosity                   = 44.0,
             include_counterjet                 = True,
             lg_compton_threshold               = -5.0,
-            dlgz                               = 0.3,
+            dlgz                               = 0.1,
         )
 
         self._mode             = "pure"
