@@ -21,7 +21,7 @@ class BHJetPlugin(Function1D, metaclass=FunctionMeta):
         lg_mass_bh :
             desc : Black hole mass (log10, in M_sun)
             initial value : 9
-            min : 1
+            min : 0
             max : 15
         lg_jet_power_eddington :
             desc : Jet power (log10, in Edddingtion luminosities)
