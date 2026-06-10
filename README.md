@@ -4,11 +4,13 @@ This is the restructured BHJet version
 - [ ] cut-off in kariba + here (Ruby?)
 - [ ] shock: temperature jump (Ruby?)
 - [ ] f_pl scaling (Ruby?)
+- [ ] move DEFAULTs all to one file (default_values.hpp)
+- [ ] disk + AGN target fields (Ruby?)
 - [ ] adding agnjet jet dynamics (Ruby?)
 - [ ] double check Compton switch (Marc/Ruby?)
-- [ ] disk + AGN target fields (Ruby?)
 - [ ] hadronic interactions (Ruby/Dimitris)
 - [ ] integrate MLjet (Dimitris?)
+- [ ] switch to nanobind + litgen (= remove the pybind file)
 
 ## Installation
 We suggest to use a micromamba environment (which works similar to conda/miniconda/mamba - just exchange micromamba with e.g. conda in the commands).
