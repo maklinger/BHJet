@@ -270,6 +270,10 @@ PYBIND11_MODULE(bhjet, m)
     radzone.def("get_timescale_electron_compton_thomson", GET_TIMESCALE(RadiationZone, get_timescale_electron_compton_thomson, double, momentum), "Get array with comoving Compton cooling timescale in the Thomson approximation (used in the code) [s]");
     radzone.def("get_timescale_electron_compton", GET_TIMESCALE(RadiationZone, get_timescale_electron_compton, double, momentum), "Get array with comoving Compton cooling timescale (including Klein-Nishina effects) [s]");
     radzone.def("get_timescale_electron_acceleration", GET_TIMESCALE(RadiationZone, get_timescale_electron_acceleration, double, momentum), "Get array with comoving acceleration timescale [s]");
+    radzone.def("get_timescale_photon_cyclosyn_selfabsorption", GET_TIMESCALE(RadiationZone, get_timescale_photon_cyclosyn_selfabsorption, double, momentum), "Get array with comoving photon cyclosyn-self-absorption timescale [s]");
+    radzone.def("get_timescale_photon_escape", GET_TIMESCALE(RadiationZone, get_timescale_photon_escape, double, momentum), "Get array with comoving photon escape timescale [s]");
+    // radzone.def("get_timescale_photon_cyclosyn_selfabsorption_array", GET_ARGS_VEC(RadiationZone, get_timescale_photon_cyclosyn_selfabsorption_array, double), " [s]");
+    // radzone.def("get_timescale_photon_cyclosyn_selfabsorption_energy", GET_ARGS_VEC(RadiationZone, get_timescale_photon_cyclosyn_selfabsorption_energy, double), " [s]");
     // characteristic energies
     radzone.def("get_electron_max_momentum", &RadiationZone::get_electron_max_momentum, "Get maximum electron momentum from comparing acceleration with cooling times [cm g / s]");
     radzone.def("get_electron_break_momentum", &RadiationZone::get_electron_break_momentum, "Get break electron momentum from comparing adiabatic with cyclosyn./Compton cooling times [cm g / s]");

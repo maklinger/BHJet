@@ -19,10 +19,10 @@ find_package(GSL REQUIRED)
 include(FetchContent)
 FetchContent_Declare(
   kariba
-  GIT_REPOSITORY https://github.com/maklinger/kariba.git
-  GIT_TAG bhjetnew
-#   GIT_REPOSITORY https://github.com/antonpannekoek/kariba.git
-#   GIT_TAG main
+#   GIT_REPOSITORY https://github.com/maklinger/kariba.git
+#   GIT_TAG bhjetnew-next
+  GIT_REPOSITORY https://github.com/antonpannekoek/kariba.git
+  GIT_TAG main
 )
 FetchContent_MakeAvailable(kariba)
 

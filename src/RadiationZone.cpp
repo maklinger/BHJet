@@ -119,7 +119,7 @@ namespace bhjet
                             electrons_thermal.get_gdens().data(), n_bins_e);
             gsl_spline_init(spline_electrons_derivative,
                             electrons_thermal.get_gamma().data(),
-                            electrons_thermal.get_gdens_diff().data(), n_bins_e);
+                            electrons_thermal.get_pdensp2_diff_logp().data(), n_bins_e);
         }
         else if (fraction_nonthermal_electrons < 0.5)
         {
@@ -141,7 +141,7 @@ namespace bhjet
                             electrons_mixed.get_gdens().data(), n_bins_e);
             gsl_spline_init(spline_electrons_derivative,
                             electrons_mixed.get_gamma().data(),
-                            electrons_mixed.get_gdens_diff().data(), n_bins_e);
+                            electrons_mixed.get_pdensp2_diff_logp().data(), n_bins_e);
         }
         else if (fraction_nonthermal_electrons < 1.)
         {
@@ -170,7 +170,7 @@ namespace bhjet
                             electrons_bpl.get_gdens().data(), n_bins_e);
             gsl_spline_init(spline_electrons_derivative,
                             electrons_bpl.get_gamma().data(),
-                            electrons_bpl.get_gdens_diff().data(), n_bins_e);
+                            electrons_bpl.get_pdensp2_diff_logp().data(), n_bins_e);
         }
         else if (fraction_nonthermal_electrons == 1.)
         {
@@ -198,7 +198,7 @@ namespace bhjet
                             electrons_pl.get_gdens().data(), n_bins_e);
             gsl_spline_init(spline_electrons_derivative,
                             electrons_pl.get_gamma().data(),
-                            electrons_pl.get_gdens_diff().data(), n_bins_e);
+                            electrons_pl.get_pdensp2_diff_logp().data(), n_bins_e);
         }
         else
         {
@@ -242,6 +242,7 @@ namespace bhjet
         // frequencies.
         syn_min = 0.1 * std::pow(gmin, 2.) * karcst::charg * magnetic_field /
                   (2. * karcst::pi * karcst::emgm * karcst::cee);
+        // syn_min = std::max(syn_min, 1.6e-18 / karcst::herg); // don't go below 1e-8eV
 
         syn_max = 50. * std::pow(gmax, 2.) * karcst::charg * magnetic_field /
                   (2. * karcst::pi * karcst::emgm * karcst::cee);
@@ -284,7 +285,14 @@ namespace bhjet
         Syncro.set_counterjet(include_counterjet);
         // std::cout << "before" << std::endl;
 
+        // read out syn self-abs timescale
         Syncro.cycsyn_spectrum(gmin, gmax, spline_electrons, spline_electrons_accel, spline_electrons_derivative, spline_electrons_derivative_accel);
+        std::vector<double> syn_abs_rate = Syncro.get_cyclosyn_absorption_rate();
+        cyclosyn_selfabsorption_rate.resize(syn_abs_rate.size());
+        for (size_t k = 0; k < syn_abs_rate.size(); k++) {
+            cyclosyn_selfabsorption_rate[k] = 1/ syn_abs_rate[k];
+        }
+        cyclosyn_energy = Syncro.get_energy();
 
         if (include_counterjet)
         {
@@ -807,6 +815,50 @@ namespace bhjet
         }
 
         return t_acc;
+    }
+
+    std::vector<double> RadiationZone::get_timescale_photon_cyclosyn_selfabsorption(std::vector<double> momentum)
+    {
+        size_t n = cyclosyn_energy.size();
+
+        std::vector<double> log_energy(n), log_rate(n);
+        for (size_t i = 0; i < n; i++) {
+            log_energy[i] = std::log10(cyclosyn_energy[i]);
+            log_rate[i]   = std::log10(cyclosyn_selfabsorption_rate[i]);
+        }
+
+        gsl_interp_accel* acc = gsl_interp_accel_alloc();
+        gsl_spline* spline = gsl_spline_alloc(gsl_interp_steffen, n);
+        gsl_spline_init(spline, log_energy.data(), log_rate.data(), n);
+
+        double pmin = cyclosyn_energy.front() / karcst::cee;
+        double pmax = cyclosyn_energy.back() / karcst::cee;
+
+        std::vector<double> result(momentum.size());
+        for (size_t i = 0; i < momentum.size(); i++) {
+            if (momentum[i] < pmin || momentum[i] > pmax) {
+                result[i] = 1e100;
+            } else {
+                double log_en = std::log10(momentum[i] * karcst::cee);  // convert back to energy
+                result[i] = std::pow(10., gsl_spline_eval(spline, log_en, acc));
+            }
+        }
+
+        gsl_spline_free(spline);
+        gsl_interp_accel_free(acc);
+
+        return result;
+    }
+
+    std::vector<double> RadiationZone::get_timescale_photon_escape(std::vector<double> momentum)
+    {
+        double t_escape = radius / karcst::cee;
+        if(geometry == "cylinder") {
+            t_escape /= 2;
+        } else {
+            t_escape /= 3;
+        }
+        return std::vector<double>(momentum.size(), t_escape);
     }
 
     std::vector<double> RadiationZone::get_computation_times()

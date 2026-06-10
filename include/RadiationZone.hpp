@@ -202,6 +202,14 @@ namespace bhjet
         std::vector<double> get_timescale_electron_compton(std::vector<double> momentum);
         std::vector<double> get_timescale_electron_acceleration(std::vector<double> momentum);
 
+        std::vector<double> cyclosyn_selfabsorption_rate, cyclosyn_energy;
+        std::vector<double> get_timescale_photon_cyclosyn_selfabsorption(std::vector<double> momentum);
+        // read out the array, left for debugging
+        // std::vector<double> get_timescale_photon_cyclosyn_selfabsorption_array(){return cyclosyn_selfabsorption_rate;};
+        // std::vector<double> get_timescale_photon_cyclosyn_selfabsorption_energy(){return cyclosyn_energy;};
+        std::vector<double> get_timescale_photon_escape(std::vector<double> momentum);
+
+
         double get_electron_max_momentum();
         double get_electron_break_momentum();
 
