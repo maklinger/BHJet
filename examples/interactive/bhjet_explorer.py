@@ -255,11 +255,12 @@ class BHJetExplorer:
         self.ax.legend(fontsize=10)
 
         self._jet_shape_line, = self.cax.plot([], [], c="k",      lw=1.5, marker="_")
-        self._zdiss_line      = self.cax.axhline(np.nan, ls="--", c="tab:orange", lw=1)
-        self._zacc_line       = self.cax.axhline(np.nan, ls=":",  c="grey",       lw=1)
+        self._zacc_line       = self.cax.axhline(np.nan, ls=":",  c="grey",       lw=1, label=r"end acc.")
+        self._zdiss_line      = self.cax.axhline(np.nan, ls=":", c="tab:orange", lw=1, label=r"dissip.")
         self._zmax_line       = self.cax.axhline(np.nan, ls="-",  c="k",          lw=1)
         self._zone_marker,    = self.cax.plot([], [], marker="o", ms=6,
                                                c="tab:red", zorder=5)
+        self.cax.legend(fontsize=10, handlelength=0.5, handletextpad=0.2)
         self._draw_spectra()
         self._draw_jet_shape()
         plt.ion()
@@ -754,7 +755,7 @@ class BHJetExplorer:
             description="Zone index",
             style={"description_width": "100px"},
             layout=widgets.Layout(width="500px"),
-            continuous_update=False,
+            continuous_update=True,
         )
         self._zone_label = widgets.Label(value="")
 
