@@ -343,7 +343,7 @@ namespace bhjet
         // grid_max = cut off, e.g. if I only have data until keV, no need to calc higher
         double E_el_max = gmax * karcst::emerg;
         double Thomson_max = gmax * gmax * syn_max;
-        double com_max = 10 * std::min(E_el_max / karcst::herg, Thomson_max);
+        double com_max = 100 * std::min(E_el_max / karcst::herg, Thomson_max);
         com_max = std::min(com_max, obs_energy_grid[obs_energy_grid.size() - 1] / karcst::herg);
         size_t ncom = (size_t)(std::log10(com_max) - std::log10(com_min)) * com_res;
 
