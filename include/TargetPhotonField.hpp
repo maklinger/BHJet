@@ -9,16 +9,12 @@ namespace bhjet
 class TargetPhotonField
     {
     public:
-        // DEFAULTS
-        // static constexpr const char *DEFAULT_NAME = "target";
-        static constexpr size_t DEFAULT_VERBOSITY_LEVEL = 1;
-        static constexpr bool DEFAULT_ADD_TO_TOTAL_FLUX = true;
 
         // Member variables
         std::string name, target_type;
         double distance, redshift;
-        size_t verbosity_level;
         bool add_to_total_flux;
+        size_t verbosity_level;
 
         // ----------------------------
         // Constructor with defaults
@@ -26,8 +22,8 @@ class TargetPhotonField
         TargetPhotonField(
             std::string name_,
             double distance_=defaults::DISTANCE, double redshift_=defaults::REDSHIFT,
-            bool add_to_total_flux_=DEFAULT_ADD_TO_TOTAL_FLUX,
-            size_t verbosity_level_ = DEFAULT_VERBOSITY_LEVEL)
+            bool add_to_total_flux_=defaults::DEFAULT_ADD_TO_TOTAL_FLUX,
+            size_t verbosity_level_ = defaults::DEFAULT_VERBOSITY_LEVEL)
             : name(name_), distance(distance_), redshift(redshift_), add_to_total_flux(add_to_total_flux_),
             verbosity_level(verbosity_level_)
         {

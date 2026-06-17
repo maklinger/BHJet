@@ -34,12 +34,7 @@ namespace bhjet
         std::shared_ptr<JetDynamics> get_jet_dynamics();
         void compute_full_jet(std::vector<double> photon_energy_grid);
 
-        // parameters
-        // ----------------------------
-        // Default values (only defined here, automatically in python too)
-        // ----------------------------
-        static constexpr bool DEFAULT_PROFILE_TIME = false;
-        static constexpr size_t DEFAULT_VERBOSITY_LEVEL = 1;
+
         // ----------------------------
         // Member variables
         // ----------------------------
@@ -51,18 +46,18 @@ namespace bhjet
         // Constructor with defaults
         // ----------------------------
         BHJet(
-            double theta_obs_ = RadiationZone::DEFAULT_THETA_OBS,
-            double distance_ = RadiationZone::DEFAULT_DISTANCE,
-            double redshift_ = RadiationZone::DEFAULT_REDSHIFT,
-            bool include_counterjet_ = RadiationZone::DEFAULT_INCLUDE_COUNTERJET,
-            double compton_threshold_ = RadiationZone::DEFAULT_COMPTON_THRESHOLD,
-            bool profile_time_ = DEFAULT_PROFILE_TIME,
-            size_t verbosity_level_ = DEFAULT_VERBOSITY_LEVEL)
+            double theta_obs_ = defaults::DEFAULT_THETA_OBS,
+            double distance_ = defaults::DEFAULT_DISTANCE,
+            double redshift_ = defaults::DEFAULT_REDSHIFT,
+            bool include_counterjet_ = defaults::DEFAULT_INCLUDE_COUNTERJET,
+            double compton_threshold_ = defaults::DEFAULT_COMPTON_THRESHOLD,
+            bool profile_time_ = defaults::DEFAULT_PROFILE_TIME,
+            size_t verbosity_level_ = defaults::DEFAULT_VERBOSITY_LEVEL)
             : theta_obs(theta_obs_), distance(distance_), redshift(redshift_),
               include_counterjet(include_counterjet_), compton_threshold(compton_threshold_),
               profile_time(profile_time_),
               verbosity_level(verbosity_level_), target_list(),
-              computation_times(JetDynamics::DEFAULT_N_ZONES, 0.0)
+              computation_times(defaults::DEFAULT_N_ZONES, 0.0)
         {
         }
 

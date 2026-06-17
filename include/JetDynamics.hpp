@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
+#include "default_values.hpp"
 
 namespace bhjet
 {
@@ -8,20 +9,16 @@ namespace bhjet
     class JetDynamics
     {
     public:
-        // DEFAULTS
-        static constexpr size_t DEFAULT_N_ZONES = 100;
-        static constexpr size_t DEFAULT_VERBOSITY_LEVEL = 1;
-
         // Member variables
-        size_t n_zones = DEFAULT_N_ZONES;
-        size_t verbosity_level = DEFAULT_VERBOSITY_LEVEL;
+        size_t n_zones = defaults::DEFAULT_N_ZONES;
+        size_t verbosity_level = defaults::DEFAULT_VERBOSITY_LEVEL;
 
         // ----------------------------
         // Constructor with defaults
         // ----------------------------
         JetDynamics(
-            size_t n_zones_ = DEFAULT_N_ZONES,
-            size_t verbosity_level_ = DEFAULT_VERBOSITY_LEVEL)
+            size_t n_zones_ = defaults::DEFAULT_N_ZONES,
+            size_t verbosity_level_ = defaults::DEFAULT_VERBOSITY_LEVEL)
             : n_zones(n_zones_), verbosity_level(verbosity_level_)
         {
         }

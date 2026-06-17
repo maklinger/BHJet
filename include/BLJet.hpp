@@ -2,6 +2,7 @@
 #include "JetDynamics.hpp"
 #include "RadiationZone.hpp"
 #include "kariba/Thermal.hpp"
+#include "default_values.hpp"
 
 #include <gsl/gsl_spline.h>
 #include <gsl/gsl_interp.h>
@@ -42,50 +43,31 @@ namespace bhjet
     class BLJet : public JetDynamics
     {
     public:
-        // DEFAULTS
-        static constexpr double DEFAULT_MASS_BH = 1e9;
-        static constexpr double DEFAULT_JET_POWER_EDDINGTON = 1e-5;
-        static constexpr double DEFAULT_Z_JET_LAUNCHING = 2;
-        static constexpr double DEFAULT_R_INITIAL = 3;
-        static constexpr double DEFAULT_Z_END_OF_ACCELERATION = 1e5;
-        static constexpr double DEFAULT_Z_DISSIPATION = 1e2;
-        static constexpr double DEFAULT_Z_MAX_CALCULATION = 1e6;
-        static constexpr double DEFAULT_SIGMA_FINAL = 1;
-        static constexpr double DEFAULT_GAMMA_FINAL = 15;
-        static constexpr double DEFAULT_ELECTRON_TEMPERATURE_JET_BASE = 1e3;
-        static constexpr double DEFAULT_GAMMA_ACCELERATION_EXPONENT = 0.5;
-        static constexpr double DEFAULT_GAMMA_DECELERATION_EXPONENT = 0.0;
-        static constexpr double DEFAULT_OPENING_ANGLE_CONSTANT = 0.15;
-        static constexpr bool DEFAULT_CALC_PAIR_CONTENT_FROM_PLASMA_BETA = false;
-        static constexpr double DEFAULT_PLASMA_BETA_JET_BASE = 1;
-        static constexpr double DEFAULT_DLGZ = 0.1;
-
-
         // Member variables
-        double mass_bh = DEFAULT_MASS_BH;
-        double jet_power_eddington = DEFAULT_JET_POWER_EDDINGTON;
-        double z_jet_launching = DEFAULT_Z_JET_LAUNCHING;
-        double r_initial = DEFAULT_R_INITIAL;
-        double z_end_of_acceleration = DEFAULT_Z_END_OF_ACCELERATION;
-        double z_dissipation = DEFAULT_Z_DISSIPATION;
-        double z_max_calculation = DEFAULT_Z_MAX_CALCULATION;
-        double sigma_final = DEFAULT_SIGMA_FINAL;
-        double gamma_final = DEFAULT_GAMMA_FINAL;
-        double electron_temperature_jet_base = DEFAULT_ELECTRON_TEMPERATURE_JET_BASE;
-        double gamma_acceleration_exponent = DEFAULT_GAMMA_ACCELERATION_EXPONENT;
-        double gamma_deceleration_exponent = DEFAULT_GAMMA_DECELERATION_EXPONENT;
-        double opening_angle_constant = DEFAULT_OPENING_ANGLE_CONSTANT;
-        double fraction_nonthermal_electrons = RadiationZone::DEFAULT_FRACTION_NONTHERMAL_ELECTRONS;
-        double fraction_nonthermal_protons = RadiationZone::DEFAULT_FRACTION_NONTHERMAL_PROTONS;
-        double factor_break_electrons = RadiationZone::DEFAULT_FACTOR_BREAK_ELECTRONS;
-        double factor_break_protons = RadiationZone::DEFAULT_FACTOR_BREAK_PROTONS;
-        double factor_max_energy_electrons = RadiationZone::DEFAULT_FACTOR_MAX_ENERGY_ELECTRONS;
-        double factor_max_energy_protons = RadiationZone::DEFAULT_FACTOR_MAX_ENERGY_PROTONS;
-        double index_injected_electrons = RadiationZone::DEFAULT_INDEX_INJECTED_ELECTRONS;
-        double index_injected_protons = RadiationZone::DEFAULT_INDEX_INJECTED_PROTONS;
-        bool calc_pair_content_from_plasma_beta = DEFAULT_CALC_PAIR_CONTENT_FROM_PLASMA_BETA;
-        double plasma_beta_jet_base = DEFAULT_PLASMA_BETA_JET_BASE;
-        double dlgz = DEFAULT_DLGZ;
+        double mass_bh = defaults::DEFAULT_MASS_BH;
+        double jet_power_eddington = defaults::DEFAULT_JET_POWER_EDDINGTON;
+        double z_jet_launching = defaults::DEFAULT_Z_JET_LAUNCHING;
+        double r_initial = defaults::DEFAULT_R_INITIAL;
+        double z_end_of_acceleration = defaults::DEFAULT_Z_END_OF_ACCELERATION;
+        double z_dissipation = defaults::DEFAULT_Z_DISSIPATION;
+        double z_max_calculation = defaults::DEFAULT_Z_MAX_CALCULATION;
+        double sigma_final = defaults::DEFAULT_SIGMA_FINAL;
+        double gamma_final = defaults::DEFAULT_GAMMA_FINAL;
+        double electron_temperature_jet_base = defaults::DEFAULT_ELECTRON_TEMPERATURE_JET_BASE;
+        double gamma_acceleration_exponent = defaults::DEFAULT_GAMMA_ACCELERATION_EXPONENT;
+        double gamma_deceleration_exponent = defaults::DEFAULT_GAMMA_DECELERATION_EXPONENT;
+        double opening_angle_constant = defaults::DEFAULT_OPENING_ANGLE_CONSTANT;
+        double fraction_nonthermal_electrons = defaults::DEFAULT_FRACTION_NONTHERMAL_ELECTRONS;
+        double fraction_nonthermal_protons = defaults::DEFAULT_FRACTION_NONTHERMAL_PROTONS;
+        double factor_break_electrons = defaults::DEFAULT_FACTOR_BREAK_ELECTRONS;
+        double factor_break_protons = defaults::DEFAULT_FACTOR_BREAK_PROTONS;
+        double factor_max_energy_electrons = defaults::DEFAULT_FACTOR_MAX_ENERGY_ELECTRONS;
+        double factor_max_energy_protons = defaults::DEFAULT_FACTOR_MAX_ENERGY_PROTONS;
+        double index_injected_electrons = defaults::DEFAULT_INDEX_INJECTED_ELECTRONS;
+        double index_injected_protons = defaults::DEFAULT_INDEX_INJECTED_PROTONS;
+        bool calc_pair_content_from_plasma_beta = defaults::DEFAULT_CALC_PAIR_CONTENT_FROM_PLASMA_BETA;
+        double plasma_beta_jet_base = defaults::DEFAULT_PLASMA_BETA_JET_BASE;
+        double dlgz = defaults::DEFAULT_DLGZ;
 
         // internal variables
         double eddington_luminosity, r_g, zmin;
@@ -98,32 +80,32 @@ namespace bhjet
         // Constructor with defaults
         // ----------------------------
         BLJet(
-            double mass_bh_ = DEFAULT_MASS_BH,
-            double jet_power_eddington_ = DEFAULT_JET_POWER_EDDINGTON,
-            double z_jet_launching_ = DEFAULT_Z_JET_LAUNCHING,
-            double r_initial_ = DEFAULT_R_INITIAL,
-            double z_end_of_acceleration_ = DEFAULT_Z_END_OF_ACCELERATION,
-            double z_dissipation_ = DEFAULT_Z_DISSIPATION,
-            double z_max_calculation_ = DEFAULT_Z_MAX_CALCULATION,
-            double sigma_final_ = DEFAULT_SIGMA_FINAL,
-            double gamma_final_ = DEFAULT_GAMMA_FINAL,
-            double electron_temperature_jet_base_ = DEFAULT_ELECTRON_TEMPERATURE_JET_BASE,
-            double gamma_acceleration_exponent_ = DEFAULT_GAMMA_ACCELERATION_EXPONENT,
-            double gamma_deceleration_exponent_ = DEFAULT_GAMMA_DECELERATION_EXPONENT,
-            double opening_angle_constant_ = DEFAULT_OPENING_ANGLE_CONSTANT,
-            double fraction_nonthermal_electrons_ = RadiationZone::DEFAULT_FRACTION_NONTHERMAL_ELECTRONS,
-            double fraction_nonthermal_protons_ = RadiationZone::DEFAULT_FRACTION_NONTHERMAL_PROTONS,
-            double factor_break_electrons_ = RadiationZone::DEFAULT_FACTOR_BREAK_ELECTRONS,
-            double factor_break_protons_ = RadiationZone::DEFAULT_FACTOR_BREAK_PROTONS,
-            double factor_max_energy_electrons_ = RadiationZone::DEFAULT_FACTOR_MAX_ENERGY_ELECTRONS,
-            double factor_max_energy_protons_ = RadiationZone::DEFAULT_FACTOR_MAX_ENERGY_PROTONS,
-            double index_injected_electrons_ = RadiationZone::DEFAULT_INDEX_INJECTED_ELECTRONS,
-            double index_injected_protons_ = RadiationZone::DEFAULT_INDEX_INJECTED_PROTONS,
-            bool calc_pair_content_from_plasma_beta_ = DEFAULT_CALC_PAIR_CONTENT_FROM_PLASMA_BETA,
-            double plasma_beta_jet_base_ = DEFAULT_PLASMA_BETA_JET_BASE,
-            double dlgz_ = DEFAULT_DLGZ,
-            size_t verbosity_level_ = JetDynamics::DEFAULT_VERBOSITY_LEVEL)
-            : JetDynamics(JetDynamics::DEFAULT_N_ZONES, verbosity_level_),
+            double mass_bh_ = defaults::DEFAULT_MASS_BH,
+            double jet_power_eddington_ = defaults::DEFAULT_JET_POWER_EDDINGTON,
+            double z_jet_launching_ = defaults::DEFAULT_Z_JET_LAUNCHING,
+            double r_initial_ = defaults::DEFAULT_R_INITIAL,
+            double z_end_of_acceleration_ = defaults::DEFAULT_Z_END_OF_ACCELERATION,
+            double z_dissipation_ = defaults::DEFAULT_Z_DISSIPATION,
+            double z_max_calculation_ = defaults::DEFAULT_Z_MAX_CALCULATION,
+            double sigma_final_ = defaults::DEFAULT_SIGMA_FINAL,
+            double gamma_final_ = defaults::DEFAULT_GAMMA_FINAL,
+            double electron_temperature_jet_base_ = defaults::DEFAULT_ELECTRON_TEMPERATURE_JET_BASE,
+            double gamma_acceleration_exponent_ = defaults::DEFAULT_GAMMA_ACCELERATION_EXPONENT,
+            double gamma_deceleration_exponent_ = defaults::DEFAULT_GAMMA_DECELERATION_EXPONENT,
+            double opening_angle_constant_ = defaults::DEFAULT_OPENING_ANGLE_CONSTANT,
+            double fraction_nonthermal_electrons_ = defaults::DEFAULT_FRACTION_NONTHERMAL_ELECTRONS,
+            double fraction_nonthermal_protons_ = defaults::DEFAULT_FRACTION_NONTHERMAL_PROTONS,
+            double factor_break_electrons_ = defaults::DEFAULT_FACTOR_BREAK_ELECTRONS,
+            double factor_break_protons_ = defaults::DEFAULT_FACTOR_BREAK_PROTONS,
+            double factor_max_energy_electrons_ = defaults::DEFAULT_FACTOR_MAX_ENERGY_ELECTRONS,
+            double factor_max_energy_protons_ = defaults::DEFAULT_FACTOR_MAX_ENERGY_PROTONS,
+            double index_injected_electrons_ = defaults::DEFAULT_INDEX_INJECTED_ELECTRONS,
+            double index_injected_protons_ = defaults::DEFAULT_INDEX_INJECTED_PROTONS,
+            bool calc_pair_content_from_plasma_beta_ = defaults::DEFAULT_CALC_PAIR_CONTENT_FROM_PLASMA_BETA,
+            double plasma_beta_jet_base_ = defaults::DEFAULT_PLASMA_BETA_JET_BASE,
+            double dlgz_ = defaults::DEFAULT_DLGZ,
+            size_t verbosity_level_ = defaults::DEFAULT_VERBOSITY_LEVEL)
+            : JetDynamics(defaults::DEFAULT_N_ZONES, verbosity_level_),
               mass_bh(mass_bh_),
               jet_power_eddington(jet_power_eddington_),
               z_jet_launching(z_jet_launching_), r_initial(r_initial_),

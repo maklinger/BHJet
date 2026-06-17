@@ -9,6 +9,7 @@
 #include "JetDynamics.hpp"
 #include "RadiationZone.hpp"
 #include "BLJet.hpp"
+#include "default_values.hpp"
 
 #include "kariba/constants.hpp"
 
@@ -86,30 +87,30 @@ namespace massloadedjet
 
     struct MLJetConstructorParameters
     {
-        double mass_bh = bhjet::BLJet::DEFAULT_MASS_BH;
-        double jet_power_eddington = bhjet::BLJet::DEFAULT_JET_POWER_EDDINGTON;
-        double z_jet_launching = bhjet::BLJet::DEFAULT_Z_JET_LAUNCHING;
-        double r_initial = bhjet::BLJet::DEFAULT_R_INITIAL;
-        double z_end_of_acceleration = bhjet::BLJet::DEFAULT_Z_END_OF_ACCELERATION;
-        double z_dissipation = bhjet::BLJet::DEFAULT_Z_DISSIPATION;
-        double z_max_calculation = bhjet::BLJet::DEFAULT_Z_MAX_CALCULATION;
-        double sigma_final = bhjet::BLJet::DEFAULT_SIGMA_FINAL;
-        double gamma_final = bhjet::BLJet::DEFAULT_GAMMA_FINAL;
-        double electron_temperature_jet_base = bhjet::BLJet::DEFAULT_ELECTRON_TEMPERATURE_JET_BASE;
-        double gamma_acceleration_exponent = bhjet::BLJet::DEFAULT_GAMMA_ACCELERATION_EXPONENT;
-        double gamma_deceleration_exponent = bhjet::BLJet::DEFAULT_GAMMA_DECELERATION_EXPONENT;
-        double opening_angle_constant = bhjet::BLJet::DEFAULT_OPENING_ANGLE_CONSTANT;
-        double fraction_nonthermal_electrons = bhjet::RadiationZone::DEFAULT_FRACTION_NONTHERMAL_ELECTRONS;
-        double fraction_nonthermal_protons = bhjet::RadiationZone::DEFAULT_FRACTION_NONTHERMAL_PROTONS;
-        double factor_break_electrons = bhjet::RadiationZone::DEFAULT_FACTOR_BREAK_ELECTRONS;
-        double factor_break_protons = bhjet::RadiationZone::DEFAULT_FACTOR_BREAK_PROTONS;
-        double factor_max_energy_electrons = bhjet::RadiationZone::DEFAULT_FACTOR_MAX_ENERGY_ELECTRONS;
-        double factor_max_energy_protons = bhjet::RadiationZone::DEFAULT_FACTOR_MAX_ENERGY_PROTONS;
-        double index_injected_electrons = bhjet::RadiationZone::DEFAULT_INDEX_INJECTED_ELECTRONS;
-        double index_injected_protons = bhjet::RadiationZone::DEFAULT_INDEX_INJECTED_PROTONS;
-        bool calc_pair_content_from_plasma_beta = bhjet::BLJet::DEFAULT_CALC_PAIR_CONTENT_FROM_PLASMA_BETA;
-        // double plasma_beta_jet_base = bhjet::BLJet::DEFAULT_PLASMA_BETA_JET_BASE;
-        double dlgz = bhjet::BLJet::DEFAULT_DLGZ;
+        double mass_bh = bhjet::defaults::DEFAULT_MASS_BH;
+        double jet_power_eddington = bhjet::defaults::DEFAULT_JET_POWER_EDDINGTON;
+        double z_jet_launching = bhjet::defaults::DEFAULT_Z_JET_LAUNCHING;
+        double r_initial = bhjet::defaults::DEFAULT_R_INITIAL;
+        double z_end_of_acceleration = bhjet::defaults::DEFAULT_Z_END_OF_ACCELERATION;
+        double z_dissipation = bhjet::defaults::DEFAULT_Z_DISSIPATION;
+        double z_max_calculation = bhjet::defaults::DEFAULT_Z_MAX_CALCULATION;
+        double sigma_final = bhjet::defaults::DEFAULT_SIGMA_FINAL;
+        double gamma_final = bhjet::defaults::DEFAULT_GAMMA_FINAL;
+        double electron_temperature_jet_base = bhjet::defaults::DEFAULT_ELECTRON_TEMPERATURE_JET_BASE;
+        double gamma_acceleration_exponent = bhjet::defaults::DEFAULT_GAMMA_ACCELERATION_EXPONENT;
+        double gamma_deceleration_exponent = bhjet::defaults::DEFAULT_GAMMA_DECELERATION_EXPONENT;
+        double opening_angle_constant = bhjet::defaults::DEFAULT_OPENING_ANGLE_CONSTANT;
+        double fraction_nonthermal_electrons = bhjet::defaults::DEFAULT_FRACTION_NONTHERMAL_ELECTRONS;
+        double fraction_nonthermal_protons = bhjet::defaults::DEFAULT_FRACTION_NONTHERMAL_PROTONS;
+        double factor_break_electrons = bhjet::defaults::DEFAULT_FACTOR_BREAK_ELECTRONS;
+        double factor_break_protons = bhjet::defaults::DEFAULT_FACTOR_BREAK_PROTONS;
+        double factor_max_energy_electrons = bhjet::defaults::DEFAULT_FACTOR_MAX_ENERGY_ELECTRONS;
+        double factor_max_energy_protons = bhjet::defaults::DEFAULT_FACTOR_MAX_ENERGY_PROTONS;
+        double index_injected_electrons = bhjet::defaults::DEFAULT_INDEX_INJECTED_ELECTRONS;
+        double index_injected_protons = bhjet::defaults::DEFAULT_INDEX_INJECTED_PROTONS;
+        bool calc_pair_content_from_plasma_beta = bhjet::defaults::DEFAULT_CALC_PAIR_CONTENT_FROM_PLASMA_BETA;
+        // double plasma_beta_jet_base = bhjet::defaults::DEFAULT_PLASMA_BETA_JET_BASE;
+        double dlgz = bhjet::defaults::DEFAULT_DLGZ;
 
         double eta_e = DEFAULT_ELECTRON_TO_PROTON_RATIO;
         double magnetization_jet_base = DEFAULT_MAGNETIZATION_JET_BASE;
@@ -119,12 +120,12 @@ namespace massloadedjet
         double gamma_electron_min_dissipation = electron_temperature_jet_base / (kariba::constants::emerg * kariba::constants::erg * 1.0e3) + 1.;
         double gamma_proton_min_dissipation = DEFAULT_PROTON_MIN_LORENTZ_FACTOR;
 
-        size_t verbosity_level = JetDynamics::DEFAULT_VERBOSITY_LEVEL;
+        size_t verbosity_level = bhjet::defaults::DEFAULT_VERBOSITY_LEVEL;
     };
 
     explicit MassLoadedJet(const MLJetConstructorParameters& p)
     // explicit MassLoadedJet(const MLJetConstructorParameters& p = MLJetConstructorParameters{})
-        : JetDynamics(JetDynamics::DEFAULT_N_ZONES, p.verbosity_level),
+        : JetDynamics(bhjet::defaults::DEFAULT_N_ZONES, p.verbosity_level),
         mass_bh(p.mass_bh),
         jet_power_eddington(p.jet_power_eddington),
         z_jet_launching(p.z_jet_launching),

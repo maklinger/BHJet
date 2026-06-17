@@ -22,90 +22,90 @@ using namespace bhjet;
 #define SEP_COMMA ,
 
 #define RADIATIONZONE_PARAMS                                                                                                                                                                                                                     \
-    X(magnetic_field, double, RadiationZone::DEFAULT_MAGNETIC_FIELD, "Turbulent magnetic field [G]", SEP_COMMA)                                                                                                                                  \
-    X(radius, double, RadiationZone::DEFAULT_RADIUS, "Radius of the zone [cm]", SEP_COMMA)                                                                                                                                                       \
-    X(height, double, RadiationZone::DEFAULT_HEIGHT, "Height of the zone (only used for cylindrical geometry) [cm]", SEP_COMMA)                                                                                                                  \
-    X(geometry, std::string, RadiationZone::DEFAULT_GEOMETRY, "Geometry of zone. Default: 'sphere', alternative 'cylinder'", SEP_COMMA)                                                                                                          \
-    X(bulk_momentum, double, RadiationZone::DEFAULT_BULK_MOMENTUM, "Bulk speed as beta*gamma, with beta=speed/c and gamma^2=1/(1-beta^2)", SEP_COMMA)                                                                                            \
-    X(theta_obs, double, RadiationZone::DEFAULT_THETA_OBS, "Observation angle [degree]", SEP_COMMA)                                                                                                                                              \
-    X(distance, double, RadiationZone::DEFAULT_DISTANCE, "Distance to zone [kpc]", SEP_COMMA)                                                                                                                                                    \
-    X(redshift, double, RadiationZone::DEFAULT_REDSHIFT, "Redshift of zone", SEP_COMMA)                                                                                                                                                          \
-    X(electron_number_density, double, RadiationZone::DEFAULT_ELECTRON_NUMBER_DENSITY, "Number density of electrons in zone [1/cm³]", SEP_COMMA)                                                                                                 \
-    X(proton_number_density, double, RadiationZone::DEFAULT_PROTON_NUMBER_DENSITY, "Number density of protons in zone [1/cm³]", SEP_COMMA)                                                                                                       \
-    X(electron_temperature, double, RadiationZone::DEFAULT_ELECTRON_TEMPERATURE, "Temperature of electrons in zone [keV]", SEP_COMMA)                                                                                                            \
-    X(proton_temperature, double, RadiationZone::DEFAULT_PROTON_TEMPERATURE, "Temperature of protons in zone [keV]", SEP_COMMA)                                                                                                                  \
-    X(fraction_nonthermal_electrons, double, RadiationZone::DEFAULT_FRACTION_NONTHERMAL_ELECTRONS, "Fraction of energy in non-thermal electron tail", SEP_COMMA)                                                                                 \
-    X(fraction_nonthermal_protons, double, RadiationZone::DEFAULT_FRACTION_NONTHERMAL_PROTONS, "Fraction of energy in non-thermal proton tail", SEP_COMMA)                                                                                       \
-    X(factor_break_electrons, double, RadiationZone::DEFAULT_FACTOR_BREAK_ELECTRONS, "Scaling factor for electron adiabtic timescale", SEP_COMMA)                                                                                                \
-    X(factor_break_protons, double, RadiationZone::DEFAULT_FACTOR_BREAK_PROTONS, "Scaling factor for proton adiabtic timescale", SEP_COMMA)                                                                                                      \
-    X(factor_max_energy_electrons, double, RadiationZone::DEFAULT_FACTOR_MAX_ENERGY_ELECTRONS, "Scaling factor for electron acceleration rate, translating to an effective scaling of the maximum energy", SEP_COMMA)                            \
-    X(factor_max_energy_protons, double, RadiationZone::DEFAULT_FACTOR_MAX_ENERGY_PROTONS, "Scaling factor for proton acceleration rate, translating to an effective scaling of the maximum energy", SEP_COMMA)                                  \
-    X(index_injected_electrons, double, RadiationZone::DEFAULT_INDEX_INJECTED_ELECTRONS, "Injected electron spectral index (dlogN/dlogE), ie. before cooling", SEP_COMMA)                                                                        \
-    X(index_injected_protons, double, RadiationZone::DEFAULT_INDEX_INJECTED_PROTONS, "Injected proton spectral index (dlogN/dlogE), ie. before cooling", SEP_COMMA)                                                                              \
-    X(include_counterjet, bool, RadiationZone::DEFAULT_INCLUDE_COUNTERJET, "True: Includes the emission of the counterjet; False: Includes only one jet", SEP_COMMA)                                                                             \
-    X(force_compton_calculation, bool, RadiationZone::DEFAULT_FORCE_COMPTON_CALCULATION, "True: Forces the Compton emission to be computed or not based on compton_switch; False: Uses internal criteria and ignores compton_switch", SEP_COMMA) \
-    X(compton_switch, bool, RadiationZone::DEFAULT_COMPTON_SWITCH, "True: Forces the Compton emission to be computed; False: Skips Compton emission computation", SEP_COMMA)                                                                     \
-    X(compton_threshold, double, RadiationZone::DEFAULT_COMPTON_THRESHOLD, "Internal rough threshold for Compton emission computation: L_com/L_syn > compton_threshold ? Do calculation. Otheriwse skip.", SEP_COMMA)                            \
-    X(profile_time, bool, RadiationZone::DEFAULT_PROFILE_TIME, "True: measures computation time of multiple emission processes; False: Does nothing", SEP_COMMA)                                                                                 \
-    X(verbosity_level, size_t, RadiationZone::DEFAULT_VERBOSITY_LEVEL, "Regulates print output of the code. 0: No output; 1: Only important warnings; 2: More output; 3: Debugging output", ) // leave the last one empty
+    X(magnetic_field, double, defaults::DEFAULT_MAGNETIC_FIELD, "Turbulent magnetic field [G]", SEP_COMMA)                                                                                                                                  \
+    X(radius, double, defaults::DEFAULT_RADIUS, "Radius of the zone [cm]", SEP_COMMA)                                                                                                                                                       \
+    X(height, double, defaults::DEFAULT_HEIGHT, "Height of the zone (only used for cylindrical geometry) [cm]", SEP_COMMA)                                                                                                                  \
+    X(geometry, std::string, defaults::DEFAULT_GEOMETRY, "Geometry of zone. Default: 'sphere', alternative 'cylinder'", SEP_COMMA)                                                                                                          \
+    X(bulk_momentum, double, defaults::DEFAULT_BULK_MOMENTUM, "Bulk speed as beta*gamma, with beta=speed/c and gamma^2=1/(1-beta^2)", SEP_COMMA)                                                                                            \
+    X(theta_obs, double, defaults::DEFAULT_THETA_OBS, "Observation angle [degree]", SEP_COMMA)                                                                                                                                              \
+    X(distance, double, defaults::DEFAULT_DISTANCE, "Distance to zone [kpc]", SEP_COMMA)                                                                                                                                                    \
+    X(redshift, double, defaults::DEFAULT_REDSHIFT, "Redshift of zone", SEP_COMMA)                                                                                                                                                          \
+    X(electron_number_density, double, defaults::DEFAULT_ELECTRON_NUMBER_DENSITY, "Number density of electrons in zone [1/cm³]", SEP_COMMA)                                                                                                 \
+    X(proton_number_density, double, defaults::DEFAULT_PROTON_NUMBER_DENSITY, "Number density of protons in zone [1/cm³]", SEP_COMMA)                                                                                                       \
+    X(electron_temperature, double, defaults::DEFAULT_ELECTRON_TEMPERATURE, "Temperature of electrons in zone [keV]", SEP_COMMA)                                                                                                            \
+    X(proton_temperature, double, defaults::DEFAULT_PROTON_TEMPERATURE, "Temperature of protons in zone [keV]", SEP_COMMA)                                                                                                                  \
+    X(fraction_nonthermal_electrons, double, defaults::DEFAULT_FRACTION_NONTHERMAL_ELECTRONS, "Fraction of energy in non-thermal electron tail", SEP_COMMA)                                                                                 \
+    X(fraction_nonthermal_protons, double, defaults::DEFAULT_FRACTION_NONTHERMAL_PROTONS, "Fraction of energy in non-thermal proton tail", SEP_COMMA)                                                                                       \
+    X(factor_break_electrons, double, defaults::DEFAULT_FACTOR_BREAK_ELECTRONS, "Scaling factor for electron adiabtic timescale", SEP_COMMA)                                                                                                \
+    X(factor_break_protons, double, defaults::DEFAULT_FACTOR_BREAK_PROTONS, "Scaling factor for proton adiabtic timescale", SEP_COMMA)                                                                                                      \
+    X(factor_max_energy_electrons, double, defaults::DEFAULT_FACTOR_MAX_ENERGY_ELECTRONS, "Scaling factor for electron acceleration rate, translating to an effective scaling of the maximum energy", SEP_COMMA)                            \
+    X(factor_max_energy_protons, double, defaults::DEFAULT_FACTOR_MAX_ENERGY_PROTONS, "Scaling factor for proton acceleration rate, translating to an effective scaling of the maximum energy", SEP_COMMA)                                  \
+    X(index_injected_electrons, double, defaults::DEFAULT_INDEX_INJECTED_ELECTRONS, "Injected electron spectral index (dlogN/dlogE), ie. before cooling", SEP_COMMA)                                                                        \
+    X(index_injected_protons, double, defaults::DEFAULT_INDEX_INJECTED_PROTONS, "Injected proton spectral index (dlogN/dlogE), ie. before cooling", SEP_COMMA)                                                                              \
+    X(include_counterjet, bool, defaults::DEFAULT_INCLUDE_COUNTERJET, "True: Includes the emission of the counterjet; False: Includes only one jet", SEP_COMMA)                                                                             \
+    X(force_compton_calculation, bool, defaults::DEFAULT_FORCE_COMPTON_CALCULATION, "True: Forces the Compton emission to be computed or not based on compton_switch; False: Uses internal criteria and ignores compton_switch", SEP_COMMA) \
+    X(compton_switch, bool, defaults::DEFAULT_COMPTON_SWITCH, "True: Forces the Compton emission to be computed; False: Skips Compton emission computation", SEP_COMMA)                                                                     \
+    X(compton_threshold, double, defaults::DEFAULT_COMPTON_THRESHOLD, "Internal rough threshold for Compton emission computation: L_com/L_syn > compton_threshold ? Do calculation. Otheriwse skip.", SEP_COMMA)                            \
+    X(profile_time, bool, defaults::DEFAULT_PROFILE_TIME, "True: measures computation time of multiple emission processes; False: Does nothing", SEP_COMMA)                                                                                 \
+    X(verbosity_level, size_t, defaults::DEFAULT_VERBOSITY_LEVEL, "Regulates print output of the code. 0: No output; 1: Only important warnings; 2: More output; 3: Debugging output", ) // leave the last one empty
 
 #define JETDYNAMICS_PARAMS                                \
-    X(n_zones, size_t, BLJet::DEFAULT_N_ZONES, SEP_COMMA) \
-    X(verbosity_level, size_t, JetDynamics::DEFAULT_VERBOSITY_LEVEL, )
+    X(n_zones, size_t, defaults::DEFAULT_N_ZONES, SEP_COMMA) \
+    X(verbosity_level, size_t, defaults::DEFAULT_VERBOSITY_LEVEL, )
 
 #define BLJET_PARAMS                                                                                                                                                                                                  \
-    X(mass_bh, double, BLJet::DEFAULT_MASS_BH, "Black hole mass in units of solar mass", SEP_COMMA)                                                                                                                   \
-    X(jet_power_eddington, double, BLJet::DEFAULT_JET_POWER_EDDINGTON, "Jet power in units of the Eddington luminosity", SEP_COMMA)                                                                                   \
-    X(z_jet_launching, double, BLJet::DEFAULT_Z_JET_LAUNCHING, "Distance from black hole where the jet starts [rg]", SEP_COMMA)                                                                                       \
-    X(r_initial, double, BLJet::DEFAULT_R_INITIAL, "Jet radius when the jet starts [rg]", SEP_COMMA)                                                                                                                  \
-    X(z_end_of_acceleration, double, BLJet::DEFAULT_Z_END_OF_ACCELERATION, "Distance from black hole where the bulk jet accelerated to gamma_final [rg]", SEP_COMMA)                                                  \
-    X(z_dissipation, double, BLJet::DEFAULT_Z_DISSIPATION, "Distance from black hole where the jet starts to dissipate energy into non-thermal particles [rg]", SEP_COMMA)                                            \
-    X(z_max_calculation, double, BLJet::DEFAULT_Z_MAX_CALCULATION, "Distance from black hole where the calulation stops [rg]", SEP_COMMA)                                                                             \
-    X(sigma_final, double, BLJet::DEFAULT_SIGMA_FINAL, "Magnetisation at z_end_of_acceleration", SEP_COMMA)                                                                                                           \
-    X(gamma_final, double, BLJet::DEFAULT_GAMMA_FINAL, "Bulk Lorentz factor at z_end_of_acceleration", SEP_COMMA)                                                                                                     \
-    X(electron_temperature_jet_base, double, BLJet::DEFAULT_ELECTRON_TEMPERATURE_JET_BASE, "Electron temperature value at z_jet_launching (the jet base) [keV]", SEP_COMMA)                                           \
-    X(gamma_acceleration_exponent, double, BLJet::DEFAULT_GAMMA_ACCELERATION_EXPONENT, "Exponent alpha of jet acceleration profile, gamma_bulk propto z^alpha", SEP_COMMA)                                            \
-    X(gamma_deceleration_exponent, double, BLJet::DEFAULT_GAMMA_DECELERATION_EXPONENT, "  ", SEP_COMMA)                                                                                                               \
-    X(opening_angle_constant, double, BLJet::DEFAULT_OPENING_ANGLE_CONSTANT, "Jet opening angle used to convert Lorentz factor to jet radius, r=opening_angle_constant / gamma", SEP_COMMA)                           \
-    X(fraction_nonthermal_electrons, double, RadiationZone::DEFAULT_FRACTION_NONTHERMAL_ELECTRONS, "Fraction of energy in non-thermal electron tail", SEP_COMMA)                                                      \
-    X(fraction_nonthermal_protons, double, RadiationZone::DEFAULT_FRACTION_NONTHERMAL_PROTONS, "Fraction of energy in non-thermal proton tail", SEP_COMMA)                                                            \
-    X(factor_break_electrons, double, RadiationZone::DEFAULT_FACTOR_BREAK_ELECTRONS, "Scaling factor for electron adiabtic timescale", SEP_COMMA)                                                                     \
-    X(factor_break_protons, double, RadiationZone::DEFAULT_FACTOR_BREAK_PROTONS, "Scaling factor for proton adiabtic timescale", SEP_COMMA)                                                                           \
-    X(factor_max_energy_electrons, double, RadiationZone::DEFAULT_FACTOR_MAX_ENERGY_ELECTRONS, "Scaling factor for electron acceleration rate, translating to an effective scaling of the maximum energy", SEP_COMMA) \
-    X(factor_max_energy_protons, double, RadiationZone::DEFAULT_FACTOR_MAX_ENERGY_PROTONS, "Scaling factor for proton acceleration rate, translating to an effective scaling of the maximum energy", SEP_COMMA)       \
-    X(index_injected_electrons, double, RadiationZone::DEFAULT_INDEX_INJECTED_ELECTRONS, "Injected electron spectral index (dlogN/dlogE), ie. before cooling", SEP_COMMA)                                             \
-    X(index_injected_protons, double, RadiationZone::DEFAULT_INDEX_INJECTED_PROTONS, "Injected proton spectral index (dlogN/dlogE), ie. before cooling", SEP_COMMA)                                                   \
-    X(calc_pair_content_from_plasma_beta, bool, BLJet::DEFAULT_CALC_PAIR_CONTENT_FROM_PLASMA_BETA, "True: use the plasma beta variable to estimate the pair content (n_p/n_e) at the jet base; False: Assume same number density for electrons and protons and ignore plasma_beta_jet_base", SEP_COMMA)     \
-    X(plasma_beta_jet_base, double, BLJet::DEFAULT_PLASMA_BETA_JET_BASE, "Plasma beta value at z_jet_launching (the jet base)", SEP_COMMA)                                                                            \
-    X(dlgz, double, BLJet::DEFAULT_DLGZ, "log. grid spacing log10(z[i+1]) - log10(z[i])", SEP_COMMA) \
-    X(verbosity_level, size_t, JetDynamics::DEFAULT_VERBOSITY_LEVEL, "Regulates print output of the code. 0: No output; 1: Only important warnings; 2: More output; 3: Debugging output", )
+    X(mass_bh, double, defaults::DEFAULT_MASS_BH, "Black hole mass in units of solar mass", SEP_COMMA)                                                                                                                   \
+    X(jet_power_eddington, double, defaults::DEFAULT_JET_POWER_EDDINGTON, "Jet power in units of the Eddington luminosity", SEP_COMMA)                                                                                   \
+    X(z_jet_launching, double, defaults::DEFAULT_Z_JET_LAUNCHING, "Distance from black hole where the jet starts [rg]", SEP_COMMA)                                                                                       \
+    X(r_initial, double, defaults::DEFAULT_R_INITIAL, "Jet radius when the jet starts [rg]", SEP_COMMA)                                                                                                                  \
+    X(z_end_of_acceleration, double, defaults::DEFAULT_Z_END_OF_ACCELERATION, "Distance from black hole where the bulk jet accelerated to gamma_final [rg]", SEP_COMMA)                                                  \
+    X(z_dissipation, double, defaults::DEFAULT_Z_DISSIPATION, "Distance from black hole where the jet starts to dissipate energy into non-thermal particles [rg]", SEP_COMMA)                                            \
+    X(z_max_calculation, double, defaults::DEFAULT_Z_MAX_CALCULATION, "Distance from black hole where the calulation stops [rg]", SEP_COMMA)                                                                             \
+    X(sigma_final, double, defaults::DEFAULT_SIGMA_FINAL, "Magnetisation at z_end_of_acceleration", SEP_COMMA)                                                                                                           \
+    X(gamma_final, double, defaults::DEFAULT_GAMMA_FINAL, "Bulk Lorentz factor at z_end_of_acceleration", SEP_COMMA)                                                                                                     \
+    X(electron_temperature_jet_base, double, defaults::DEFAULT_ELECTRON_TEMPERATURE_JET_BASE, "Electron temperature value at z_jet_launching (the jet base) [keV]", SEP_COMMA)                                           \
+    X(gamma_acceleration_exponent, double, defaults::DEFAULT_GAMMA_ACCELERATION_EXPONENT, "Exponent alpha of jet acceleration profile, gamma_bulk propto z^alpha", SEP_COMMA)                                            \
+    X(gamma_deceleration_exponent, double, defaults::DEFAULT_GAMMA_DECELERATION_EXPONENT, "  ", SEP_COMMA)                                                                                                               \
+    X(opening_angle_constant, double, defaults::DEFAULT_OPENING_ANGLE_CONSTANT, "Jet opening angle used to convert Lorentz factor to jet radius, r=opening_angle_constant / gamma", SEP_COMMA)                           \
+    X(fraction_nonthermal_electrons, double, defaults::DEFAULT_FRACTION_NONTHERMAL_ELECTRONS, "Fraction of energy in non-thermal electron tail", SEP_COMMA)                                                      \
+    X(fraction_nonthermal_protons, double, defaults::DEFAULT_FRACTION_NONTHERMAL_PROTONS, "Fraction of energy in non-thermal proton tail", SEP_COMMA)                                                            \
+    X(factor_break_electrons, double, defaults::DEFAULT_FACTOR_BREAK_ELECTRONS, "Scaling factor for electron adiabtic timescale", SEP_COMMA)                                                                     \
+    X(factor_break_protons, double, defaults::DEFAULT_FACTOR_BREAK_PROTONS, "Scaling factor for proton adiabtic timescale", SEP_COMMA)                                                                           \
+    X(factor_max_energy_electrons, double, defaults::DEFAULT_FACTOR_MAX_ENERGY_ELECTRONS, "Scaling factor for electron acceleration rate, translating to an effective scaling of the maximum energy", SEP_COMMA) \
+    X(factor_max_energy_protons, double, defaults::DEFAULT_FACTOR_MAX_ENERGY_PROTONS, "Scaling factor for proton acceleration rate, translating to an effective scaling of the maximum energy", SEP_COMMA)       \
+    X(index_injected_electrons, double, defaults::DEFAULT_INDEX_INJECTED_ELECTRONS, "Injected electron spectral index (dlogN/dlogE), ie. before cooling", SEP_COMMA)                                             \
+    X(index_injected_protons, double, defaults::DEFAULT_INDEX_INJECTED_PROTONS, "Injected proton spectral index (dlogN/dlogE), ie. before cooling", SEP_COMMA)                                                   \
+    X(calc_pair_content_from_plasma_beta, bool, defaults::DEFAULT_CALC_PAIR_CONTENT_FROM_PLASMA_BETA, "True: use the plasma beta variable to estimate the pair content (n_p/n_e) at the jet base; False: Assume same number density for electrons and protons and ignore plasma_beta_jet_base", SEP_COMMA)     \
+    X(plasma_beta_jet_base, double, defaults::DEFAULT_PLASMA_BETA_JET_BASE, "Plasma beta value at z_jet_launching (the jet base)", SEP_COMMA)                                                                            \
+    X(dlgz, double, defaults::DEFAULT_DLGZ, "log. grid spacing log10(z[i+1]) - log10(z[i])", SEP_COMMA) \
+    X(verbosity_level, size_t, defaults::DEFAULT_VERBOSITY_LEVEL, "Regulates print output of the code. 0: No output; 1: Only important warnings; 2: More output; 3: Debugging output", )
 
 #define BHJET_PARAMS                                                                                                                                                 \
-    X(theta_obs, double, RadiationZone::DEFAULT_THETA_OBS, "Observation angle [degree]", SEP_COMMA)                                                                  \
-    X(distance, double, RadiationZone::DEFAULT_DISTANCE, "Distance to source [kpc]", SEP_COMMA)                                                                      \
-    X(redshift, double, RadiationZone::DEFAULT_REDSHIFT, "Redshift of source", SEP_COMMA)                                                                            \
-    X(include_counterjet, bool, RadiationZone::DEFAULT_INCLUDE_COUNTERJET, "True: Includes the emission of the counterjet; False: Includes only one jet", SEP_COMMA) \
-    X(compton_threshold, double, RadiationZone::DEFAULT_COMPTON_THRESHOLD, "Internal rough threshold for Compton emission computation: L_com/L_syn > compton_threshold ? Do calculation. Otheriwse skip.", SEP_COMMA) \
-    X(profile_time, bool, BHJet::DEFAULT_PROFILE_TIME, "True: measures computation time of each zone; False: Does nothing", SEP_COMMA)                               \
-    X(verbosity_level, size_t, BHJet::DEFAULT_VERBOSITY_LEVEL, "Regulates print output of the code. 0: No output; 1: Only important warnings; 2: More output; 3: Debugging output", )
+    X(theta_obs, double, defaults::DEFAULT_THETA_OBS, "Observation angle [degree]", SEP_COMMA)                                                                  \
+    X(distance, double, defaults::DEFAULT_DISTANCE, "Distance to source [kpc]", SEP_COMMA)                                                                      \
+    X(redshift, double, defaults::DEFAULT_REDSHIFT, "Redshift of source", SEP_COMMA)                                                                            \
+    X(include_counterjet, bool, defaults::DEFAULT_INCLUDE_COUNTERJET, "True: Includes the emission of the counterjet; False: Includes only one jet", SEP_COMMA) \
+    X(compton_threshold, double, defaults::DEFAULT_COMPTON_THRESHOLD, "Internal rough threshold for Compton emission computation: L_com/L_syn > compton_threshold ? Do calculation. Otheriwse skip.", SEP_COMMA) \
+    X(profile_time, bool, defaults::DEFAULT_PROFILE_TIME, "True: measures computation time of each zone; False: Does nothing", SEP_COMMA)                               \
+    X(verbosity_level, size_t, defaults::DEFAULT_VERBOSITY_LEVEL, "Regulates print output of the code. 0: No output; 1: Only important warnings; 2: More output; 3: Debugging output", )
 
 
 #define TARGET_PHOTON_FIELD_PARAMS  \
     X_NODEF(name, std::string, SEP_COMMA) \
     X(distance, double, defaults::DISTANCE, SEP_COMMA) \
     X(redshift, double, defaults::REDSHIFT, SEP_COMMA) \
-    X(add_to_total_flux, bool, TargetPhotonField::DEFAULT_ADD_TO_TOTAL_FLUX, SEP_COMMA) \
-    X(verbosity_level, size_t, TargetPhotonField::DEFAULT_VERBOSITY_LEVEL, )
+    X(add_to_total_flux, bool, defaults::DEFAULT_ADD_TO_TOTAL_FLUX, SEP_COMMA) \
+    X(verbosity_level, size_t, defaults::DEFAULT_VERBOSITY_LEVEL, )
 
 #define TARGET_BLACK_BODY_PARAMS                                \
     X_NODEF(name, std::string, "Name, has to be unique", SEP_COMMA) \
     X(distance, double, defaults::DISTANCE, "Distance to source [kpc]", SEP_COMMA ) \
     X(redshift, double, defaults::REDSHIFT, "Redshift of source", SEP_COMMA) \
-    X(luminosity, double, TargetBlackBody::DEFAULT_LUMINOSTIY, "Total luminosity of black body [erg/s]", SEP_COMMA) \
-    X(temperature, double, TargetBlackBody::DEFAULT_TEMPERATURE, "Temperature of black body [keV]", SEP_COMMA) \
-    X(energy_density, double, TargetBlackBody::DEFAULT_ENERGY_DENSITY, "Total energy density of black body [erg/cm³]", SEP_COMMA) \
-    X(add_to_total_flux, bool, TargetPhotonField::DEFAULT_ADD_TO_TOTAL_FLUX, "True: add the flux to the total model flux, False: only take into account as a target.", SEP_COMMA) \
-    X(verbosity_level, size_t, TargetPhotonField::DEFAULT_VERBOSITY_LEVEL, "Regulates print output of the code. 0: No output; 1: Only important warnings; 2: More output; 3: Debugging output", )
+    X(luminosity, double, defaults::DEFAULT_LUMINOSTIY, "Total luminosity of black body [erg/s]", SEP_COMMA) \
+    X(temperature, double, defaults::DEFAULT_TEMPERATURE, "Temperature of black body [keV]", SEP_COMMA) \
+    X(energy_density, double, defaults::DEFAULT_ENERGY_DENSITY, "Total energy density of black body [erg/cm³]", SEP_COMMA) \
+    X(add_to_total_flux, bool, defaults::DEFAULT_ADD_TO_TOTAL_FLUX, "True: add the flux to the total model flux, False: only take into account as a target.", SEP_COMMA) \
+    X(verbosity_level, size_t, defaults::DEFAULT_VERBOSITY_LEVEL, "Regulates print output of the code. 0: No output; 1: Only important warnings; 2: More output; 3: Debugging output", )
 
 // function to convert the returned std::vector<type> from c++ function "function"
 // into a numpy array

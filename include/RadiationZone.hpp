@@ -11,6 +11,7 @@
 #include "kariba/ShSDisk.hpp"
 #include "TargetPhotonField.hpp"
 #include "kariba/constants.hpp"
+#include "default_values.hpp"
 
 namespace karcst = kariba::constants;
 
@@ -56,36 +57,6 @@ namespace bhjet
         void compute_radiation();
         void compute_radiation(std::vector<double> obs_energy_grid);
 
-        // parameters
-        // ----------------------------
-        // Default values (only defined here, automatically in python too)
-        // ----------------------------
-        static constexpr double DEFAULT_MAGNETIC_FIELD = 1.0;
-        static constexpr double DEFAULT_RADIUS = 1e15;
-        static constexpr double DEFAULT_HEIGHT = 1e15;
-        static constexpr const char *DEFAULT_GEOMETRY = "sphere";
-        static constexpr double DEFAULT_BULK_MOMENTUM = 1.0;
-        static constexpr double DEFAULT_THETA_OBS = 0.0;
-        static constexpr double DEFAULT_DISTANCE = 1e3;
-        static constexpr double DEFAULT_REDSHIFT = 0.0;
-        static constexpr double DEFAULT_ELECTRON_NUMBER_DENSITY = 1;
-        static constexpr double DEFAULT_PROTON_NUMBER_DENSITY = 1;
-        static constexpr double DEFAULT_ELECTRON_TEMPERATURE = 1e3;
-        static constexpr double DEFAULT_PROTON_TEMPERATURE = 1e3;
-        static constexpr double DEFAULT_FRACTION_NONTHERMAL_ELECTRONS = 0.1;
-        static constexpr double DEFAULT_FRACTION_NONTHERMAL_PROTONS = 0.1;
-        static constexpr double DEFAULT_FACTOR_BREAK_ELECTRONS = 1.;
-        static constexpr double DEFAULT_FACTOR_BREAK_PROTONS = 1.;
-        static constexpr double DEFAULT_FACTOR_MAX_ENERGY_ELECTRONS = 1.;
-        static constexpr double DEFAULT_FACTOR_MAX_ENERGY_PROTONS = 1.;
-        static constexpr double DEFAULT_INDEX_INJECTED_ELECTRONS = 2.;
-        static constexpr double DEFAULT_INDEX_INJECTED_PROTONS = 2.;
-        static constexpr size_t DEFAULT_VERBOSITY_LEVEL = 1;
-        static constexpr bool DEFAULT_INCLUDE_COUNTERJET = true;
-        static constexpr bool DEFAULT_FORCE_COMPTON_CALCULATION = false;
-        static constexpr bool DEFAULT_COMPTON_SWITCH = true;
-        static constexpr double DEFAULT_COMPTON_THRESHOLD = 1e-2;
-        static constexpr bool DEFAULT_PROFILE_TIME = false;
 
         // ----------------------------
         // Member variables
@@ -104,12 +75,12 @@ namespace bhjet
             factor_max_energy_electrons, factor_max_energy_protons,
             index_injected_electrons, index_injected_protons;
         std::string geometry;
-        bool include_counterjet = DEFAULT_INCLUDE_COUNTERJET;
-        bool force_compton_calculation = DEFAULT_FORCE_COMPTON_CALCULATION;
-        bool compton_switch = DEFAULT_COMPTON_SWITCH;
-        double compton_threshold = DEFAULT_COMPTON_THRESHOLD;
-        bool profile_time = DEFAULT_PROFILE_TIME;
-        size_t verbosity_level = DEFAULT_VERBOSITY_LEVEL;
+        bool include_counterjet = defaults::DEFAULT_INCLUDE_COUNTERJET;
+        bool force_compton_calculation = defaults::DEFAULT_FORCE_COMPTON_CALCULATION;
+        bool compton_switch = defaults::DEFAULT_COMPTON_SWITCH;
+        double compton_threshold = defaults::DEFAULT_COMPTON_THRESHOLD;
+        bool profile_time = defaults::DEFAULT_PROFILE_TIME;
+        size_t verbosity_level = defaults::DEFAULT_VERBOSITY_LEVEL;
 
         // momentum grid
         size_t n_bins_e, n_bins_p;
@@ -140,32 +111,32 @@ namespace bhjet
         // Constructor with defaults
         // ----------------------------
         RadiationZone(
-            double magnetic_field_ = DEFAULT_MAGNETIC_FIELD,
-            double radius_ = DEFAULT_RADIUS,
-            double height_ = DEFAULT_HEIGHT,
-            std::string geometry_ = DEFAULT_GEOMETRY,
-            double bulk_momentum_ = DEFAULT_BULK_MOMENTUM,
-            double theta_obs_ = DEFAULT_THETA_OBS,
-            double distance_ = DEFAULT_DISTANCE,
-            double redshift_ = DEFAULT_REDSHIFT,
-            double electron_number_density_ = DEFAULT_ELECTRON_NUMBER_DENSITY,
-            double proton_number_density_ = DEFAULT_PROTON_NUMBER_DENSITY,
-            double electron_temperature_ = DEFAULT_ELECTRON_TEMPERATURE,
-            double proton_temperature_ = DEFAULT_PROTON_TEMPERATURE,
-            double fraction_nonthermal_electrons_ = DEFAULT_FRACTION_NONTHERMAL_ELECTRONS,
-            double fraction_nonthermal_protons_ = DEFAULT_FRACTION_NONTHERMAL_PROTONS,
-            double factor_break_electrons_ = DEFAULT_FACTOR_BREAK_ELECTRONS,
-            double factor_break_protons_ = DEFAULT_FACTOR_BREAK_PROTONS,
-            double factor_max_energy_electrons_ = DEFAULT_FACTOR_MAX_ENERGY_ELECTRONS,
-            double factor_max_energy_protons_ = DEFAULT_FACTOR_MAX_ENERGY_PROTONS,
-            double index_injected_electrons_ = DEFAULT_INDEX_INJECTED_ELECTRONS,
-            double index_injected_protons_ = DEFAULT_INDEX_INJECTED_PROTONS,
-            bool include_counterjet_ = DEFAULT_INCLUDE_COUNTERJET,
-            bool force_compton_calculation_ = DEFAULT_FORCE_COMPTON_CALCULATION,
-            bool compton_switch_ = DEFAULT_COMPTON_SWITCH,
-            double compton_threshold_ = DEFAULT_COMPTON_THRESHOLD,
-            bool profile_time_ = DEFAULT_PROFILE_TIME,
-            size_t verbosity_level_ = DEFAULT_VERBOSITY_LEVEL)
+            double magnetic_field_ = defaults::DEFAULT_MAGNETIC_FIELD,
+            double radius_ = defaults::DEFAULT_RADIUS,
+            double height_ = defaults::DEFAULT_HEIGHT,
+            std::string geometry_ = defaults::DEFAULT_GEOMETRY,
+            double bulk_momentum_ = defaults::DEFAULT_BULK_MOMENTUM,
+            double theta_obs_ = defaults::DEFAULT_THETA_OBS,
+            double distance_ = defaults::DEFAULT_DISTANCE,
+            double redshift_ = defaults::DEFAULT_REDSHIFT,
+            double electron_number_density_ = defaults::DEFAULT_ELECTRON_NUMBER_DENSITY,
+            double proton_number_density_ = defaults::DEFAULT_PROTON_NUMBER_DENSITY,
+            double electron_temperature_ = defaults::DEFAULT_ELECTRON_TEMPERATURE,
+            double proton_temperature_ = defaults::DEFAULT_PROTON_TEMPERATURE,
+            double fraction_nonthermal_electrons_ = defaults::DEFAULT_FRACTION_NONTHERMAL_ELECTRONS,
+            double fraction_nonthermal_protons_ = defaults::DEFAULT_FRACTION_NONTHERMAL_PROTONS,
+            double factor_break_electrons_ = defaults::DEFAULT_FACTOR_BREAK_ELECTRONS,
+            double factor_break_protons_ = defaults::DEFAULT_FACTOR_BREAK_PROTONS,
+            double factor_max_energy_electrons_ = defaults::DEFAULT_FACTOR_MAX_ENERGY_ELECTRONS,
+            double factor_max_energy_protons_ = defaults::DEFAULT_FACTOR_MAX_ENERGY_PROTONS,
+            double index_injected_electrons_ = defaults::DEFAULT_INDEX_INJECTED_ELECTRONS,
+            double index_injected_protons_ = defaults::DEFAULT_INDEX_INJECTED_PROTONS,
+            bool include_counterjet_ = defaults::DEFAULT_INCLUDE_COUNTERJET,
+            bool force_compton_calculation_ = defaults::DEFAULT_FORCE_COMPTON_CALCULATION,
+            bool compton_switch_ = defaults::DEFAULT_COMPTON_SWITCH,
+            double compton_threshold_ = defaults::DEFAULT_COMPTON_THRESHOLD,
+            bool profile_time_ = defaults::DEFAULT_PROFILE_TIME,
+            size_t verbosity_level_ = defaults::DEFAULT_VERBOSITY_LEVEL)
             : magnetic_field(magnetic_field_), radius(radius_), height(height_), geometry(geometry_),
               bulk_momentum(bulk_momentum_), theta_obs(theta_obs_), distance(distance_),
               redshift(redshift_), electron_number_density(electron_number_density_),
