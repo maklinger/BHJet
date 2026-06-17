@@ -4,6 +4,7 @@
 
 #include "JetDynamics.hpp"
 #include "BLJet.hpp"
+#include "IsoJet.hpp"
 #include "RadiationZone.hpp"
 #include "BHJet.hpp"
 #include "TargetPhotonField.hpp"
@@ -77,6 +78,26 @@ using namespace bhjet;
     X(index_injected_protons, double, defaults::DEFAULT_INDEX_INJECTED_PROTONS, "Injected proton spectral index (dlogN/dlogE), ie. before cooling", SEP_COMMA)                                                   \
     X(calc_pair_content_from_plasma_beta, bool, defaults::DEFAULT_CALC_PAIR_CONTENT_FROM_PLASMA_BETA, "True: use the plasma beta variable to estimate the pair content (n_p/n_e) at the jet base; False: Assume same number density for electrons and protons and ignore plasma_beta_jet_base", SEP_COMMA)     \
     X(plasma_beta_jet_base, double, defaults::DEFAULT_PLASMA_BETA_JET_BASE, "Plasma beta value at z_jet_launching (the jet base)", SEP_COMMA)                                                                            \
+    X(dlgz, double, defaults::DEFAULT_DLGZ, "log. grid spacing log10(z[i+1]) - log10(z[i])", SEP_COMMA) \
+    X(verbosity_level, size_t, defaults::DEFAULT_VERBOSITY_LEVEL, "Regulates print output of the code. 0: No output; 1: Only important warnings; 2: More output; 3: Debugging output", )
+
+#define ISOJET_PARAMS                                                                                                                                                                                                  \
+    X(mass_bh, double, defaults::DEFAULT_MASS_BH, "Black hole mass in units of solar mass", SEP_COMMA)                                                                                                                   \
+    X(jet_power_eddington, double, defaults::DEFAULT_JET_POWER_EDDINGTON, "Jet power in units of the Eddington luminosity", SEP_COMMA)                                                                                   \
+    X(z_jet_launching, double, defaults::DEFAULT_Z_JET_LAUNCHING, "Distance from black hole where the jet starts [rg]", SEP_COMMA)                                                                                       \
+    X(r_initial, double, defaults::DEFAULT_R_INITIAL, "Jet radius when the jet starts [rg]", SEP_COMMA)                                                                                                                  \
+    X(z_dissipation, double, defaults::DEFAULT_Z_DISSIPATION, "Distance from black hole where the jet starts to dissipate energy into non-thermal particles [rg]", SEP_COMMA)                                            \
+    X(z_max_calculation, double, defaults::DEFAULT_Z_MAX_CALCULATION, "Distance from black hole where the calulation stops [rg]", SEP_COMMA)                                                                             \
+    X(electron_temperature_jet_base, double, defaults::DEFAULT_ELECTRON_TEMPERATURE_JET_BASE, "Electron temperature value at z_jet_launching (the jet base) [keV]", SEP_COMMA)                                           \
+    X(plasma_beta_jet_base, double, defaults::DEFAULT_PLASMA_BETA_JET_BASE, "Plasma beta value at z_jet_launching (the jet base)", SEP_COMMA)                                                                            \
+    X(fraction_nonthermal_electrons, double, defaults::DEFAULT_FRACTION_NONTHERMAL_ELECTRONS, "Fraction of energy in non-thermal electron tail", SEP_COMMA)                                                      \
+    X(fraction_nonthermal_protons, double, defaults::DEFAULT_FRACTION_NONTHERMAL_PROTONS, "Fraction of energy in non-thermal proton tail", SEP_COMMA)                                                            \
+    X(factor_break_electrons, double, defaults::DEFAULT_FACTOR_BREAK_ELECTRONS, "Scaling factor for electron adiabtic timescale", SEP_COMMA)                                                                     \
+    X(factor_break_protons, double, defaults::DEFAULT_FACTOR_BREAK_PROTONS, "Scaling factor for proton adiabtic timescale", SEP_COMMA)                                                                           \
+    X(factor_max_energy_electrons, double, defaults::DEFAULT_FACTOR_MAX_ENERGY_ELECTRONS, "Scaling factor for electron acceleration rate, translating to an effective scaling of the maximum energy", SEP_COMMA) \
+    X(factor_max_energy_protons, double, defaults::DEFAULT_FACTOR_MAX_ENERGY_PROTONS, "Scaling factor for proton acceleration rate, translating to an effective scaling of the maximum energy", SEP_COMMA)       \
+    X(index_injected_electrons, double, defaults::DEFAULT_INDEX_INJECTED_ELECTRONS, "Injected electron spectral index (dlogN/dlogE), ie. before cooling", SEP_COMMA)                                             \
+    X(index_injected_protons, double, defaults::DEFAULT_INDEX_INJECTED_PROTONS, "Injected proton spectral index (dlogN/dlogE), ie. before cooling", SEP_COMMA)                                                   \
     X(dlgz, double, defaults::DEFAULT_DLGZ, "log. grid spacing log10(z[i+1]) - log10(z[i])", SEP_COMMA) \
     X(verbosity_level, size_t, defaults::DEFAULT_VERBOSITY_LEVEL, "Regulates print output of the code. 0: No output; 1: Only important warnings; 2: More output; 3: Debugging output", )
 
@@ -190,6 +211,26 @@ PYBIND11_MODULE(bhjet, m)
     bljet.def_readonly("r_g", &BLJet::r_g, "Gravitational Radius [cm]");
     bljet.def_readonly("eddington_luminosity", &BLJet::eddington_luminosity, "Eddington Luminosity [erg/s]");
     bljet.def("compute_jet_dynamics", &BLJet::compute_jet_dynamics, "Computes the physical quantities along the jet");
+
+    py::class_<IsoJet, JetDynamics, std::shared_ptr<IsoJet>> isojet(m, "IsoJet");
+    isojet.def(py::init<
+#define X(NAME, TYPE, DEFAULT, DOC, SEPARATOR) TYPE SEPARATOR
+                  ISOJET_PARAMS
+#undef X
+                  >(),
+// py::arg defaults
+#define X(NAME, TYPE, DEFAULT, DOC, SEPARATOR) py::arg(#NAME) = DEFAULT SEPARATOR
+              ISOJET_PARAMS
+#undef X
+              )
+// members
+#define X(NAME, TYPE, DEFAULT, DOC, SEPARATOR) .def_readwrite(#NAME, &IsoJet::NAME, DOC)
+        ISOJET_PARAMS
+#undef X
+        ;
+    isojet.def_readonly("r_g", &IsoJet::r_g, "Gravitational Radius [cm]");
+    isojet.def_readonly("eddington_luminosity", &IsoJet::eddington_luminosity, "Eddington Luminosity [erg/s]");
+    isojet.def("compute_jet_dynamics", &IsoJet::compute_jet_dynamics, "Computes the physical quantities along the jet");
 
 
     py::class_<TargetPhotonField, std::shared_ptr<TargetPhotonField>> target(m, "TargetPhotonField");

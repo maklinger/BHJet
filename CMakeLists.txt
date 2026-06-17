@@ -41,6 +41,7 @@ target_include_directories(kariba_lib PUBLIC
 set(SRC_FILES
     src/BHJet.cpp
     src/BLJet.cpp
+    src/IsoJet.cpp
     src/JetDynamics.cpp
     src/RadiationZone.cpp
     src/TargetBlackBody.cpp

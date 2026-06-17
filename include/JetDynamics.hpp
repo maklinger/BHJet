@@ -6,6 +6,37 @@
 namespace bhjet
 {
 
+
+    // Structure including dynamical jet parameters
+    typedef struct jet_dynpars
+    {
+        double min;   // jet launching point
+        double max;   // max distance for jet calculations
+        double h0;    // jet nozzle/corona height
+        double r0;    // jet initial radius
+        double acc;   // jet magnetic acceleration end location
+        double beta0; // jet initial speed in units of c
+        double gam0;  // jet initial Lorentz factor
+        double gamf;  // jet final Lorentz factor (only used with magnetic
+                      // acceleration)
+        double Rg;    // gravitational radius
+    } jet_dynpars;
+
+    // Structure including parameters of jet energetics
+    typedef struct jet_enpars
+    {
+        double av_gamma; // average Lorentz factor of electrons
+        double pbeta;    // plasma beta (Ue/Ub)
+        double Nj;       // injected jet power
+        double bfield;   // magnetic field strength
+        double lepdens;  // lepton number density
+        double protdens; // proton number density
+        double eta;      // pair content of the jet, ne/np
+        double sig0;     // initial magnetization (Ub+Pb)/Up
+        double sig_acc;  // final magnetization; values of sigma only used for
+                         // magnetic acceleration
+    } jet_enpars;
+
     class JetDynamics
     {
     public:

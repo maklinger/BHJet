@@ -249,9 +249,9 @@ namespace bhjet
 
         mj = gb / gb0;
 
+        beta_gamma_grid[i] = gb;
         gamma_grid[i] = std::sqrt(std::pow(gb, 2.) + 1.);
         beta_grid[i] = std::sqrt((std::pow(gamma_grid[i], 2.) - 1.) / std::pow(gamma_grid[i], 2.));
-        beta_gamma_grid[i] = beta_grid[i] * gamma_grid[i];
 
         theta = opening_angle_constant / gamma_grid[i];
         radius_grid[i] = jet_dyn.r0 + std::max(z_center_grid[i] - jet_dyn.h0, 0.) * tan(theta);
