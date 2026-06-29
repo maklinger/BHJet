@@ -1,12 +1,11 @@
 This is the restructured BHJet version
 
 ## To-do's
-- [ ] cut-off in kariba + here (Ruby?)
+- [x] cut-off in kariba + here (Ruby)
 - [ ] shock: temperature jump (Ruby?)
 - [ ] f_pl scaling (Ruby?)
-- [ ] move DEFAULTs all to one file (default_values.hpp)
 - [ ] disk + AGN target fields (Ruby?)
-- [ ] adding agnjet jet dynamics (Ruby?)
+- [ ] adding agnjet jet dynamics (iso done) (Ruby?)
 - [ ] double check Compton switch (Marc/Ruby?)
 - [ ] hadronic interactions (Ruby/Dimitris)
 - [ ] integrate MLjet (Dimitris?)
@@ -29,11 +28,11 @@ micromamba activate bhjet_env
 and install inside the environment with pip:
 
 ```shell
-pip install git+https://github.com/antonpannekoek/BHJet.git@modularUpdate
+pip install git+https://github.com/maklinger/BHJet.git@modularUpdate
 ```
 In order to modify the code, it is also possible to clone the repository to a location, and in that folder compile/install it using:
 ```shell
-git clone https://github.com/antonpannekoek/BHJet.git bhjet
+git clone https://github.com/maklinger/BHJet.git bhjet
 cd bhjet
 git switch modularUpdate
 pip install .
