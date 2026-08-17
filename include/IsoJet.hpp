@@ -3,6 +3,7 @@
 #include "RadiationZone.hpp"
 #include "kariba/Thermal.hpp"
 #include "default_values.hpp"
+#include <array>
 
 #include <gsl/gsl_spline.h>
 #include <gsl/gsl_interp.h>
