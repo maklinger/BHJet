@@ -47,6 +47,10 @@ using namespace bhjet;
     X(force_compton_calculation, bool, defaults::DEFAULT_FORCE_COMPTON_CALCULATION, "True: Forces the Compton emission to be computed or not based on compton_switch; False: Uses internal criteria and ignores compton_switch", SEP_COMMA) \
     X(compton_switch, bool, defaults::DEFAULT_COMPTON_SWITCH, "True: Forces the Compton emission to be computed; False: Skips Compton emission computation", SEP_COMMA)                                                                     \
     X(compton_threshold, double, defaults::DEFAULT_COMPTON_THRESHOLD, "Internal rough threshold for Compton emission computation: L_com/L_syn > compton_threshold ? Do calculation. Otheriwse skip.", SEP_COMMA)                            \
+    X(dlgp_electron, double, defaults::DEFAULT_DLGP_ELECTRON, "dlog_10(p_max/p_min) = 1/(bins per decade) for electron grid", SEP_COMMA)                                                                                                   \
+    X(dlgp_proton, double, defaults::DEFAULT_DLGP_PROTON, "dlog_10(p_max/p_min) = 1/(bins per decade) for proton grid", SEP_COMMA)                                                                                                   \
+    X(dlgp_cyclosyn, double, defaults::DEFAULT_DLGP_CYCLOSYN, "dlog_10(p_max/p_min) = 1/(bins per decade) for electron-cyclosyn. photon grid", SEP_COMMA)                                                                                                   \
+    X(dlgp_compton, double, defaults::DEFAULT_DLGP_COMPTON, "dlog_10(p_max/p_min) = 1/(bins per decade) for electron-compton photon grid", SEP_COMMA)                                                                                                   \
     X(profile_time, bool, defaults::DEFAULT_PROFILE_TIME, "True: measures computation time of multiple emission processes; False: Does nothing", SEP_COMMA)                                                                                 \
     X(verbosity_level, size_t, defaults::DEFAULT_VERBOSITY_LEVEL, "Regulates print output of the code. 0: No output; 1: Only important warnings; 2: More output; 3: Debugging output", ) // leave the last one empty
 
@@ -107,6 +111,10 @@ using namespace bhjet;
     X(redshift, double, defaults::DEFAULT_REDSHIFT, "Redshift of source", SEP_COMMA)                                                                            \
     X(include_counterjet, bool, defaults::DEFAULT_INCLUDE_COUNTERJET, "True: Includes the emission of the counterjet; False: Includes only one jet", SEP_COMMA) \
     X(compton_threshold, double, defaults::DEFAULT_COMPTON_THRESHOLD, "Internal rough threshold for Compton emission computation: L_com/L_syn > compton_threshold ? Do calculation. Otheriwse skip.", SEP_COMMA) \
+    X(dlgp_electron, double, defaults::DEFAULT_DLGP_ELECTRON, "dlog_10(p_max/p_min) = 1/(bins per decade) for electron grid", SEP_COMMA)                                                                                                   \
+    X(dlgp_proton, double, defaults::DEFAULT_DLGP_PROTON, "dlog_10(p_max/p_min) = 1/(bins per decade) for proton grid", SEP_COMMA)                                                                                                   \
+    X(dlgp_cyclosyn, double, defaults::DEFAULT_DLGP_CYCLOSYN, "dlog_10(p_max/p_min) = 1/(bins per decade) for electron-cyclosyn. photon grid", SEP_COMMA)                                                                                                   \
+    X(dlgp_compton, double, defaults::DEFAULT_DLGP_COMPTON, "dlog_10(p_max/p_min) = 1/(bins per decade) for electron-compton photon grid", SEP_COMMA)                                                                                                   \
     X(profile_time, bool, defaults::DEFAULT_PROFILE_TIME, "True: measures computation time of each zone; False: Does nothing", SEP_COMMA)                               \
     X(verbosity_level, size_t, defaults::DEFAULT_VERBOSITY_LEVEL, "Regulates print output of the code. 0: No output; 1: Only important warnings; 2: More output; 3: Debugging output", )
 
@@ -313,8 +321,8 @@ PYBIND11_MODULE(bhjet, m)
     radzone.def("get_timescale_electron_acceleration", GET_TIMESCALE(RadiationZone, get_timescale_electron_acceleration, double, momentum), "Get array with comoving acceleration timescale [s]");
     radzone.def("get_timescale_photon_cyclosyn_selfabsorption", GET_TIMESCALE(RadiationZone, get_timescale_photon_cyclosyn_selfabsorption, double, momentum), "Get array with comoving photon cyclosyn-self-absorption timescale [s]");
     radzone.def("get_timescale_photon_escape", GET_TIMESCALE(RadiationZone, get_timescale_photon_escape, double, momentum), "Get array with comoving photon escape timescale [s]");
-    // radzone.def("get_timescale_photon_cyclosyn_selfabsorption_array", GET_ARGS_VEC(RadiationZone, get_timescale_photon_cyclosyn_selfabsorption_array, double), " [s]");
-    // radzone.def("get_timescale_photon_cyclosyn_selfabsorption_energy", GET_ARGS_VEC(RadiationZone, get_timescale_photon_cyclosyn_selfabsorption_energy, double), " [s]");
+    radzone.def("get_timescale_photon_cyclosyn_selfabsorption_array", GET_ARGS_VEC(RadiationZone, get_timescale_photon_cyclosyn_selfabsorption_array, double), " [s]");
+    radzone.def("get_timescale_photon_cyclosyn_selfabsorption_energy", GET_ARGS_VEC(RadiationZone, get_timescale_photon_cyclosyn_selfabsorption_energy, double), " [s]");
     // characteristic energies
     radzone.def("get_electron_max_momentum", &RadiationZone::get_electron_max_momentum, "Get maximum electron momentum from comparing acceleration with cooling times [cm g / s]");
     radzone.def("get_electron_break_momentum", &RadiationZone::get_electron_break_momentum, "Get break electron momentum from comparing adiabatic with cyclosyn./Compton cooling times [cm g / s]");

@@ -78,6 +78,49 @@ namespace bhjet
         if (spline_electrons_derivative_accel)
             gsl_interp_accel_free(spline_electrons_derivative_accel);
 
+        // determine n_bins_e
+        if (fraction_nonthermal_electrons == 0.)
+        {
+            // Thermal spectrum only
+            // the thermal spectrum extends from 1e-2*T to 20*T -> log10(2e3)~3.3
+            n_bins_e = (size_t)(3.3 / dlgp_electron); }
+        else if (fraction_nonthermal_electrons < 0.5)
+        {
+            if (verbosity_level > 1)
+                std::cout << "initializing a mixed distribution (thermal + powerlaw)" << std::endl;
+            // mixed thermal + non-thermal: compute max. energy first
+            electrons_mixed = kariba::Mixed(100);
+            electrons_mixed.set_temp_kev(electron_temperature);
+            electrons_mixed.set_pspec(index_injected_electrons);
+            electrons_mixed.set_plfrac(fraction_nonthermal_electrons);
+            electrons_mixed.set_p(radiation_energy_density, magnetic_field, factor_break_electrons, radius, factor_max_energy_electrons);
+            double p_min = electrons_mixed.get_p()[0];
+            double p_max = electrons_mixed.get_p()[99];
+            n_bins_e = (size_t)(log10(p_max/p_min) / dlgp_electron); }
+        else if (fraction_nonthermal_electrons <= 1.)
+        {
+            // broken powerlaw approximation
+            // determine the momentum of the break from temperature
+            electrons_thermal = kariba::Thermal(70);
+            electrons_thermal.set_temp_kev(electron_temperature);
+            electrons_thermal.set_p();
+            electrons_thermal.set_norm(electron_number_density);
+            electrons_thermal.set_ndens();
+            double p_break = electrons_thermal.av_p();
+
+            electrons_bpl = kariba::Bknpower(100);
+            electrons_bpl.set_pspec1(-2.);
+            electrons_bpl.set_pspec2(index_injected_electrons);
+            electrons_bpl.set_p(0.1 * p_break, p_break, radiation_energy_density, magnetic_field, factor_break_electrons, radius, factor_max_energy_electrons);
+            double p_min = electrons_bpl.get_p()[0];
+            double p_max = electrons_bpl.get_p()[99];
+            n_bins_e = (size_t)(log10(p_max/p_min) / dlgp_electron); }
+        else
+        {
+            throw std::out_of_range("fraction_nonthermal_electrons has to be <=1!");
+        }
+        // same for protons...
+
         if (verbosity_level > 2)
             std::cout << "allocating spline memory" << std::endl;
         spline_electrons_accel = gsl_interp_accel_alloc();
@@ -265,7 +308,7 @@ namespace bhjet
             }
         }
 
-        size_t nsyn = (size_t)(std::log10(syn_max) - std::log10(syn_min)) * syn_res;
+        size_t nsyn = (size_t)(std::log10(syn_max) - std::log10(syn_min)) / dlgp_cyclosyn;
         photon_energy_grid_electron_cyclosyn = std::vector<double>(nsyn, 1e-100);
         photon_observed_luminosity_electron_cyclosyn = std::vector<double>(nsyn, 1e-100);
 
@@ -345,7 +388,7 @@ namespace bhjet
         double Thomson_max = gmax * gmax * syn_max;
         double com_max = 100 * std::min(E_el_max / karcst::herg, Thomson_max);
         com_max = std::min(com_max, obs_energy_grid[obs_energy_grid.size() - 1] / karcst::herg);
-        size_t ncom = (size_t)(std::log10(com_max) - std::log10(com_min)) * com_res;
+        size_t ncom = (size_t)(std::log10(com_max) - std::log10(com_min)) / dlgp_compton;
 
         photon_energy_grid_electron_compton = std::vector<double>(ncom, 1e-100);
         photon_observed_luminosity_electron_compton = std::vector<double>(ncom, 1e-100);
@@ -837,7 +880,7 @@ namespace bhjet
         std::vector<double> result(momentum.size());
         for (size_t i = 0; i < momentum.size(); i++) {
             if (momentum[i] < pmin || momentum[i] > pmax) {
-                result[i] = 1e100;
+                result[i] = 1e150;
             } else {
                 double log_en = std::log10(momentum[i] * karcst::cee);  // convert back to energy
                 result[i] = std::pow(10., gsl_spline_eval(spline, log_en, acc));

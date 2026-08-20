@@ -65,5 +65,9 @@ namespace bhjet {
         static constexpr bool DEFAULT_COMPTON_SWITCH = true;
         static constexpr double DEFAULT_COMPTON_THRESHOLD = 1e-2;
         static constexpr bool DEFAULT_PROFILE_TIME = false;
+        static constexpr double DEFAULT_DLGP_ELECTRON = 0.1;
+        static constexpr double DEFAULT_DLGP_PROTON = 0.1;
+        static constexpr double DEFAULT_DLGP_CYCLOSYN = 0.1;
+        static constexpr double DEFAULT_DLGP_COMPTON = 0.15;
     }
 }

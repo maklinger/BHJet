@@ -39,6 +39,7 @@ namespace bhjet
         // Member variables
         // ----------------------------
         double theta_obs, distance, redshift, compton_threshold;
+        double dlgp_electron, dlgp_proton, dlgp_cyclosyn, dlgp_compton;
         bool include_counterjet, profile_time;
         size_t verbosity_level;
 
@@ -51,10 +52,16 @@ namespace bhjet
             double redshift_ = defaults::DEFAULT_REDSHIFT,
             bool include_counterjet_ = defaults::DEFAULT_INCLUDE_COUNTERJET,
             double compton_threshold_ = defaults::DEFAULT_COMPTON_THRESHOLD,
+            double dlgp_electron_ = defaults::DEFAULT_DLGP_ELECTRON,
+            double dlgp_proton_ = defaults::DEFAULT_DLGP_PROTON,
+            double dlgp_cyclosyn_ = defaults::DEFAULT_DLGP_CYCLOSYN,
+            double dlgp_compton_ = defaults::DEFAULT_DLGP_COMPTON,
             bool profile_time_ = defaults::DEFAULT_PROFILE_TIME,
             size_t verbosity_level_ = defaults::DEFAULT_VERBOSITY_LEVEL)
             : theta_obs(theta_obs_), distance(distance_), redshift(redshift_),
               include_counterjet(include_counterjet_), compton_threshold(compton_threshold_),
+              dlgp_electron(dlgp_electron_), dlgp_proton(dlgp_proton_),
+              dlgp_cyclosyn(dlgp_cyclosyn_), dlgp_compton(dlgp_compton_),
               profile_time(profile_time_),
               verbosity_level(verbosity_level_), target_list(),
               computation_times(defaults::DEFAULT_N_ZONES, 0.0)

@@ -84,6 +84,7 @@ namespace bhjet
 
         // momentum grid
         size_t n_bins_e, n_bins_p;
+        double dlgp_electron, dlgp_proton, dlgp_cyclosyn, dlgp_compton;
 
         kariba::Thermal electrons_thermal;
         kariba::Bknpower electrons_bpl;
@@ -96,8 +97,8 @@ namespace bhjet
         gsl_spline *spline_electrons_derivative;
         gsl_interp_accel *spline_electrons_derivative_accel;
 
-        size_t syn_res = 10;
-        size_t com_res = 6;
+        // size_t syn_res = 10;
+        // size_t com_res = 6;
 
         double doppler_factor_bulk, beta_bulk, gamma_bulk;
 
@@ -135,6 +136,10 @@ namespace bhjet
             bool force_compton_calculation_ = defaults::DEFAULT_FORCE_COMPTON_CALCULATION,
             bool compton_switch_ = defaults::DEFAULT_COMPTON_SWITCH,
             double compton_threshold_ = defaults::DEFAULT_COMPTON_THRESHOLD,
+            double dlgp_electron_ = defaults::DEFAULT_DLGP_ELECTRON,
+            double dlgp_proton_ = defaults::DEFAULT_DLGP_PROTON,
+            double dlgp_cyclosyn_ = defaults::DEFAULT_DLGP_CYCLOSYN,
+            double dlgp_compton_ = defaults::DEFAULT_DLGP_COMPTON,
             bool profile_time_ = defaults::DEFAULT_PROFILE_TIME,
             size_t verbosity_level_ = defaults::DEFAULT_VERBOSITY_LEVEL)
             : magnetic_field(magnetic_field_), radius(radius_), height(height_), geometry(geometry_),
@@ -153,7 +158,10 @@ namespace bhjet
               compton_threshold(compton_threshold_),
               profile_time(profile_time_),
               verbosity_level(verbosity_level_),
-              n_bins_e(100), n_bins_p(100), radiation_energy_density(0.),
+              n_bins_e(100), n_bins_p(100), 
+              dlgp_electron(dlgp_electron_), dlgp_proton(dlgp_proton_),
+              dlgp_cyclosyn(dlgp_cyclosyn_), dlgp_compton(dlgp_compton_),
+              radiation_energy_density(0.),
               target_component_names(), target_component_radiation_energy_grid(), 
               target_component_radiation_energy_density(),
               electrons_thermal(kariba::Thermal(0)), electrons_mixed(kariba::Mixed(0)),
@@ -176,8 +184,8 @@ namespace bhjet
         std::vector<double> cyclosyn_selfabsorption_rate, cyclosyn_energy;
         std::vector<double> get_timescale_photon_cyclosyn_selfabsorption(std::vector<double> momentum);
         // read out the array, left for debugging
-        // std::vector<double> get_timescale_photon_cyclosyn_selfabsorption_array(){return cyclosyn_selfabsorption_rate;};
-        // std::vector<double> get_timescale_photon_cyclosyn_selfabsorption_energy(){return cyclosyn_energy;};
+        std::vector<double> get_timescale_photon_cyclosyn_selfabsorption_array(){return cyclosyn_selfabsorption_rate;};
+        std::vector<double> get_timescale_photon_cyclosyn_selfabsorption_energy(){return cyclosyn_energy;};
         std::vector<double> get_timescale_photon_escape(std::vector<double> momentum);
 
 
