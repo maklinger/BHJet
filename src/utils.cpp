@@ -25,7 +25,9 @@ namespace bhjet
         {
             if (en[i] > input_en[0] && en[i] < input_en[size_in - 1])
             {
-                lum[i] = lum[i] + gsl_spline_eval(input_spline, en[i], acc);
+                double val = gsl_spline_eval(input_spline, en[i], acc);
+                if (val > 0.)
+                    lum[i] += val;
             }
         }
         gsl_spline_free(input_spline), gsl_interp_accel_free(acc);
