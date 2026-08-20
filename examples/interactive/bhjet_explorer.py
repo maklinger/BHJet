@@ -109,6 +109,10 @@ class BHJetExplorer:
             lg_bb_luminosity                   = 44.0,
             include_counterjet                 = True,
             lg_compton_threshold               = -5.0,
+            dlgp_electron                      = 0.1,
+            dlgp_proton                        = 0.1,
+            dlgp_cyclosyn                      = 0.1,
+            dlgp_compton                       = 0.15,
             dlgz                               = 0.1,
         )
 
@@ -170,6 +174,10 @@ class BHJetExplorer:
             redshift           = d["redshift"],
             include_counterjet = d["include_counterjet"],
             compton_threshold  = 10**d["lg_compton_threshold"],
+            dlgp_electron      = d["dlgp_electron"],
+            dlgp_proton        = d["dlgp_proton"],
+            dlgp_cyclosyn      = d["dlgp_cyclosyn"],
+            dlgp_compton       = d["dlgp_compton"],
             verbosity_level    = self._verbosity,
         )
         self.bhjet.init_jet_dynamics(self.bljet)
@@ -587,6 +595,10 @@ class BHJetExplorer:
             "Meta-parameters": [
                 cb( "include_counterjet",                d["include_counterjet"]),
                 fls("lg_compton_threshold",              d["lg_compton_threshold"],    -10,  0),
+                fs_log("dlgp_electron",                     d["dlgp_electron"],    -3,  0, step=0.01, fmt=".1e"),
+                fs_log("dlgp_proton",                       d["dlgp_proton"],    -3,  0, step=0.01, fmt=".1e"),
+                fs_log("dlgp_cyclosyn",                     d["dlgp_cyclosyn"],    -3,  0, step=0.01, fmt=".1e"),
+                fs_log("dlgp_compton",                      d["dlgp_compton"],    -3,  0, step=0.01, fmt=".1e"),
                 fs_log( "dlgz",                          d["dlgz"],                  -3, 0, step=0.01, fmt=".1e"),
             ],
         }
@@ -621,6 +633,11 @@ class BHJetExplorer:
             p["include_counterjet"]  != self._defaults["include_counterjet"]
             or p["lg_compton_threshold"] != self._defaults["lg_compton_threshold"]
             or p["dlgz"]             != self._defaults["dlgz"]
+            or p["dlgp_electron"]    != self._defaults["dlgp_electron"]
+            or p["dlgp_proton"]             != self._defaults["dlgp_proton"]
+            or p["dlgp_cyclosyn"]             != self._defaults["dlgp_cyclosyn"]
+            or p["dlgp_compton"]             != self._defaults["dlgp_compton"]
+
         )
 
     # ── update callbacks ──────────────────────────────────────────────────────
