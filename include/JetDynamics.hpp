@@ -6,7 +6,6 @@
 namespace bhjet
 {
 
-
     // Structure including dynamical jet parameters
     typedef struct jet_dynpars
     {

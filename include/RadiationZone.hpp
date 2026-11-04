@@ -183,7 +183,6 @@ namespace bhjet
         // std::vector<double> get_timescale_photon_cyclosyn_selfabsorption_energy(){return cyclosyn_energy;};
         std::vector<double> get_timescale_photon_escape(std::vector<double> momentum);
 
-
         double get_electron_max_momentum();
         double get_electron_break_momentum();
 
@@ -208,15 +207,42 @@ namespace bhjet
             photon_energy_grid_electron_compton, photon_observed_luminosity_electron_compton,
             photon_energy_grid_total, photon_observed_luminosity_total;
 
+        /**
+        * @name Observed photon spectra
+        * @brief Observer-frame photon energy grids, luminosities,
+        *        and number fluxes.
+        *
+        * All returned vectors are evaluated on their corresponding
+        * photon energy grids.
+        *
+        * @note Photon fluxes are expressed per logarithmic energy
+        *       interval, not per unit energy.
+        *
+        * @{
+        */
+
+        // Electron cyclo-synchrotron
+
+        /// Observed photon energy grid for cyclo-synchrotron emission
         std::vector<double> get_observed_photon_energy_grid_electron_cyclosyn();
+
+        /// Observed photon luminosity cyclo-synchrotron emission
         std::vector<double> get_observed_photon_luminosity_electron_cyclosyn();
+    
+        /// Observed photon flux for cyclo-synchrotron emission [ph cm^-2 s^-1]
         std::vector<double> get_observed_photon_flux_electron_cyclosyn();
+
+        /// Electron inverse Compton
         std::vector<double> get_observed_photon_energy_grid_electron_compton();
         std::vector<double> get_observed_photon_luminosity_electron_compton();
         std::vector<double> get_observed_photon_flux_electron_compton();
+
+        /// Total emission out 
         std::vector<double> get_observed_photon_energy_grid_total();
         std::vector<double> get_observed_photon_luminosity_total();
         std::vector<double> get_observed_photon_flux_total();
+
+        /// @}
 
         std::vector<double> get_computation_times();
 

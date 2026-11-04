@@ -19,7 +19,6 @@ namespace bhjet
         if (spline_speed)
             gsl_spline_free(spline_speed);
 
-
         // init basic internal params
         eddington_luminosity = 1.25e38 * mass_bh;
         r_g = karcst::gconst * mass_bh * karcst::msun / (karcst::cee * karcst::cee);
@@ -178,6 +177,7 @@ namespace bhjet
                  nozzle_ener.eta * nozzle_ener.av_gamma * karcst::emerg * (1. + equip);
         dyn_fac = 2. * karcst::pi * std::pow(jet_dyn.r0, 2.) * jet_dyn.gam0 * jet_dyn.beta0 * karcst::cee;
         nozzle_ener.protdens = nozzle_ener.Nj / (eq_fac * dyn_fac);
+
         // step two: calculate lepton number density and magnetic field
         nozzle_ener.lepdens = nozzle_ener.eta * nozzle_ener.protdens;
         nozzle_ener.bfield = std::sqrt(8. * karcst::pi * nozzle_ener.lepdens * nozzle_ener.av_gamma * karcst::emerg * equip);
@@ -259,7 +259,8 @@ namespace bhjet
         r_acc = jet_dyn.r0 + (jet_dyn.acc - jet_dyn.h0) * tan(theta_acc);
         n_acc = nozzle_ener.lepdens * std::pow(jet_dyn.r0 / r_acc, 2.) * (gb0 / gbf);
         electron_density_grid[i] = nozzle_ener.lepdens * std::pow(jet_dyn.r0 / radius_grid[i], 2.) / mj;
-        // Todo: fill here proton density and temperature arrays
+        // Todo: fill here proton density and temperature arrays or put them separately entierly 
+        
         proton_density_grid[i] = electron_density_grid[i]; // fix this
         electron_temperature_grid[i] = electron_temperature_jet_base;
         proton_temperature_grid[i] = electron_temperature_jet_base;
@@ -295,6 +296,18 @@ namespace bhjet
         {
             fraction_nonthermal_electrons_grid[i] = fraction_nonthermal_electrons;
             fraction_nonthermal_protons_grid[i] = fraction_nonthermal_protons;
+
+            //fudge factors: both of these have been added to the defaults page with value 0, and so cpp should skip these ifs 
+            if (f_particle_dissipation_index)  // legacy: this was the parameter f_pl 
+            {
+                fraction_nonthermal_electrons_grid[i] = fraction_nonthermal_electrons * std::pow(std::log10(z_dissipation * r_g)/std::log10(z_center_grid[i]), f_particle_dissipation_index);
+            }
+            // legacy: this was f_heat for the shock heating prescription 
+            if (f_shock_heating_factor)  
+            {
+                electron_temperature_grid[i] = f_shock_heating_factor * electron_temperature_jet_base;
+                //this means that the temperature along the jet of the particles doesn't evolve - 
+            }
         }
         factor_break_electrons_grid[i] = factor_break_electrons;
         factor_break_protons_grid[i] = factor_break_protons;

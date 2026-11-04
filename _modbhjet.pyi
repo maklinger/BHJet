@@ -4,7 +4,6 @@
 
 
 
-
 class JetDynamics:
     # Member variables
     n_zones: int = defaults.DEFAULT_N_ZONES
@@ -332,7 +331,6 @@ class RadiationZone:
         """
         pass
 
-
     def get_electron_max_momentum(self) -> float:
         pass
     def get_electron_break_momentum(self) -> float:
@@ -363,24 +361,51 @@ class RadiationZone:
     # None set_target_black_body_energy_density(std::string name, double new_energy_density);
 
 
+    #*
+    #        * @name Observed photon spectra
+    #        * @brief Observer-frame photon energy grids, luminosities,
+    #        *        and number fluxes.
+    #        *
+    #        * All returned vectors are evaluated on their corresponding
+    #        * photon energy grids.
+    #        *
+    #        * @note Photon fluxes are expressed per logarithmic energy
+    #        *       interval, not per unit energy.
+    #        *
+    #        * @{
+    #
+
+    # Electron cyclo-synchrotron
+
     def get_observed_photon_energy_grid_electron_cyclosyn(self) -> List[float]:
+        """/ Observed photon energy grid for cyclo-synchrotron emission"""
         pass
+
     def get_observed_photon_luminosity_electron_cyclosyn(self) -> List[float]:
+        """/ Observed photon luminosity cyclo-synchrotron emission"""
         pass
+
     def get_observed_photon_flux_electron_cyclosyn(self) -> List[float]:
+        """/ Observed photon flux for cyclo-synchrotron emission [ph cm^-2 s^-1]"""
         pass
+
+    #/ Electron inverse Compton
     def get_observed_photon_energy_grid_electron_compton(self) -> List[float]:
         pass
     def get_observed_photon_luminosity_electron_compton(self) -> List[float]:
         pass
     def get_observed_photon_flux_electron_compton(self) -> List[float]:
         pass
+
+    #/ Total emission out
     def get_observed_photon_energy_grid_total(self) -> List[float]:
         pass
     def get_observed_photon_luminosity_total(self) -> List[float]:
         pass
     def get_observed_photon_flux_total(self) -> List[float]:
         pass
+
+    #/ @}
 
     def get_computation_times(self) -> List[float]:
         pass
@@ -472,6 +497,8 @@ class BLJet:
     calc_pair_content_from_plasma_beta: bool = defaults.DEFAULT_CALC_PAIR_CONTENT_FROM_PLASMA_BETA
     plasma_beta_jet_base: float = defaults.DEFAULT_PLASMA_BETA_JET_BASE
     dlgz: float = defaults.DEFAULT_DLGZ
+    f_particle_dissipation_index: float = defaults.DEFAULT_F_PARTICLE_DISSPIATION_INDEX
+    f_shock_heating_factor: float = defaults.DEFAULT_F_SHOCK_HEATING_FACTOR
 
     # internal variables
     eddington_luminosity: float
@@ -511,7 +538,9 @@ class BLJet:
         plasma_beta_jet_base_: float = defaults.DEFAULT_PLASMA_BETA_JET_BASE,
         dlgz_: float = defaults.DEFAULT_DLGZ,
         verbosity_level_: int = defaults.DEFAULT_VERBOSITY_LEVEL,
-        cutoff_type_: int = defaults.DEFAULT_CUTOFF_TYPE
+        cutoff_type_: int = defaults.DEFAULT_CUTOFF_TYPE,
+        f_particle_dissipation_index_: float = defaults.DEFAULT_F_PARTICLE_DISSPIATION_INDEX,
+        f_shock_heating_factor_: float = defaults.DEFAULT_F_SHOCK_HEATING_FACTOR
         ) -> None:
         """ ----------------------------
          Constructor with defaults
@@ -618,6 +647,87 @@ class IsoJet:
 
 
 ####################    </generated_from:IsoJet.hpp>    ####################
+
+
+####################    <generated_from:AdiJet.hpp>    ####################
+
+
+
+class AdiJet:
+    # Member variables
+    mass_bh: float = defaults.DEFAULT_MASS_BH
+    jet_power_eddington: float = defaults.DEFAULT_JET_POWER_EDDINGTON
+    z_jet_launching: float = defaults.DEFAULT_Z_JET_LAUNCHING
+    r_initial: float = defaults.DEFAULT_R_INITIAL
+    z_dissipation: float = defaults.DEFAULT_Z_DISSIPATION
+    z_max_calculation: float = defaults.DEFAULT_Z_MAX_CALCULATION
+    electron_temperature_jet_base: float = defaults.DEFAULT_ELECTRON_TEMPERATURE_JET_BASE
+    plasma_beta_jet_base: float = defaults.DEFAULT_PLASMA_BETA_JET_BASE
+    fraction_nonthermal_electrons: float = defaults.DEFAULT_FRACTION_NONTHERMAL_ELECTRONS
+    fraction_nonthermal_protons: float = defaults.DEFAULT_FRACTION_NONTHERMAL_PROTONS
+    factor_break_electrons: float = defaults.DEFAULT_FACTOR_BREAK_ELECTRONS
+    factor_break_protons: float = defaults.DEFAULT_FACTOR_BREAK_PROTONS
+    factor_max_energy_electrons: float = defaults.DEFAULT_FACTOR_MAX_ENERGY_ELECTRONS
+    factor_max_energy_protons: float = defaults.DEFAULT_FACTOR_MAX_ENERGY_PROTONS
+    index_injected_electrons: float = defaults.DEFAULT_INDEX_INJECTED_ELECTRONS
+    index_injected_protons: float = defaults.DEFAULT_INDEX_INJECTED_PROTONS
+    cutoff_type: int = defaults.DEFAULT_CUTOFF_TYPE
+    dlgz: float = defaults.DEFAULT_DLGZ
+
+    # internal variables
+    eddington_luminosity: float
+    # internal variables
+    r_g: float
+    # internal variables
+    zmin: float
+
+    # hardcoded values
+    # size_t n_bins_speed = 54;
+    # double jet_opening_constant = 0.15;
+
+    def __init__(
+        self,
+        mass_bh_: float = defaults.DEFAULT_MASS_BH,
+        jet_power_eddington_: float = defaults.DEFAULT_JET_POWER_EDDINGTON,
+        z_jet_launching_: float = defaults.DEFAULT_Z_JET_LAUNCHING,
+        r_initial_: float = defaults.DEFAULT_R_INITIAL,
+        z_dissipation_: float = defaults.DEFAULT_Z_DISSIPATION,
+        z_max_calculation_: float = defaults.DEFAULT_Z_MAX_CALCULATION,
+        electron_temperature_jet_base_: float = defaults.DEFAULT_ELECTRON_TEMPERATURE_JET_BASE,
+        plasma_beta_jet_base_: float = defaults.DEFAULT_PLASMA_BETA_JET_BASE,
+        fraction_nonthermal_electrons_: float = defaults.DEFAULT_FRACTION_NONTHERMAL_ELECTRONS,
+        fraction_nonthermal_protons_: float = defaults.DEFAULT_FRACTION_NONTHERMAL_PROTONS,
+        factor_break_electrons_: float = defaults.DEFAULT_FACTOR_BREAK_ELECTRONS,
+        factor_break_protons_: float = defaults.DEFAULT_FACTOR_BREAK_PROTONS,
+        factor_max_energy_electrons_: float = defaults.DEFAULT_FACTOR_MAX_ENERGY_ELECTRONS,
+        factor_max_energy_protons_: float = defaults.DEFAULT_FACTOR_MAX_ENERGY_PROTONS,
+        index_injected_electrons_: float = defaults.DEFAULT_INDEX_INJECTED_ELECTRONS,
+        index_injected_protons_: float = defaults.DEFAULT_INDEX_INJECTED_PROTONS,
+        dlgz_: float = defaults.DEFAULT_DLGZ,
+        verbosity_level_: int = defaults.DEFAULT_VERBOSITY_LEVEL,
+        cutoff_type_: int = defaults.DEFAULT_CUTOFF_TYPE
+        ) -> None:
+        """ ----------------------------
+         Constructor with defaults
+         ----------------------------
+        """
+        pass
+
+
+
+    def calc_velocity_profile_adi_jet(self) -> None:
+        pass
+    def calc_nozzle_energetics_equipartition(self) -> None:
+        pass
+
+    def calc_zone_properties(self, i: int) -> None:
+        pass
+
+    def compute_jet_dynamics(self) -> None:
+        pass
+
+
+####################    </generated_from:AdiJet.hpp>    ####################
 
 
 ####################    <generated_from:BHJet.hpp>    ####################

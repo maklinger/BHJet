@@ -1,9 +1,9 @@
 PROJECT_NAME           = "modBHJet and Kariba"
 OUTPUT_DIRECTORY       = _build/doxygen
-GENERATE_HTML          = NO
+GENERATE_HTML          = YES
 GENERATE_XML           = YES
 XML_OUTPUT             = xml
-INPUT                  = ../include ../../kariba/src/kariba
+INPUT                  = ../include ../../kariba/src/kariba 
 FILE_PATTERNS          = *.hpp
 RECURSIVE              = NO
 EXTRACT_ALL            = YES

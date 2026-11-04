@@ -72,13 +72,13 @@ target_include_directories(kariba_lib PUBLIC
 set(SRC_FILES
     src/BHJet.cpp
     src/BLJet.cpp
+    src/AdiJet.cpp
     src/IsoJet.cpp
     src/JetDynamics.cpp
     src/RadiationZone.cpp
     src/TargetBlackBody.cpp
     src/TargetPhotonField.cpp
     src/utils.cpp
-    src/MLJet.cpp
 )
 
 # --- Python module ---

@@ -12,6 +12,7 @@ HEADERS = [
     ROOT / "include" / "RadiationZone.hpp",
     ROOT / "include" / "BLJet.hpp",
     ROOT / "include" / "IsoJet.hpp",
+    ROOT / "include" / "AdiJet.hpp",
     ROOT / "include" / "BHJet.hpp",
 ]
 
@@ -59,6 +60,8 @@ def patch_generated_cpp() -> None:
                 "nb::class_<bhjet::TargetBlackBody, bhjet::TargetPhotonField>",
             "nb::class_<bhjet::BLJet>":
                 "nb::class_<bhjet::BLJet, bhjet::JetDynamics>",
+            "nb::class_<bhjet::AdiJet>":
+                "nb::class_<bhjet::AdiJet, bhjet::JetDynamics>",
             "nb::class_<bhjet::IsoJet>":
                 "nb::class_<bhjet::IsoJet, bhjet::JetDynamics>",
             "nb::class_<bhjet::RadiationZone>":

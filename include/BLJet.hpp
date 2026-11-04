@@ -39,6 +39,8 @@ namespace bhjet
         bool calc_pair_content_from_plasma_beta = defaults::DEFAULT_CALC_PAIR_CONTENT_FROM_PLASMA_BETA;
         double plasma_beta_jet_base = defaults::DEFAULT_PLASMA_BETA_JET_BASE;
         double dlgz = defaults::DEFAULT_DLGZ;
+        double f_particle_dissipation_index = defaults::DEFAULT_F_PARTICLE_DISSPIATION_INDEX; 
+        double f_shock_heating_factor = defaults::DEFAULT_F_SHOCK_HEATING_FACTOR; 
 
         // internal variables
         double eddington_luminosity, r_g, zmin;
@@ -76,7 +78,9 @@ namespace bhjet
             double plasma_beta_jet_base_ = defaults::DEFAULT_PLASMA_BETA_JET_BASE,
             double dlgz_ = defaults::DEFAULT_DLGZ,
             size_t verbosity_level_ = defaults::DEFAULT_VERBOSITY_LEVEL,
-            int cutoff_type_ = defaults::DEFAULT_CUTOFF_TYPE)
+            int cutoff_type_ = defaults::DEFAULT_CUTOFF_TYPE,
+            double f_particle_dissipation_index_ = defaults::DEFAULT_F_PARTICLE_DISSPIATION_INDEX,
+            double f_shock_heating_factor_ = defaults::DEFAULT_F_SHOCK_HEATING_FACTOR)
             : JetDynamics(defaults::DEFAULT_N_ZONES, verbosity_level_),
               mass_bh(mass_bh_),
               jet_power_eddington(jet_power_eddington_),
@@ -97,7 +101,9 @@ namespace bhjet
               cutoff_type(cutoff_type_),
               calc_pair_content_from_plasma_beta(calc_pair_content_from_plasma_beta_),
               plasma_beta_jet_base(plasma_beta_jet_base_),
-              dlgz(dlgz_)
+              dlgz(dlgz_),
+              f_particle_dissipation_index(f_particle_dissipation_index_),
+              f_shock_heating_factor(f_shock_heating_factor_)
         {
         }
         ~BLJet() override = default;

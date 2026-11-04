@@ -11,12 +11,22 @@
 #include <nanobind/stl/pair.h>
 #include <nanobind/stl/pair.h>
 #include <nanobind/stl/pair.h>
+#include <nanobind/stl/pair.h>
+#include <nanobind/stl/pair.h>
+#include <nanobind/stl/pair.h>
+#include <nanobind/stl/pair.h>
+#include <nanobind/stl/pair.h>
+#include <nanobind/stl/pair.h>
+#include <nanobind/stl/pair.h>
+#include <nanobind/stl/pair.h>
+#include <nanobind/stl/pair.h>
 
 #include "../include/JetDynamics.hpp"
 #include "../include/TargetPhotonField.hpp"
 #include "../include/TargetBlackBody.hpp"
 #include "../include/BLJet.hpp"
 #include "../include/IsoJet.hpp"
+#include "../include/AdiJet.hpp"
 #include "../include/BHJet.hpp"
 
 namespace nb = nanobind;
@@ -219,11 +229,11 @@ void py_init_module_modbhjet(nb::module_ &m)
         .def("get_photon_target_energy_density",
             &bhjet::RadiationZone::get_photon_target_energy_density, nb::arg("name"))
         .def("get_observed_photon_energy_grid_electron_cyclosyn",
-            &bhjet::RadiationZone::get_observed_photon_energy_grid_electron_cyclosyn)
+            &bhjet::RadiationZone::get_observed_photon_energy_grid_electron_cyclosyn, "/ Observed photon energy grid for cyclo-synchrotron emission")
         .def("get_observed_photon_luminosity_electron_cyclosyn",
-            &bhjet::RadiationZone::get_observed_photon_luminosity_electron_cyclosyn)
+            &bhjet::RadiationZone::get_observed_photon_luminosity_electron_cyclosyn, "/ Observed photon luminosity cyclo-synchrotron emission")
         .def("get_observed_photon_flux_electron_cyclosyn",
-            &bhjet::RadiationZone::get_observed_photon_flux_electron_cyclosyn)
+            &bhjet::RadiationZone::get_observed_photon_flux_electron_cyclosyn, "/ Observed photon flux for cyclo-synchrotron emission [ph cm^-2 s^-1]")
         .def("get_observed_photon_energy_grid_electron_compton",
             &bhjet::RadiationZone::get_observed_photon_energy_grid_electron_compton)
         .def("get_observed_photon_luminosity_electron_compton",
@@ -305,11 +315,13 @@ void py_init_module_modbhjet(nb::module_ &m)
         .def_rw("calc_pair_content_from_plasma_beta", &bhjet::BLJet::calc_pair_content_from_plasma_beta, "")
         .def_rw("plasma_beta_jet_base", &bhjet::BLJet::plasma_beta_jet_base, "")
         .def_rw("dlgz", &bhjet::BLJet::dlgz, "")
+        .def_rw("f_particle_dissipation_index", &bhjet::BLJet::f_particle_dissipation_index, "")
+        .def_rw("f_shock_heating_factor", &bhjet::BLJet::f_shock_heating_factor, "")
         .def_rw("eddington_luminosity", &bhjet::BLJet::eddington_luminosity, "internal variables")
         .def_rw("r_g", &bhjet::BLJet::r_g, "internal variables")
         .def_rw("zmin", &bhjet::BLJet::zmin, "internal variables")
-        .def(nb::init<double, double, double, double, double, double, double, double, double, double, double, double, double, double, double, double, double, double, double, double, double, bool, double, double, size_t, int>(),
-            nb::arg("mass_bh") = bhjet::defaults::DEFAULT_MASS_BH, nb::arg("jet_power_eddington") = bhjet::defaults::DEFAULT_JET_POWER_EDDINGTON, nb::arg("z_jet_launching") = bhjet::defaults::DEFAULT_Z_JET_LAUNCHING, nb::arg("r_initial") = bhjet::defaults::DEFAULT_R_INITIAL, nb::arg("z_end_of_acceleration") = bhjet::defaults::DEFAULT_Z_END_OF_ACCELERATION, nb::arg("z_dissipation") = bhjet::defaults::DEFAULT_Z_DISSIPATION, nb::arg("z_max_calculation") = bhjet::defaults::DEFAULT_Z_MAX_CALCULATION, nb::arg("sigma_final") = bhjet::defaults::DEFAULT_SIGMA_FINAL, nb::arg("gamma_final") = bhjet::defaults::DEFAULT_GAMMA_FINAL, nb::arg("electron_temperature_jet_base") = bhjet::defaults::DEFAULT_ELECTRON_TEMPERATURE_JET_BASE, nb::arg("gamma_acceleration_exponent") = bhjet::defaults::DEFAULT_GAMMA_ACCELERATION_EXPONENT, nb::arg("gamma_deceleration_exponent") = bhjet::defaults::DEFAULT_GAMMA_DECELERATION_EXPONENT, nb::arg("opening_angle_constant") = bhjet::defaults::DEFAULT_OPENING_ANGLE_CONSTANT, nb::arg("fraction_nonthermal_electrons") = bhjet::defaults::DEFAULT_FRACTION_NONTHERMAL_ELECTRONS, nb::arg("fraction_nonthermal_protons") = bhjet::defaults::DEFAULT_FRACTION_NONTHERMAL_PROTONS, nb::arg("factor_break_electrons") = bhjet::defaults::DEFAULT_FACTOR_BREAK_ELECTRONS, nb::arg("factor_break_protons") = bhjet::defaults::DEFAULT_FACTOR_BREAK_PROTONS, nb::arg("factor_max_energy_electrons") = bhjet::defaults::DEFAULT_FACTOR_MAX_ENERGY_ELECTRONS, nb::arg("factor_max_energy_protons") = bhjet::defaults::DEFAULT_FACTOR_MAX_ENERGY_PROTONS, nb::arg("index_injected_electrons") = bhjet::defaults::DEFAULT_INDEX_INJECTED_ELECTRONS, nb::arg("index_injected_protons") = bhjet::defaults::DEFAULT_INDEX_INJECTED_PROTONS, nb::arg("calc_pair_content_from_plasma_beta") = bhjet::defaults::DEFAULT_CALC_PAIR_CONTENT_FROM_PLASMA_BETA, nb::arg("plasma_beta_jet_base") = bhjet::defaults::DEFAULT_PLASMA_BETA_JET_BASE, nb::arg("dlgz") = bhjet::defaults::DEFAULT_DLGZ, nb::arg("verbosity_level") = bhjet::defaults::DEFAULT_VERBOSITY_LEVEL, nb::arg("cutoff_type") = bhjet::defaults::DEFAULT_CUTOFF_TYPE,
+        .def(nb::init<double, double, double, double, double, double, double, double, double, double, double, double, double, double, double, double, double, double, double, double, double, bool, double, double, size_t, int, double, double>(),
+            nb::arg("mass_bh") = bhjet::defaults::DEFAULT_MASS_BH, nb::arg("jet_power_eddington") = bhjet::defaults::DEFAULT_JET_POWER_EDDINGTON, nb::arg("z_jet_launching") = bhjet::defaults::DEFAULT_Z_JET_LAUNCHING, nb::arg("r_initial") = bhjet::defaults::DEFAULT_R_INITIAL, nb::arg("z_end_of_acceleration") = bhjet::defaults::DEFAULT_Z_END_OF_ACCELERATION, nb::arg("z_dissipation") = bhjet::defaults::DEFAULT_Z_DISSIPATION, nb::arg("z_max_calculation") = bhjet::defaults::DEFAULT_Z_MAX_CALCULATION, nb::arg("sigma_final") = bhjet::defaults::DEFAULT_SIGMA_FINAL, nb::arg("gamma_final") = bhjet::defaults::DEFAULT_GAMMA_FINAL, nb::arg("electron_temperature_jet_base") = bhjet::defaults::DEFAULT_ELECTRON_TEMPERATURE_JET_BASE, nb::arg("gamma_acceleration_exponent") = bhjet::defaults::DEFAULT_GAMMA_ACCELERATION_EXPONENT, nb::arg("gamma_deceleration_exponent") = bhjet::defaults::DEFAULT_GAMMA_DECELERATION_EXPONENT, nb::arg("opening_angle_constant") = bhjet::defaults::DEFAULT_OPENING_ANGLE_CONSTANT, nb::arg("fraction_nonthermal_electrons") = bhjet::defaults::DEFAULT_FRACTION_NONTHERMAL_ELECTRONS, nb::arg("fraction_nonthermal_protons") = bhjet::defaults::DEFAULT_FRACTION_NONTHERMAL_PROTONS, nb::arg("factor_break_electrons") = bhjet::defaults::DEFAULT_FACTOR_BREAK_ELECTRONS, nb::arg("factor_break_protons") = bhjet::defaults::DEFAULT_FACTOR_BREAK_PROTONS, nb::arg("factor_max_energy_electrons") = bhjet::defaults::DEFAULT_FACTOR_MAX_ENERGY_ELECTRONS, nb::arg("factor_max_energy_protons") = bhjet::defaults::DEFAULT_FACTOR_MAX_ENERGY_PROTONS, nb::arg("index_injected_electrons") = bhjet::defaults::DEFAULT_INDEX_INJECTED_ELECTRONS, nb::arg("index_injected_protons") = bhjet::defaults::DEFAULT_INDEX_INJECTED_PROTONS, nb::arg("calc_pair_content_from_plasma_beta") = bhjet::defaults::DEFAULT_CALC_PAIR_CONTENT_FROM_PLASMA_BETA, nb::arg("plasma_beta_jet_base") = bhjet::defaults::DEFAULT_PLASMA_BETA_JET_BASE, nb::arg("dlgz") = bhjet::defaults::DEFAULT_DLGZ, nb::arg("verbosity_level") = bhjet::defaults::DEFAULT_VERBOSITY_LEVEL, nb::arg("cutoff_type") = bhjet::defaults::DEFAULT_CUTOFF_TYPE, nb::arg("f_particle_dissipation_index") = bhjet::defaults::DEFAULT_F_PARTICLE_DISSPIATION_INDEX, nb::arg("f_shock_heating_factor") = bhjet::defaults::DEFAULT_F_SHOCK_HEATING_FACTOR,
             " ----------------------------\n Constructor with defaults\n ----------------------------")
         .def("calc_velocity_profile_magnetized_jet",
             &bhjet::BLJet::calc_velocity_profile_magnetized_jet)
@@ -363,6 +375,46 @@ void py_init_module_modbhjet(nb::module_ &m)
             &bhjet::IsoJet::compute_jet_dynamics)
         ;
     ////////////////////    </generated_from:IsoJet.hpp>    ////////////////////
+
+
+    ////////////////////    <generated_from:AdiJet.hpp>    ////////////////////
+    auto pyClassAdiJet =
+        nb::class_<bhjet::AdiJet, bhjet::JetDynamics>
+            (m, "AdiJet", "")
+        .def_rw("mass_bh", &bhjet::AdiJet::mass_bh, "")
+        .def_rw("jet_power_eddington", &bhjet::AdiJet::jet_power_eddington, "")
+        .def_rw("z_jet_launching", &bhjet::AdiJet::z_jet_launching, "")
+        .def_rw("r_initial", &bhjet::AdiJet::r_initial, "")
+        .def_rw("z_dissipation", &bhjet::AdiJet::z_dissipation, "")
+        .def_rw("z_max_calculation", &bhjet::AdiJet::z_max_calculation, "")
+        .def_rw("electron_temperature_jet_base", &bhjet::AdiJet::electron_temperature_jet_base, "")
+        .def_rw("plasma_beta_jet_base", &bhjet::AdiJet::plasma_beta_jet_base, "")
+        .def_rw("fraction_nonthermal_electrons", &bhjet::AdiJet::fraction_nonthermal_electrons, "")
+        .def_rw("fraction_nonthermal_protons", &bhjet::AdiJet::fraction_nonthermal_protons, "")
+        .def_rw("factor_break_electrons", &bhjet::AdiJet::factor_break_electrons, "")
+        .def_rw("factor_break_protons", &bhjet::AdiJet::factor_break_protons, "")
+        .def_rw("factor_max_energy_electrons", &bhjet::AdiJet::factor_max_energy_electrons, "")
+        .def_rw("factor_max_energy_protons", &bhjet::AdiJet::factor_max_energy_protons, "")
+        .def_rw("index_injected_electrons", &bhjet::AdiJet::index_injected_electrons, "")
+        .def_rw("index_injected_protons", &bhjet::AdiJet::index_injected_protons, "")
+        .def_rw("cutoff_type", &bhjet::AdiJet::cutoff_type, "")
+        .def_rw("dlgz", &bhjet::AdiJet::dlgz, "")
+        .def_rw("eddington_luminosity", &bhjet::AdiJet::eddington_luminosity, "internal variables")
+        .def_rw("r_g", &bhjet::AdiJet::r_g, "internal variables")
+        .def_rw("zmin", &bhjet::AdiJet::zmin, "internal variables")
+        .def(nb::init<double, double, double, double, double, double, double, double, double, double, double, double, double, double, double, double, double, size_t, int>(),
+            nb::arg("mass_bh") = bhjet::defaults::DEFAULT_MASS_BH, nb::arg("jet_power_eddington") = bhjet::defaults::DEFAULT_JET_POWER_EDDINGTON, nb::arg("z_jet_launching") = bhjet::defaults::DEFAULT_Z_JET_LAUNCHING, nb::arg("r_initial") = bhjet::defaults::DEFAULT_R_INITIAL, nb::arg("z_dissipation") = bhjet::defaults::DEFAULT_Z_DISSIPATION, nb::arg("z_max_calculation") = bhjet::defaults::DEFAULT_Z_MAX_CALCULATION, nb::arg("electron_temperature_jet_base") = bhjet::defaults::DEFAULT_ELECTRON_TEMPERATURE_JET_BASE, nb::arg("plasma_beta_jet_base") = bhjet::defaults::DEFAULT_PLASMA_BETA_JET_BASE, nb::arg("fraction_nonthermal_electrons") = bhjet::defaults::DEFAULT_FRACTION_NONTHERMAL_ELECTRONS, nb::arg("fraction_nonthermal_protons") = bhjet::defaults::DEFAULT_FRACTION_NONTHERMAL_PROTONS, nb::arg("factor_break_electrons") = bhjet::defaults::DEFAULT_FACTOR_BREAK_ELECTRONS, nb::arg("factor_break_protons") = bhjet::defaults::DEFAULT_FACTOR_BREAK_PROTONS, nb::arg("factor_max_energy_electrons") = bhjet::defaults::DEFAULT_FACTOR_MAX_ENERGY_ELECTRONS, nb::arg("factor_max_energy_protons") = bhjet::defaults::DEFAULT_FACTOR_MAX_ENERGY_PROTONS, nb::arg("index_injected_electrons") = bhjet::defaults::DEFAULT_INDEX_INJECTED_ELECTRONS, nb::arg("index_injected_protons") = bhjet::defaults::DEFAULT_INDEX_INJECTED_PROTONS, nb::arg("dlgz") = bhjet::defaults::DEFAULT_DLGZ, nb::arg("verbosity_level") = bhjet::defaults::DEFAULT_VERBOSITY_LEVEL, nb::arg("cutoff_type") = bhjet::defaults::DEFAULT_CUTOFF_TYPE,
+            " ----------------------------\n Constructor with defaults\n ----------------------------")
+        .def("calc_velocity_profile_adi_jet",
+            &bhjet::AdiJet::calc_velocity_profile_adi_jet)
+        .def("calc_nozzle_energetics_equipartition",
+            &bhjet::AdiJet::calc_nozzle_energetics_equipartition)
+        .def("calc_zone_properties",
+            &bhjet::AdiJet::calc_zone_properties, nb::arg("i"))
+        .def("compute_jet_dynamics",
+            &bhjet::AdiJet::compute_jet_dynamics)
+        ;
+    ////////////////////    </generated_from:AdiJet.hpp>    ////////////////////
 
 
     ////////////////////    <generated_from:BHJet.hpp>    ////////////////////

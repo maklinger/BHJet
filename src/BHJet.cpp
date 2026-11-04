@@ -89,7 +89,7 @@ namespace bhjet
         std::vector<int> cutoff_type_grid = jet_dynamics->get_cutoff_type_grid();
         bool compton_switch = true;
         // double compton_threshold = 1e-5;
-        // Each iteration writes only to its own RadiationZone.
+        // each iteration writes only to its own RadiationZone.
 #pragma omp parallel for schedule(dynamic)
         for (std::ptrdiff_t zone = 0; zone < static_cast<std::ptrdiff_t>(jet_dynamics->n_zones); zone++)
         {
@@ -144,7 +144,7 @@ namespace bhjet
 
         for (size_t i = 0; i < jet_dynamics->n_zones; i++)
         {
-            // Keep total emission serial to preserve the accumulation order.
+            // Keep total emission serial to preserve the accumulation order
             add_emission_on_interpolated_grid(
                 radiation_zones[i].get_observed_photon_energy_grid_total(),
                 radiation_zones[i].get_observed_photon_flux_total(),

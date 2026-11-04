@@ -37,6 +37,8 @@ namespace bhjet {
         static constexpr bool DEFAULT_CALC_PAIR_CONTENT_FROM_PLASMA_BETA = false;
         static constexpr double DEFAULT_PLASMA_BETA_JET_BASE = 1;
         static constexpr double DEFAULT_DLGZ = 0.1;
+        static constexpr double DEFAULT_F_PARTICLE_DISSPIATION_INDEX = 0; 
+        static constexpr double DEFAULT_F_SHOCK_HEATING_FACTOR = 1; 
 
 
         // Radiation zone
