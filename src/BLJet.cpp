@@ -262,7 +262,7 @@ namespace bhjet
         // Todo: fill here proton density and temperature arrays or put them separately entierly 
         
         proton_density_grid[i] = electron_density_grid[i]; // fix this
-        electron_temperature_grid[i] = electron_temperature_jet_base;
+        electron_temperature_grid[i] = electron_temperature_jet_base; // maybe fix this weirdness at some point
         proton_temperature_grid[i] = electron_temperature_jet_base;
 
         // magnetic field calculation:

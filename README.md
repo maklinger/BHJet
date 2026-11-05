@@ -1,54 +1,93 @@
 
-## Link to the online notebook: 
-
-[![Launch Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/rubyduncan/modBHJet/bhjet_tutorial?urlpath=lab/tree/tutorials/welcome.ipynb)
-
-The public tutorial includes an overview of what BHJet calculates with an interactive
-notebook to change parameters, and a BHJet-only exercise that compares one-zone and multi-zone models with included datapoints. Binder sessions are temporary and public, anything that you produce and want to save needs to be downloaded.
+## To-do's
+- [X] cut-off in kariba + here (Ruby?) 
+- [X] single zone particle cutoff shape test/proof 
+- [X] shock: temperature jump (Ruby?)
+- [X] f_pl scaling (Ruby?)
+- [ ] photon time scale example plot (e.g. particle cooling plot) with sa break
+- [X] move DEFAULTs all to one file (default_values.hpp)
+- [ ] disk + AGN target fields (Ruby?)
+- [X] adding agnjet jet dynamics (Ruby?)
+- [ ] double check Compton switch (Marc/Ruby?)
+- [ ] hadronic interactions (Ruby/Dimitris)
+- [ ] integrate MLjet (Dimitris?)
+- [X] switch to nanobind + litgen (= remove the pybind file)
 
 ## Installation
 
-If you'd like to install the code locally on your computer instead of using Binder: BHJet has a compiled C++ extension and uses the Kariba radiation library (this is a separate code that works in tandem with BHJet and holds the radiation defintions). 
+BHJet builds a C++ extension and requires the Kariba radiation library. Run the
+following commands in a terminal. If you already have kariba, start from
+its root directory and skip the first two commands.
+
 ### 1. Clone BHJet and Kariba
 
-The default build expects Kariba next to the BHJet directory. The commands below
-reproduce the current Binder tutorial locally (from the branch bhjet_tutorial), including this environment file and the tutorial notebooks.
+The default build expects another (!!) directory named `kariba`:
 
-```bash
-git clone --branch bhjet_tutorial https://github.com/rubyduncan/modBHJet.git
+```shell
+git clone --branch main https://github.com/rubyduncan/modBHJet.git
 cd modBHJet
 git clone https://github.com/rubyduncan/kariba.git ../kariba
 git -C ../kariba checkout 6ca6968adf8568e99b2010212fd1419a79d94d35
 ```
 
-The final command pins Kariba to the version used by the Binder tutorial, so
-the local and public environments use the same radiation backend.
-
-### 2. Create the environment
-
-We have provided a file that can be used to install the required package dependencies: [`environment.yml`](environment.yml). Using conda or micromamba, create the environment: 
-
-```bash
-conda env create -f environment.yml
-conda activate bhjet
+```shell
+CMAKE_ARGS="-Dkariba_SOURCE_DIR=/absolute/path/to/kariba" python -m pip install --no-build-isolation -v .
 ```
 
-### 3. Build and verify BHJet
+### 2. Create and activate the environment
 
-```bash
+The root [`environment.yml`](environment.yml) includes the compiler toolchain,
+CMake, GSL, OpenMP, Nanobind, and the Python dependencies:
+
+```shell
+micromamba env create -f environment.yml
+micromamba activate modbhjet_env
+```
+
+If the environment already exists and the YAML has changed, update it with
+`micromamba env update -n modbhjet_env -f environment.yml` (or use
+`conda env update` with the same arguments).
+
+### 3. Compile and install
+
+With the environment active, run this from the BHJet repository root:
+
+```shell
 python -m pip install --no-build-isolation -v .
-python tutorials/smoke_test.py
+python -c "import bhjet; from bhjet import BHJet, BLJet; print(bhjet.__file__)"
 ```
 
-This test imports the compiled extension, loads example data,
-and calculates a small spectrum. Start JupyterLab with:
+The installation compiles the C++ extension and installs the Python package into
+the active environment. `--no-build-isolation` uses the build dependencies
+already installed from the YAML.
 
-```bash
-jupyter lab
+### 4. Recompile after changes
+
+After editing BHJet or Kariba, rerun the installation from the BHJet repository
+root in the same active environment:
+
+```shell
+python -m pip install --no-build-isolation --force-reinstall --no-deps -v .
 ```
 
-### If you have Kariba in a different directory
+This rebuilds and reinstalls the package without reinstalling its dependencies.
+Restart any Python process or Jupyter kernel that has already imported BHJet so
+it loads the rebuilt extension. If you change the public C++ interface, also
+regenerate the Python bindings using `litgen_bindings/generate_bindings.py`
+before rebuilding; this requires the optional `litgen` package.
 
-If you already have Kariba elsewhere, keep it there and modify the kariba_SOURCE_DIR path in the [CMake file](CMakeLists.txt) so that it can be found when installing BHJet:
+### OpenMP threads
 
-To rebuild after changing C++ or Python code, repeat the installation command.
+OpenMP support is required at build time and is included through `llvm-openmp`
+in the YAML environment. Zone calculations run in parallel automatically;
+existing Python model scripts need no changes. To select a thread count, set
+`OMP_NUM_THREADS` before starting Python or Jupyter:
+
+```shell
+OMP_NUM_THREADS=4 python my_model.py
+OMP_NUM_THREADS=4 jupyter lab
+```
+
+Use `OMP_NUM_THREADS=1` for a single thread. If it is unset, the OpenMP runtime
+chooses the thread count. When using multiprocessing, choose the threads per
+process to fit the available CPU cores.
