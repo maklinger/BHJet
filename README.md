@@ -16,8 +16,7 @@
 ## Installation
 
 BHJet builds a C++ extension and requires the Kariba radiation library. Run the
-following commands in a terminal. If you already have kariba, start from
-its root directory and skip the first two commands.
+following commands in a terminal. If you already have kariba, skip that part.
 
 ### 1. Clone BHJet and Kariba
 
@@ -36,8 +35,7 @@ CMAKE_ARGS="-Dkariba_SOURCE_DIR=/absolute/path/to/kariba" python -m pip install 
 
 ### 2. Create and activate the environment
 
-The root [`environment.yml`](environment.yml) includes the compiler toolchain,
-CMake, GSL, OpenMP, Nanobind, and the Python dependencies:
+File for the environment setup is provided: [`environment.yml`](environment.yml)
 
 ```shell
 micromamba env create -f environment.yml
@@ -45,49 +43,36 @@ micromamba activate modbhjet_env
 ```
 
 If the environment already exists and the YAML has changed, update it with
-`micromamba env update -n modbhjet_env -f environment.yml` (or use
-`conda env update` with the same arguments).
+`micromamba env update -n modbhjet_env -f environment.yml` 
 
 ### 3. Compile and install
 
-With the environment active, run this from the BHJet repository root:
+With the environment active, run this from the BHJet repository:
 
 ```shell
 python -m pip install --no-build-isolation -v .
-python -c "import bhjet; from bhjet import BHJet, BLJet; print(bhjet.__file__)"
 ```
 
-The installation compiles the C++ extension and installs the Python package into
-the active environment. `--no-build-isolation` uses the build dependencies
-already installed from the YAML.
+The installation command will compile the C++ extension and install the Python package. `--no-build-isolation` uses the build dependencies already installed from the YAML.
 
 ### 4. Recompile after changes
 
-After editing BHJet or Kariba, rerun the installation from the BHJet repository
-root in the same active environment:
+If you need to make edits for BHJet or Kariba (or are here because you forgot how to run your own code), rerun the installation from the BHJet repository root in the same active environment:
 
 ```shell
 python -m pip install --no-build-isolation --force-reinstall --no-deps -v .
 ```
+If you change any of the cpp you also need to regenerate the bindings with: `litgen_bindings/generate_bindings.py`
 
-This rebuilds and reinstalls the package without reinstalling its dependencies.
-Restart any Python process or Jupyter kernel that has already imported BHJet so
-it loads the rebuilt extension. If you change the public C++ interface, also
-regenerate the Python bindings using `litgen_bindings/generate_bindings.py`
-before rebuilding; this requires the optional `litgen` package.
 
-### OpenMP threads
+
+### OpenMP threads (!!)
 
 OpenMP support is required at build time and is included through `llvm-openmp`
-in the YAML environment. Zone calculations run in parallel automatically;
-existing Python model scripts need no changes. To select a thread count, set
+in the yaml. Zone calculations run in parallel; existing Python model scripts need no changes. To select a thread count, set
 `OMP_NUM_THREADS` before starting Python or Jupyter:
 
 ```shell
-OMP_NUM_THREADS=4 python my_model.py
 OMP_NUM_THREADS=4 jupyter lab
 ```
 
-Use `OMP_NUM_THREADS=1` for a single thread. If it is unset, the OpenMP runtime
-chooses the thread count. When using multiprocessing, choose the threads per
-process to fit the available CPU cores.
